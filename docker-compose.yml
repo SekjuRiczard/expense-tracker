@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: expense_db
+    environment:
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+    ports:
+      - "${DB_PORT}:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      timeout: 5s
+      retries: 5
+
+  api:
+    build: ./api
+    container_name: expense_api
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./api:/app
+    ports:
+      - "${API_PORT}:8000"
+    environment:
+      DATABASE_URL: "mysql://${DB_USER}:${DB_ROOT_PASSWORD}@db:3306/${DB_NAME}?serverVersion=8.0"
+
+  frontend:
+    image: node:20-alpine
+    container_name: expense_front
+    volumes:
+      - ./frontend:/app
+    ports:
+      - "${FRONT_PORT}:3000"
+    working_dir: /app
+    command: sh -c "npm install && npm run dev -- --host"
