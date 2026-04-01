@@ -1172,6 +1172,7 @@
                     "dev-master": "2.x-dev"
                 }
             },
+            "type": "library",
             "autoload": {
                 "psr-4": {
                     "Gesdinet\\JWTRefreshTokenBundle\\": "src/"
@@ -1179,7 +1180,7 @@
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
-                "MIT"
+                "BSD-3-Clause"
             ],
             "authors": [
                 {
@@ -1232,7 +1233,11 @@
             "suggest": {
                 "lcobucci/clock": ">= 3.2"
             },
-            "type": "library",
+            "suggest": {
+                "gesdinet/jwt-refresh-token-bundle": "Implements a refresh token system over Json Web Tokens in Symfony",
+                "spomky-labs/lexik-jose-bridge": "Provides a JWT Token encoder with encryption support"
+            },
+            "type": "symfony-bundle",
             "autoload": {
                 "psr-4": {
                     "Lcobucci\\JWT\\": "src"
