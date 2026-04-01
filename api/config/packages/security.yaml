@@ -23,6 +23,12 @@ security:
                 success_handler: lexik_jwt_authentication.handler.authentication_success
                 failure_handler: lexik_jwt_authentication.handler.authentication_failure
 
+        api_token_refresh:
+            pattern: ^/api/token/refresh
+            stateless: true
+            refresh_jwt:
+                check_path: /api/token/refresh
+
         # 2. Główny firewall dla reszty API (sprawdza token)
         api:
             pattern: ^/api
@@ -32,6 +38,7 @@ security:
     access_control:
         - { path: ^/api/register, roles: PUBLIC_ACCESS }
         - { path: ^/api/login,    roles: PUBLIC_ACCESS }
+        - { path: ^/api/token/refresh, roles: PUBLIC_ACCESS }
         - { path: ^/api,          roles: IS_AUTHENTICATED_FULLY }
 when@test:
     security:
