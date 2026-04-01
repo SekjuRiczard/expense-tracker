@@ -4,6 +4,7 @@
 .vscode/
 .DS_Store
 Thumbs.db
+./api/phpstan.dist.neon
 *.swp
 /api/vendor/
 /api/var/

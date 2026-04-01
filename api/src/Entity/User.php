@@ -1,13 +1,21 @@
 <?php
 
+/*
+ * This file is part of the Expense Tracker.
+ *
+ * (c) SekjuRiczard <dawidosak32@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 declare(strict_types=1);
 
 namespace App\Entity;
 
 use App\Enum\UserRole;
-use App\Repository\UserRepository;
+use App\Repository\User\UserRepository;
 use DateTimeImmutable;
-use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Types\UuidType;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -28,57 +36,42 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 180, unique: true)]
     #[Assert\NotBlank]
     #[Assert\Email]
-    private ?string $email = null;
-
-    #[ORM\Column]
-    private array $roles = [];
-
-    #[ORM\Column]
-    private ?string $password = null;
+    private string $email;
 
     #[ORM\Column(length: 100)]
     #[Assert\NotBlank]
-    private ?string $firstName = null;
+    private string $username;
 
-    #[ORM\Column(length: 100)]
+    #[ORM\Column]
     #[Assert\NotBlank]
-    private ?string $lastName = null;
+    private string $password;
 
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $avatarUrl = null;
-
-    #[ORM\Column(length: 255, nullable: true)]
+    #[ORM\Column(length: 6, nullable: true)]
     private ?string $pin = null;
+
+    #[ORM\Column]
+    private array $roles;
 
     #[ORM\Column]
     private DateTimeImmutable $createdAt;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $avatarUrl = null;
+
+    #[ORM\Column]
+    private bool $isActive;
+
     #[ORM\Column(nullable: true)]
     private ?DateTimeImmutable $lastLoginAt = null;
 
-    #[ORM\Column(length: 3)]
-    private string $defaultCurrency = 'PLN';
-
-    #[ORM\Column(length: 5)]
-    private string $language = 'pl';
-
-    #[ORM\Column(length: 50)]
-    private string $timezone = 'Europe/Warsaw';
-
-    #[ORM\Column(type: Types::JSON)]
-    private array $notificationSettings = [];
-
-    #[ORM\Column]
-    private bool $isActive = true;
-
-    public function __construct()
+    public function __construct(string $email, string $username, string $password)
     {
+        $this->email = $email;
+        $this->username = $username;
+        $this->password = $password;
+        $this->roles = ['ROLE_USER'];
         $this->createdAt = new DateTimeImmutable();
-        $this->notificationSettings = [
-            'email' => true,
-            'push' => true,
-            'sms' => false,
-        ];
+        $this->isActive = true;
     }
 
     public function eraseCredentials(): void
@@ -87,7 +80,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getUserIdentifier(): string
     {
-        return (string) $this->email;
+        return $this->email;
     }
 
     public function getId(): ?Uuid
@@ -95,29 +88,26 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->id;
     }
 
-    public function getEmail(): ?string
+    public function getEmail(): string
     {
         return $this->email;
     }
 
     public function getRoles(): array
     {
-        return array_unique([...$this->roles, UserRole::USER->value]);
-    }
+        $roles = $this->roles;
+        $roles[] = 'ROLE_USER';
 
-    public function getPassword(): ?string
+        return array_unique($roles);
+    }
+    public function getPassword(): string
     {
         return $this->password;
     }
 
-    public function getFirstName(): ?string
+    public function getUsername(): string
     {
-        return $this->firstName;
-    }
-
-    public function getLastName(): ?string
-    {
-        return $this->lastName;
+        return $this->username;
     }
 
     public function getAvatarUrl(): ?string
@@ -140,32 +130,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->lastLoginAt;
     }
 
-    public function getDefaultCurrency(): string
-    {
-        return $this->defaultCurrency;
-    }
-
-    public function getLanguage(): string
-    {
-        return $this->language;
-    }
-
-    public function getTimezone(): string
-    {
-        return $this->timezone;
-    }
-
-    public function getNotificationSettings(): array
-    {
-        return $this->notificationSettings;
-    }
-
     public function isActive(): bool
     {
         return $this->isActive;
     }
 
-    public function setEmail(?string $email): void
+    public function setEmail(string $email): void
     {
         $this->email = $email;
     }
@@ -175,19 +145,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->roles = array_values(array_unique([...$this->roles, $role->value]));
     }
 
-    public function setPassword(?string $password): void
+    public function setPassword(string $password): void
     {
         $this->password = $password;
-    }
-
-    public function setFirstName(?string $firstName): void
-    {
-        $this->firstName = $firstName;
-    }
-
-    public function setLastName(?string $lastName): void
-    {
-        $this->lastName = $lastName;
     }
 
     public function setAvatarUrl(?string $avatarUrl): void
@@ -205,24 +165,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->lastLoginAt = $lastLoginAt;
     }
 
-    public function setDefaultCurrency(string $defaultCurrency): void
+    public function setUsername(string $username): void
     {
-        $this->defaultCurrency = $defaultCurrency;
-    }
-
-    public function setLanguage(string $language): void
-    {
-        $this->language = $language;
-    }
-
-    public function setTimezone(string $timezone): void
-    {
-        $this->timezone = $timezone;
-    }
-
-    public function setNotificationSettings(array $notificationSettings): void
-    {
-        $this->notificationSettings = $notificationSettings;
+        $this->username = $username;
     }
 
     public function setIsActive(bool $isActive): void
