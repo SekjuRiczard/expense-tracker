@@ -12,8 +12,6 @@ security:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
-
-        # 1. Punkt wejścia do logowania (wydaje token)
         login:
             pattern: ^/api/login
             stateless: true
@@ -22,14 +20,13 @@ security:
                 check_path: /api/login_check
                 success_handler: lexik_jwt_authentication.handler.authentication_success
                 failure_handler: lexik_jwt_authentication.handler.authentication_failure
-
-        # 2. Główny firewall dla reszty API (sprawdza token)
         api:
             pattern: ^/api
             stateless: true
             jwt: ~
 
     access_control:
+        - { path: ^/api/token/refresh, roles: PUBLIC_ACCESS }
         - { path: ^/api/register, roles: PUBLIC_ACCESS }
         - { path: ^/api/login,    roles: PUBLIC_ACCESS }
         - { path: ^/api,          roles: IS_AUTHENTICATED_FULLY }
