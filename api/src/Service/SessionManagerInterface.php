@@ -1,6 +1,5 @@
 <?php
 
-
 /*
  * This file is part of the Expense Tracker.
  *
@@ -16,10 +15,26 @@ namespace App\Service;
 
 use App\Entity\Session;
 use App\Entity\User;
+use App\Enum\SessionStatus;
 
-interface SessionManagerInterface {
+interface SessionManagerInterface
+{
+    public function createSession(
+        User $user,
+        SessionStatus $status,
+        ?string $ipAddress,
+        ?string $userAgent,
+    ): Session;
 
-    public function createSession(User $user, string $tokenHash, ?string $ipAddress, ?string $userAgent): Session;
+    public function assignTokenToSession(Session $session, string $token): void;
+
+    public function findSessionByToken(string $token): ?Session;
+
+    public function markSessionAsAuthenticated(Session $session, string $token): void;
+
+    public function revokeSession(Session $session): void;
+
     public function deleteSession(string $tokenHash): void;
+
     public function cleanupExpiredSessions(): void;
 }

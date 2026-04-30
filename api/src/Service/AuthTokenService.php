@@ -1,0 +1,91 @@
+<?php
+
+/*
+ * This file is part of the Expense Tracker.
+ *
+ * (c) SekjuRiczard <dawidosak32@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+declare(strict_types=1);
+
+namespace App\Service;
+
+use App\Dto\AuthTokenResponse;
+use App\Entity\Session;
+use App\Entity\User;
+use App\Enum\AuthStage;
+use App\Enum\SessionStatus;
+use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
+use Symfony\Component\HttpFoundation\Request;
+
+final class AuthTokenService
+{
+    public function __construct(
+        private readonly JWTTokenManagerInterface $jwtTokenManager,
+        private readonly SessionManagerInterface $sessionManager,
+    ) {
+    }
+
+    public function createPartialToken(
+        User $user,
+        SessionStatus $status,
+        Request $request,
+    ): AuthTokenResponse {
+        $session = $this->sessionManager->createSession(
+            user: $user,
+            status: $status,
+            ipAddress: $request->getClientIp(),
+            userAgent: $request->headers->get('User-Agent'),
+        );
+
+        $authStage = AuthStage::fromSessionStatus($status);
+
+        $token = $this->createToken(
+            user: $user,
+            session: $session,
+            authStage: $authStage,
+        );
+
+        $this->sessionManager->assignTokenToSession($session, $token);
+
+        return new AuthTokenResponse(
+            token: $token,
+            authStage: $authStage,
+            session: $session,
+        );
+    }
+
+    public function createAuthenticatedToken(
+        User $user,
+        Session $session,
+    ): AuthTokenResponse {
+        $token = $this->createToken(
+            user: $user,
+            session: $session,
+            authStage: AuthStage::AUTHENTICATED,
+        );
+
+        $this->sessionManager->markSessionAsAuthenticated($session, $token);
+
+        return new AuthTokenResponse(
+            token: $token,
+            authStage: AuthStage::AUTHENTICATED,
+            session: $session,
+        );
+    }
+
+    private function createToken(
+        User $user,
+        Session $session,
+        AuthStage $authStage,
+    ): string {
+        return $this->jwtTokenManager->createFromPayload($user, [
+            'session_id' => $session->getIdAsString(),
+            'auth_stage' => $authStage->value,
+            'has_pin' => $user->getPin() !== null,
+        ]);
+    }
+}

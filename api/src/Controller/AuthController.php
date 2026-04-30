@@ -13,28 +13,96 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Dto\LoginRequest;
 use App\Dto\UserRegistrationRequest;
+use App\Enum\SessionStatus;
+use App\Exception\InvalidLoginCredentialsException;
+use App\Exception\UserAlreadyExistsException;
 use App\Service\AuthService;
+use App\Service\AuthTokenService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/api', name: 'api_')]
-class AuthController extends AbstractController
+final class AuthController extends AbstractController
 {
     #[Route('/register', name: 'register', methods: ['POST'])]
     public function register(
         #[MapRequestPayload] UserRegistrationRequest $dto,
-        AuthService $authService
+        Request $request,
+        AuthService $authService,
+        AuthTokenService $authTokenService,
     ): JsonResponse {
-        $authService->register($dto);
+        try {
+            $user = $authService->register($dto);
+        } catch (UserAlreadyExistsException $exception) {
+            return $this->json([
+                'status' => 'error',
+                'message' => $exception->getMessage(),
+            ], Response::HTTP_CONFLICT);
+        }
+
+        $tokenResponse = $authTokenService->createPartialToken(
+            user: $user,
+            status: SessionStatus::PIN_SETUP_REQUIRED,
+            request: $request,
+        );
 
         return $this->json([
-            'status' => 'success',
-            'message' => 'User created',
-        ], 201);
+            ...$tokenResponse->toArray(),
+            'message' => 'User created. PIN setup required.',
+            'user' => [
+                'id' => (string) $user->getId(),
+                'email' => $user->getEmail(),
+                'username' => $user->getUsername(),
+                'hasPin' => $user->getPin() !== null,
+            ],
+        ], Response::HTTP_CREATED);
+    }
+
+    #[Route('/login', name: 'login', methods: ['POST'])]
+    public function login(
+        #[MapRequestPayload] LoginRequest $dto,
+        Request $request,
+        AuthService $authService,
+        AuthTokenService $authTokenService,
+    ): JsonResponse {
+        try {
+            $user = $authService->login($dto);
+        } catch (InvalidLoginCredentialsException $exception) {
+            return $this->json([
+                'status' => 'error',
+                'message' => $exception->getMessage(),
+            ], Response::HTTP_UNAUTHORIZED);
+        }
+
+        $sessionStatus = $user->getPin() === null
+            ? SessionStatus::PIN_SETUP_REQUIRED
+            : SessionStatus::PIN_VERIFICATION_REQUIRED;
+
+        $tokenResponse = $authTokenService->createPartialToken(
+            user: $user,
+            status: $sessionStatus,
+            request: $request,
+        );
+
+        $message = $sessionStatus === SessionStatus::PIN_SETUP_REQUIRED
+            ? 'Password verified. PIN setup required.'
+            : 'Password verified. PIN verification required.';
+
+        return $this->json([
+            ...$tokenResponse->toArray(),
+            'message' => $message,
+            'user' => [
+                'id' => (string) $user->getId(),
+                'email' => $user->getEmail(),
+                'username' => $user->getUsername(),
+                'hasPin' => $user->getPin() !== null,
+            ],
+        ], Response::HTTP_OK);
     }
 }

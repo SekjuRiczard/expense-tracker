@@ -13,12 +13,12 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-
+use App\Enum\SessionStatus;
 use App\Repository\Session\SessionRepository;
+use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Types\UuidType;
 use Symfony\Component\Uid\Uuid;
-use DateTimeImmutable;
 
 #[ORM\Entity(repositoryClass: SessionRepository::class)]
 #[ORM\Table(name: '`session`')]
@@ -37,6 +37,9 @@ class Session
     #[ORM\Column(length: 255, unique: true)]
     private string $tokenHash;
 
+    #[ORM\Column(length: 50)]
+    private string $status;
+
     #[ORM\Column(length: 45, nullable: true)]
     private ?string $ipAddress = null;
 
@@ -49,16 +52,24 @@ class Session
     #[ORM\Column]
     private DateTimeImmutable $expiresAt;
 
+    #[ORM\Column(nullable: true)]
+    private ?DateTimeImmutable $authenticatedAt = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?DateTimeImmutable $revokedAt = null;
+
     public function __construct(
         User $user,
         string $tokenHash,
         DateTimeImmutable $expiresAt,
+        SessionStatus $status,
         ?string $ipAddress = null,
-        ?string $userAgent = null
+        ?string $userAgent = null,
     ) {
         $this->user = $user;
         $this->tokenHash = $tokenHash;
         $this->expiresAt = $expiresAt;
+        $this->status = $status->value;
         $this->ipAddress = $ipAddress;
         $this->userAgent = $userAgent;
         $this->createdAt = new DateTimeImmutable();
@@ -69,6 +80,11 @@ class Session
         return $this->id;
     }
 
+    public function getIdAsString(): string
+    {
+        return (string) $this->id;
+    }
+
     public function getUser(): User
     {
         return $this->user;
@@ -77,6 +93,21 @@ class Session
     public function getTokenHash(): string
     {
         return $this->tokenHash;
+    }
+
+    public function setTokenHash(string $tokenHash): void
+    {
+        $this->tokenHash = $tokenHash;
+    }
+
+    public function getStatus(): SessionStatus
+    {
+        return SessionStatus::from($this->status);
+    }
+
+    public function setStatus(SessionStatus $status): void
+    {
+        $this->status = $status->value;
     }
 
     public function getIpAddress(): ?string
@@ -99,10 +130,61 @@ class Session
         return $this->expiresAt;
     }
 
-    public function setExpiresAt(DateTimeImmutable $expiresAt): self
+    public function setExpiresAt(DateTimeImmutable $expiresAt): void
     {
         $this->expiresAt = $expiresAt;
+    }
 
-        return $this;
+    public function getAuthenticatedAt(): ?DateTimeImmutable
+    {
+        return $this->authenticatedAt;
+    }
+
+    public function getRevokedAt(): ?DateTimeImmutable
+    {
+        return $this->revokedAt;
+    }
+
+    public function markAsAuthenticated(): void
+    {
+        $this->status = SessionStatus::AUTHENTICATED->value;
+        $this->authenticatedAt = new DateTimeImmutable();
+        $this->revokedAt = null;
+    }
+
+    public function revoke(): void
+    {
+        $this->status = SessionStatus::REVOKED->value;
+        $this->revokedAt = new DateTimeImmutable();
+    }
+
+    public function markAsExpired(): void
+    {
+        $this->status = SessionStatus::EXPIRED->value;
+    }
+
+    public function isExpired(): bool
+    {
+        return $this->expiresAt <= new DateTimeImmutable();
+    }
+
+    public function isRevoked(): bool
+    {
+        return $this->getStatus() === SessionStatus::REVOKED;
+    }
+
+    public function isAuthenticated(): bool
+    {
+        return $this->getStatus() === SessionStatus::AUTHENTICATED;
+    }
+
+    public function requiresPinSetup(): bool
+    {
+        return $this->getStatus() === SessionStatus::PIN_SETUP_REQUIRED;
+    }
+
+    public function requiresPinVerification(): bool
+    {
+        return $this->getStatus() === SessionStatus::PIN_VERIFICATION_REQUIRED;
     }
 }
