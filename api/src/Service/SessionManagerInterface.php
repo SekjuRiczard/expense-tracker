@@ -37,4 +37,10 @@ interface SessionManagerInterface
     public function deleteSession(string $tokenHash): void;
 
     public function cleanupExpiredSessions(): void;
+
+    public function assignRefreshTokenToSession(Session $session, string $refreshToken): void;
+
+    public function findSessionByRefreshToken(string $refreshToken): ?Session;
+
+    public function rotateTokens(Session $session, string $accessToken, string $refreshToken): void;
 }

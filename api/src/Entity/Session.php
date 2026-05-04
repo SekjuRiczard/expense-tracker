@@ -16,6 +16,7 @@ namespace App\Entity;
 use App\Enum\SessionStatus;
 use App\Repository\Session\SessionRepository;
 use DateTimeImmutable;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Types\UuidType;
 use Symfony\Component\Uid\Uuid;
@@ -52,11 +53,17 @@ class Session
     #[ORM\Column]
     private DateTimeImmutable $expiresAt;
 
-    #[ORM\Column(nullable: true)]
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
     private ?DateTimeImmutable $authenticatedAt = null;
 
-    #[ORM\Column(nullable: true)]
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
     private ?DateTimeImmutable $revokedAt = null;
+
+    #[ORM\Column(length: 255, unique: true, nullable: true)]
+    private ?string $refreshTokenHash = null;
+
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    private ?DateTimeImmutable $refreshTokenExpiresAt = null;
 
     public function __construct(
         User $user,
@@ -156,6 +163,7 @@ class Session
     {
         $this->status = SessionStatus::REVOKED->value;
         $this->revokedAt = new DateTimeImmutable();
+        $this->clearRefreshToken();
     }
 
     public function markAsExpired(): void
@@ -186,5 +194,37 @@ class Session
     public function requiresPinVerification(): bool
     {
         return $this->getStatus() === SessionStatus::PIN_VERIFICATION_REQUIRED;
+    }
+
+    public function getRefreshTokenHash(): ?string
+    {
+        return $this->refreshTokenHash;
+    }
+
+    public function setRefreshTokenHash(?string $refreshTokenHash): void
+    {
+        $this->refreshTokenHash = $refreshTokenHash;
+    }
+
+    public function getRefreshTokenExpiresAt(): ?DateTimeImmutable
+    {
+        return $this->refreshTokenExpiresAt;
+    }
+
+    public function setRefreshTokenExpiresAt(?DateTimeImmutable $refreshTokenExpiresAt): void
+    {
+        $this->refreshTokenExpiresAt = $refreshTokenExpiresAt;
+    }
+
+    public function hasExpiredRefreshToken(): bool
+    {
+        return $this->refreshTokenExpiresAt === null
+            || $this->refreshTokenExpiresAt <= new DateTimeImmutable();
+    }
+
+    public function clearRefreshToken(): void
+    {
+        $this->refreshTokenHash = null;
+        $this->refreshTokenExpiresAt = null;
     }
 }

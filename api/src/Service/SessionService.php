@@ -129,4 +129,50 @@ class SessionService implements SessionManagerInterface
             throw new RuntimeException('Could not generate temporary session token hash.', 0, $exception);
         }
     }
+
+    public function assignRefreshTokenToSession(Session $session, string $refreshToken): void
+    {
+        $session->setRefreshTokenHash($this->hashToken($refreshToken));
+        $session->setRefreshTokenExpiresAt((new DateTimeImmutable())->modify('+30 days'));
+
+        $this->entityManager->flush();
+    }
+
+    public function findSessionByRefreshToken(string $refreshToken): ?Session
+    {
+        /** @var ?Session $session */
+        $session = $this->sessionRepository->findOneBy([
+            'refreshTokenHash' => $this->hashToken($refreshToken),
+        ]);
+
+        if (!$session instanceof Session) {
+            return null;
+        }
+
+        if ($session->isRevoked()) {
+            return null;
+        }
+
+        if ($session->hasExpiredRefreshToken()) {
+            $session->revoke();
+            $this->entityManager->flush();
+
+            return null;
+        }
+
+        if (!$session->isAuthenticated()) {
+            return null;
+        }
+
+        return $session;
+    }
+
+    public function rotateTokens(Session $session, string $accessToken, string $refreshToken): void
+    {
+        $session->setTokenHash($this->hashToken($accessToken));
+        $session->setRefreshTokenHash($this->hashToken($refreshToken));
+        $session->setRefreshTokenExpiresAt((new DateTimeImmutable())->modify('+30 days'));
+
+        $this->entityManager->flush();
+    }
 }

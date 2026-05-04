@@ -55,7 +55,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private array $roles;
 
-    #[ORM\Column]
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     private DateTimeImmutable $createdAt;
 
     #[ORM\Column(length: 255, nullable: true)]
@@ -64,12 +64,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private bool $isActive;
 
-    #[ORM\Column(nullable: true)]
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
     private ?DateTimeImmutable $lastLoginAt = null;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
-    private ?DateTimeInterface $pinLockedUntil = null;
-
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    private ?DateTimeImmutable $pinLockedUntil = null;
 
     public function __construct(string $email, string $username, string $password)
     {

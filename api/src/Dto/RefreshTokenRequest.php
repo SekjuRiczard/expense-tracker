@@ -11,13 +11,15 @@
 
 declare(strict_types=1);
 
-namespace App\Entity;
+namespace App\Dto;
 
-use Doctrine\ORM\Mapping as ORM;
-use Gesdinet\JWTRefreshTokenBundle\Entity\RefreshToken as BaseRefreshToken;
+use Symfony\Component\Validator\Constraints as Assert;
 
-#[ORM\Entity]
-#[ORM\Table(name: 'refresh_tokens')]
-class RefreshToken extends BaseRefreshToken
+final readonly class RefreshTokenRequest
 {
+    public function __construct(
+        #[Assert\NotBlank]
+        public ?string $refreshToken = null,
+    ) {
+    }
 }

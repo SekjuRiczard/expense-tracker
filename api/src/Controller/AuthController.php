@@ -26,6 +26,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
+use App\Exception\TooManyLoginAttemptsException;
+use App\Service\LoginRateLimiter;
 
 #[Route('/api', name: 'api_')]
 final class AuthController extends AbstractController
@@ -70,7 +72,17 @@ final class AuthController extends AbstractController
         Request $request,
         AuthService $authService,
         AuthTokenService $authTokenService,
+        LoginRateLimiter $loginRateLimiter,
     ): JsonResponse {
+        try {
+            $loginRateLimiter->consume($request, $dto->email);
+        } catch (TooManyLoginAttemptsException $exception) {
+            return $this->json([
+                'status' => 'error',
+                'message' => $exception->getMessage(),
+            ], Response::HTTP_TOO_MANY_REQUESTS);
+        }
+
         try {
             $user = $authService->login($dto);
         } catch (InvalidLoginCredentialsException $exception) {

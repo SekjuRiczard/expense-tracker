@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of the Expense Tracker.
+ *
+ * (c) SekjuRiczard <dawidosak32@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 declare(strict_types=1);
 
 namespace App\Controller;
@@ -11,6 +20,7 @@ use App\Entity\User;
 use App\Enum\SessionStatus;
 use App\Service\AuthTokenService;
 use App\Service\BearerTokenExtractor;
+use App\Service\CurrentSessionResolver;
 use App\Service\PinService;
 use App\Service\SessionManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -27,9 +37,8 @@ final class PinController extends AbstractController
 {
     public function __construct(
         private readonly PinService $pinService,
-        private readonly SessionManagerInterface $sessionManager,
         private readonly AuthTokenService $authTokenService,
-        private readonly BearerTokenExtractor $bearerTokenExtractor,
+        private readonly CurrentSessionResolver $currentSessionResolver,
     ) {
     }
 
@@ -45,13 +54,9 @@ final class PinController extends AbstractController
                 'message' => 'Unauthorized.',
             ], Response::HTTP_UNAUTHORIZED);
         }
-
-        $session = $this->getCurrentSession($request);
-        $this->ensureSessionBelongsToUser($session, $user);
+        $session = $this->currentSessionResolver->resolve($request, $user);
         $this->ensureSessionStatus($session, SessionStatus::PIN_SETUP_REQUIRED);
-
         $this->pinService->setupPin($user, $dto->pin);
-
         $tokenResponse = $this->authTokenService->createAuthenticatedToken(
             user: $user,
             session: $session,
@@ -81,11 +86,8 @@ final class PinController extends AbstractController
                 'message' => 'Unauthorized.',
             ], Response::HTTP_UNAUTHORIZED);
         }
-
-        $session = $this->getCurrentSession($request);
-        $this->ensureSessionBelongsToUser($session, $user);
+        $session = $this->currentSessionResolver->resolve($request, $user);
         $this->ensureSessionStatus($session, SessionStatus::PIN_VERIFICATION_REQUIRED);
-
         if (!$this->pinService->verifyPin($user, $dto->pin)) {
             return $this->json([
                 'status' => 'error',
@@ -123,9 +125,8 @@ final class PinController extends AbstractController
             ], Response::HTTP_UNAUTHORIZED);
         }
 
-        $session = $this->getCurrentSession($request);
-        $this->ensureSessionBelongsToUser($session, $user);
-        $this->ensureSessionStatus($session, SessionStatus::AUTHENTICATED);
+        $session = $this->currentSessionResolver->resolve($request, $user);
+        $this->ensureSessionStatus($session, SessionStatus::AUTHENTICATED);;
 
         $this->pinService->changePin($user, $dto->oldPin, $dto->newPin);
 
@@ -133,27 +134,6 @@ final class PinController extends AbstractController
             'status' => 'success',
             'message' => 'PIN successfully changed.',
         ], Response::HTTP_OK);
-    }
-
-    private function getCurrentSession(Request $request): Session
-    {
-        $token = $this->bearerTokenExtractor->extract($request);
-        $session = $this->sessionManager->findSessionByToken($token);
-
-        if (!$session instanceof Session) {
-            throw new AccessDeniedHttpException('Invalid or expired session.');
-        }
-
-        return $session;
-    }
-
-    private function ensureSessionBelongsToUser(Session $session, User $user): void
-    {
-        if ((string) $session->getUser()->getId() === (string) $user->getId()) {
-            return;
-        }
-
-        throw new AccessDeniedHttpException('Session does not belong to current user.');
     }
 
     private function ensureSessionStatus(Session $session, SessionStatus $expectedStatus): void

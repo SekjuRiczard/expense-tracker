@@ -19,7 +19,9 @@ use App\Entity\User;
 use App\Enum\AuthStage;
 use App\Enum\SessionStatus;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
+use RuntimeException;
 use Symfony\Component\HttpFoundation\Request;
+use Throwable;
 
 final class AuthTokenService
 {
@@ -43,7 +45,7 @@ final class AuthTokenService
 
         $authStage = AuthStage::fromSessionStatus($status);
 
-        $token = $this->createToken(
+        $token = $this->createAccessToken(
             user: $user,
             session: $session,
             authStage: $authStage,
@@ -62,22 +64,52 @@ final class AuthTokenService
         User $user,
         Session $session,
     ): AuthTokenResponse {
-        $token = $this->createToken(
+        $accessToken = $this->createAccessToken(
             user: $user,
             session: $session,
             authStage: AuthStage::AUTHENTICATED,
         );
 
-        $this->sessionManager->markSessionAsAuthenticated($session, $token);
+        $refreshToken = $this->generateRefreshToken();
+
+        $this->sessionManager->markSessionAsAuthenticated($session, $accessToken);
+        $this->sessionManager->assignRefreshTokenToSession($session, $refreshToken);
 
         return new AuthTokenResponse(
-            token: $token,
+            token: $accessToken,
             authStage: AuthStage::AUTHENTICATED,
             session: $session,
+            refreshToken: $refreshToken,
         );
     }
 
-    private function createToken(
+    public function refreshAuthenticatedToken(Session $session): AuthTokenResponse
+    {
+        $user = $session->getUser();
+
+        $accessToken = $this->createAccessToken(
+            user: $user,
+            session: $session,
+            authStage: AuthStage::AUTHENTICATED,
+        );
+
+        $refreshToken = $this->generateRefreshToken();
+
+        $this->sessionManager->rotateTokens(
+            session: $session,
+            accessToken: $accessToken,
+            refreshToken: $refreshToken,
+        );
+
+        return new AuthTokenResponse(
+            token: $accessToken,
+            authStage: AuthStage::AUTHENTICATED,
+            session: $session,
+            refreshToken: $refreshToken,
+        );
+    }
+
+    private function createAccessToken(
         User $user,
         Session $session,
         AuthStage $authStage,
@@ -86,6 +118,25 @@ final class AuthTokenService
             'session_id' => $session->getIdAsString(),
             'auth_stage' => $authStage->value,
             'has_pin' => $user->getPin() !== null,
+            'jti' => $this->generateTokenId(),
         ]);
+    }
+
+    private function generateRefreshToken(): string
+    {
+        try {
+            return bin2hex(random_bytes(64));
+        } catch (Throwable $exception) {
+            throw new RuntimeException('Could not generate refresh token.', 0, $exception);
+        }
+    }
+
+    private function generateTokenId(): string
+    {
+        try {
+            return bin2hex(random_bytes(16));
+        } catch (Throwable $exception) {
+            throw new RuntimeException('Could not generate token identifier.', 0, $exception);
+        }
     }
 }

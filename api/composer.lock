@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "aa5d0a095059bdbed1af6c0d57c1896a",
+    "content-hash": "8ba99146046f1cd68c6ec27d1d33d4fe",
     "packages": [
         {
             "name": "doctrine/collections",
@@ -1118,84 +1118,6 @@
                 "source": "https://github.com/doctrine/sql-formatter/tree/1.5.4"
             },
             "time": "2026-02-08T16:21:46+00:00"
-        },
-        {
-            "name": "gesdinet/jwt-refresh-token-bundle",
-            "version": "v2.0.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/markitosgv/JWTRefreshTokenBundle.git",
-                "reference": "453bf7338025984e51918f65fcc0ca50645a168c"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/markitosgv/JWTRefreshTokenBundle/zipball/453bf7338025984e51918f65fcc0ca50645a168c",
-                "reference": "453bf7338025984e51918f65fcc0ca50645a168c",
-                "shasum": ""
-            },
-            "require": {
-                "doctrine/persistence": "^3.1 || ^4.0",
-                "lexik/jwt-authentication-bundle": "^2.15 || ^3.0",
-                "php": ">=8.2 || ^8.3 || ^8.4",
-                "symfony/config": "^6.4 || ^7.0  || ^7.2 || ^8.0",
-                "symfony/console": "^6.4 || ^7.2 || ^8.0",
-                "symfony/dependency-injection": "^6.4 || ^7.0  || ^7.2 || ^8.0",
-                "symfony/deprecation-contracts": "^2.1 || ^3.0 || ^4.0",
-                "symfony/event-dispatcher": "^6.4 || ^7.0  || ^7.2 || ^8.0",
-                "symfony/http-foundation": "^6.4 || ^7.0  || ^7.2 || ^8.0",
-                "symfony/http-kernel": "^6.4 || ^7.0  || ^7.2 || ^8.0",
-                "symfony/property-access": "^6.4 || ^7.0  || ^7.2 || ^8.0",
-                "symfony/security-bundle": "^6.4 || ^7.0  || ^7.2 || ^8.0",
-                "symfony/security-core": "^6.4 || ^7.0  || ^7.2 || ^8.0",
-                "symfony/security-http": "^6.4 || ^7.2 || ^8.0"
-            },
-            "conflict": {
-                "doctrine/mongodb-odm": "<2.7",
-                "doctrine/orm": "<2.20"
-            },
-            "require-dev": {
-                "doctrine/mongodb-odm": "^2.7",
-                "doctrine/orm": "^2.20 || ^3.0",
-                "ergebnis/composer-normalize": "*",
-                "matthiasnoback/symfony-config-test": "^5.1 || ^6.0",
-                "matthiasnoback/symfony-dependency-injection-test": "^5.1 || ^6.0",
-                "mongodb/mongodb": "^2.1",
-                "phpunit/phpunit": "^10.5 || ^12.2",
-                "rector/jack": "^0.5.0",
-                "rector/rector": "^2.2",
-                "symfony/cache": "^6.4 || ^7.2 || ^8.0",
-                "vimeo/psalm": "^7.0@beta"
-            },
-            "type": "symfony-bundle",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "2.x-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Gesdinet\\JWTRefreshTokenBundle\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Marcos Gómez Vilches",
-                    "email": "marcos@gesdinet.com"
-                }
-            ],
-            "description": "Implements a refresh token system over Json Web Tokens in Symfony",
-            "keywords": [
-                "jwt refresh token bundle symfony json web"
-            ],
-            "support": {
-                "issues": "https://github.com/markitosgv/JWTRefreshTokenBundle/issues",
-                "source": "https://github.com/markitosgv/JWTRefreshTokenBundle/tree/v2.0.0"
-            },
-            "time": "2025-12-29T23:20:41+00:00"
         },
         {
             "name": "lcobucci/jwt",
@@ -3918,6 +3840,89 @@
             "time": "2026-03-06T16:28:07+00:00"
         },
         {
+            "name": "symfony/lock",
+            "version": "v6.4.34",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/lock.git",
+                "reference": "e6459b9f9dea091eb67b070246b630e9f5b71516"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/lock/zipball/e6459b9f9dea091eb67b070246b630e9f5b71516",
+                "reference": "e6459b9f9dea091eb67b070246b630e9f5b71516",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.1",
+                "psr/log": "^1|^2|^3",
+                "symfony/deprecation-contracts": "^2.5|^3"
+            },
+            "conflict": {
+                "doctrine/dbal": "<2.13",
+                "symfony/cache": "<6.2"
+            },
+            "require-dev": {
+                "doctrine/dbal": "^2.13|^3|^4",
+                "predis/predis": "^1.1|^2.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Component\\Lock\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Jérémy Derussé",
+                    "email": "jeremy@derusse.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Creates and manages locks, a mechanism to provide exclusive access to a shared resource",
+            "homepage": "https://symfony.com",
+            "keywords": [
+                "cas",
+                "flock",
+                "locking",
+                "mutex",
+                "redlock",
+                "semaphore"
+            ],
+            "support": {
+                "source": "https://github.com/symfony/lock/tree/v6.4.34"
+            },
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://github.com/nicolas-grekas",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2026-02-16T20:44:03+00:00"
+        },
+        {
             "name": "symfony/monolog-bridge",
             "version": "v6.4.36",
             "source": {
@@ -4892,6 +4897,81 @@
                 }
             ],
             "time": "2026-02-13T09:42:46+00:00"
+        },
+        {
+            "name": "symfony/rate-limiter",
+            "version": "v6.4.35",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/rate-limiter.git",
+                "reference": "6540413badbf393692e8d419eb3abccca34b6e25"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/rate-limiter/zipball/6540413badbf393692e8d419eb3abccca34b6e25",
+                "reference": "6540413badbf393692e8d419eb3abccca34b6e25",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.1",
+                "symfony/deprecation-contracts": "^2.5|^3",
+                "symfony/options-resolver": "^5.4|^6.0|^7.0"
+            },
+            "require-dev": {
+                "psr/cache": "^1.0|^2.0|^3.0",
+                "symfony/lock": "^5.4|^6.0|^7.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Component\\RateLimiter\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Wouter de Jong",
+                    "email": "wouter@wouterj.nl"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Provides a Token Bucket implementation to rate limit input and output in your application",
+            "homepage": "https://symfony.com",
+            "keywords": [
+                "limiter",
+                "rate-limiter"
+            ],
+            "support": {
+                "source": "https://github.com/symfony/rate-limiter/tree/v6.4.35"
+            },
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://github.com/nicolas-grekas",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2026-03-03T13:58:39+00:00"
         },
         {
             "name": "symfony/routing",
@@ -9364,7 +9444,7 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {},
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
@@ -9372,6 +9452,6 @@
         "ext-ctype": "*",
         "ext-iconv": "*"
     },
-    "platform-dev": [],
+    "platform-dev": {},
     "plugin-api-version": "2.9.0"
 }
