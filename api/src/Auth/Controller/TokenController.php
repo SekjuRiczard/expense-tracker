@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace App\Controller;
+namespace App\Auth\Controller;
 
+use App\Auth\Factory\ApiResponseFactory;
+use App\Auth\Service\AuthTokenService;
+use App\Auth\Service\Token\Refresh\BodyRefreshTokenResolver;
+use App\Auth\Service\Token\Refresh\RefreshTokenResolverInterface;
 use App\Entity\Session;
-use App\Factory\ApiResponseFactory;
-use App\Service\AuthTokenService;
-use App\Service\SessionManagerInterface;
-use App\Service\Token\Refresh\BodyRefreshTokenResolver;
-use App\Service\Token\Refresh\RefreshTokenResolverInterface;
+use App\Session\Service\Contract\SessionManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\JsonResponse;

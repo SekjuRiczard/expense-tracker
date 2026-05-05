@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service\Token\Transport;
+namespace App\Auth\Service\Token\Transport;
 
 use Symfony\Component\HttpFoundation\JsonResponse;
 

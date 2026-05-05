@@ -11,7 +11,7 @@
 
 declare(strict_types=1);
 
-namespace App\Auth\Repository\User;
+namespace App\Auth\Repository;
 
 use App\Entity\User;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;

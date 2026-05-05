@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Service\Contract;
+namespace App\Session\Service\Contract;
 
 use App\Entity\Session;
 use App\Enum\SessionStatus;

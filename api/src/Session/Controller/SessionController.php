@@ -11,7 +11,7 @@
 
 declare(strict_types=1);
 
-namespace App\Auth\Controller;
+namespace App\Session\Controller;
 
 use App\Entity\Session;
 use App\Entity\User;

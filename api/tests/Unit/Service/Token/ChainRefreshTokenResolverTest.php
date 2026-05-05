@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Service\Token;
 
-use App\Service\Token\Refresh\ChainRefreshTokenResolver;
-use App\Service\Token\Refresh\RefreshTokenResolverInterface;
+use App\Auth\Service\Token\Refresh\ChainRefreshTokenResolver;
+use App\Auth\Service\Token\Refresh\RefreshTokenResolverInterface;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;

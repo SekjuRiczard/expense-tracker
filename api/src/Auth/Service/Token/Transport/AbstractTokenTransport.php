@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Service\Token\Transport;
+namespace App\Auth\Service\Token\Transport;
 
 use App\Auth\Dto\Response\AuthTokenResponse;
 use InvalidArgumentException;

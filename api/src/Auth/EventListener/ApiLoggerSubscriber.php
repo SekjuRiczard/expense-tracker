@@ -11,12 +11,13 @@
 
 declare(strict_types=1);
 
-namespace App\EventListener;
+namespace App\Auth\EventListener;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
+
 final class ApiLoggerSubscriber implements EventSubscriberInterface
 {
     public function __construct(#[Autowire(service: 'monolog.logger.api')] private readonly LoggerInterface $logger) {}

@@ -11,7 +11,7 @@
 
 declare(strict_types=1);
 
-namespace App\EventSubscriber;
+namespace App\Session\EventSubscriber;
 
 use App\Auth\Service\BearerTokenExtractor;
 use App\Entity\Session;

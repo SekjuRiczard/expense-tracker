@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Dto;
+namespace App\Auth\Dto\Request;
 
 use App\Entity\User;
 

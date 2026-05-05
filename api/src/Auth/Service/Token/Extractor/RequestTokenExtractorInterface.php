@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Service\Token\Extractor;
+namespace App\Auth\Service\Token\Extractor;
 
 use Symfony\Component\HttpFoundation\Request;
 

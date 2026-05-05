@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace App\Controller;
+namespace App\Auth\Controller;
 
-use App\Dto\LoginRequest;
-use App\Dto\UserRegistrationRequest;
+use App\Auth\Dto\Request\LoginRequest;
+use App\Auth\Dto\Request\UserRegistrationRequest;
+use App\Auth\Factory\ApiResponseFactory;
+use App\Auth\Service\AuthService;
+use App\Auth\Service\AuthTokenService;
+use App\Auth\Service\LoginRateLimiter;
 use App\Enum\SessionStatus;
-use App\Factory\ApiResponseFactory;
-use App\Service\AuthService;
-use App\Service\AuthTokenService;
-use App\Service\LoginRateLimiter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;

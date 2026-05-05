@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-namespace App\Controller;
+namespace App\Auth\Controller;
 
-use App\Dto\ChangePinRequest;
-use App\Dto\SetupPinRequest;
+use App\Auth\Dto\Request\ChangePinRequest;
+use App\Auth\Dto\Request\SetupPinRequest;
+use App\Auth\Factory\ApiResponseFactory;
+use App\Auth\Service\AuthenticatedUserResolver;
+use App\Auth\Service\AuthTokenService;
+use App\Auth\Service\PinService;
 use App\Entity\User;
 use App\Enum\SessionStatus;
-use App\Factory\ApiResponseFactory;
-use App\Service\AuthenticatedUserResolver;
-use App\Service\AuthTokenService;
-use App\Service\CurrentSessionResolver;
-use App\Service\PinService;
-use App\Service\SessionStatusGuard;
+use App\Session\Service\CurrentSessionResolver;
+use App\Session\Service\SessionStatusGuard;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;

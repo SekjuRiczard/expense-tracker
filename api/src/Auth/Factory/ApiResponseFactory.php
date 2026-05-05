@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Factory;
+namespace App\Auth\Factory;
 
 use App\Auth\Dto\Request\UserResponse;
 use App\Auth\Dto\Response\AuthTokenResponse;

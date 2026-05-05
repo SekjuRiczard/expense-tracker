@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Service\Token;
 
-use App\Service\Token\Extractor\BearerRequestTokenExtractor;
-use App\Service\Token\Extractor\ChainRequestTokenExtractor;
-use App\Service\Token\Extractor\CookieAccessTokenExtractor;
+use App\Auth\Service\Token\Extractor\BearerRequestTokenExtractor;
+use App\Auth\Service\Token\Extractor\ChainRequestTokenExtractor;
+use App\Auth\Service\Token\Extractor\CookieAccessTokenExtractor;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;

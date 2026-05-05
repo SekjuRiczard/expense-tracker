@@ -11,7 +11,7 @@
 
 declare(strict_types=1);
 
-namespace App\EventListener;
+namespace App\Auth\EventListener;
 
 use App\Entity\User;
 use Lexik\Bundle\JWTAuthenticationBundle\Event\JWTCreatedEvent;

@@ -11,7 +11,7 @@
 
 declare(strict_types=1);
 
-namespace App\Dto;
+namespace App\Session\Dto\Response;
 
 use App\Entity\Session;
 use DateTimeInterface;

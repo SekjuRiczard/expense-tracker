@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace App\Service;
+namespace App\Session\Service;
 
 use App\Auth\Service\Token\Extractor\BearerRequestTokenExtractor;
 use App\Auth\Service\Token\Extractor\RequestTokenExtractorInterface;
 use App\Entity\Session;
 use App\Entity\User;
-use App\Service\Contract\SessionManagerInterface;
+use App\Session\Service\Contract\SessionManagerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;

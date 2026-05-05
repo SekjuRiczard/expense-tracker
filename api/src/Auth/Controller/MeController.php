@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace App\Controller;
+namespace App\Auth\Controller;
 
+use App\Auth\Factory\ApiResponseFactory;
 use App\Entity\User;
-use App\Factory\ApiResponseFactory;
-use App\Service\CurrentSessionResolver;
+use App\Session\Service\CurrentSessionResolver;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;

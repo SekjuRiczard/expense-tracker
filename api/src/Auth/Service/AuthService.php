@@ -11,14 +11,14 @@
 
 declare(strict_types=1);
 
-namespace App\Service;
+namespace App\Auth\Service;
 
 use App\Auth\Dto\Request\LoginRequest;
 use App\Auth\Dto\Request\UserRegistrationRequest;
-use App\Auth\Repository\User\UserRepositoryInterface;
+use App\Auth\Repository\UserRepositoryInterface;
 use App\Entity\User;
-use App\Exception\InvalidLoginCredentialsException;
-use App\Exception\UserAlreadyExistsException;
+use App\Shared\Exception\InvalidLoginCredentialsException;
+use App\Shared\Exception\UserAlreadyExistsException;
 use DateTimeImmutable;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 

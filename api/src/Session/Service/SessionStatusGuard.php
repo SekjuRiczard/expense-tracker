@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace App\Service;
+namespace App\Session\Service;
 
 use App\Entity\Session;
 use App\Enum\SessionStatus;
-use App\Service\Contract\SessionStatusGuardInterface;
+use App\Session\Service\Contract\SessionStatusGuardInterface;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 final readonly class SessionStatusGuard implements SessionStatusGuardInterface

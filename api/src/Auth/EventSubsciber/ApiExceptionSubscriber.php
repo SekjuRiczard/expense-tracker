@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace App\EventSubscriber;
+namespace App\Auth\EventSubsciber;
 
-use App\Exception\InvalidLoginCredentialsException;
-use App\Exception\TooManyLoginAttemptsException;
-use App\Exception\UnauthenticatedUserException;
-use App\Exception\UserAlreadyExistsException;
-use App\Factory\ApiResponseFactory;
+use App\Auth\Factory\ApiResponseFactory;
+use App\Shared\Exception\InvalidLoginCredentialsException;
+use App\Shared\Exception\TooManyLoginAttemptsException;
+use App\Shared\Exception\UnauthenticatedUserException;
+use App\Shared\Exception\UserAlreadyExistsException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;

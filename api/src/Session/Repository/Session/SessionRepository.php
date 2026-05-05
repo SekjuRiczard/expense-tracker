@@ -11,7 +11,7 @@
 
 declare(strict_types=1);
 
-namespace App\Repository\Session;
+namespace App\Session\Repository\Session;
 
 use App\Entity\Session;
 use DateTimeImmutable;

@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Service\Token\Transport;
+namespace App\Auth\Service\Token\Transport;
 
-use App\Factory\AuthCookieFactory;
+use App\Auth\Factory\AuthCookieFactory;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 final readonly class CookieTokenTransport extends AbstractTokenTransport

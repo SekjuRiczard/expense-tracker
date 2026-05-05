@@ -11,9 +11,9 @@
 
 declare(strict_types=1);
 
-namespace App\Service;
+namespace App\Auth\Service;
 
-use App\Exception\TooManyLoginAttemptsException;
+use App\Shared\Exception\TooManyLoginAttemptsException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\RateLimiter\RateLimiterFactory;
 

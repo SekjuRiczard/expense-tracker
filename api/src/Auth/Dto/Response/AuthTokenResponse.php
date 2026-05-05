@@ -11,7 +11,7 @@
 
 declare(strict_types=1);
 
-namespace App\Dto;
+namespace App\Auth\Dto\Response;
 
 use App\Entity\Session;
 use App\Enum\AuthStage;

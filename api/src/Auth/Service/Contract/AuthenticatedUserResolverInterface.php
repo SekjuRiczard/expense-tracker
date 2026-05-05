@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Service\Contract;
+namespace App\Auth\Service\Contract;
 
 use App\Entity\User;
 

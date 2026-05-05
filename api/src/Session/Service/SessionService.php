@@ -11,13 +11,13 @@
 
 declare(strict_types=1);
 
-namespace App\Service;
+namespace App\Session\Service;
 
 use App\Entity\Session;
 use App\Entity\User;
 use App\Enum\SessionStatus;
-use App\Repository\Session\SessionRepository;
-use App\Service\Contract\SessionManagerInterface;
+use App\Session\Repository\Session\SessionRepository;
+use App\Session\Service\Contract\SessionManagerInterface;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use RuntimeException;

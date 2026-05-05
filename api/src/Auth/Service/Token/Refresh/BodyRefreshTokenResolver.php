@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Service\Token\Refresh;
+namespace App\Auth\Service\Token\Refresh;
 
 use Symfony\Component\HttpFoundation\Request;
 

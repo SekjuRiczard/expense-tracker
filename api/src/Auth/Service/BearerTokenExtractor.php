@@ -11,7 +11,7 @@
 
 declare(strict_types=1);
 
-namespace App\Service;
+namespace App\Auth\Service;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
