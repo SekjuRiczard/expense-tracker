@@ -13,11 +13,12 @@ declare(strict_types=1);
 
 namespace App\Service;
 
-use App\Dto\AuthTokenResponse;
+use App\Auth\Dto\Response\AuthTokenResponse;
 use App\Entity\Session;
 use App\Entity\User;
 use App\Enum\AuthStage;
 use App\Enum\SessionStatus;
+use App\Service\Contract\SessionManagerInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use RuntimeException;
 use Symfony\Component\HttpFoundation\Request;

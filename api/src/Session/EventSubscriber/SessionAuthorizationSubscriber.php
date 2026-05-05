@@ -13,17 +13,17 @@ declare(strict_types=1);
 
 namespace App\EventSubscriber;
 
+use App\Auth\Service\BearerTokenExtractor;
 use App\Entity\Session;
 use App\Enum\SessionStatus;
-use App\Service\BearerTokenExtractor;
-use App\Service\SessionManagerInterface;
+use App\Session\Service\Contract\SessionManagerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
-use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
+use Symfony\Component\HttpKernel\KernelEvents;
 
 final readonly class SessionAuthorizationSubscriber implements EventSubscriberInterface
 {

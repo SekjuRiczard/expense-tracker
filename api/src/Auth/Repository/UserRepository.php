@@ -11,7 +11,7 @@
 
 declare(strict_types=1);
 
-namespace App\Repository\User;
+namespace App\Auth\Repository\User;
 
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;

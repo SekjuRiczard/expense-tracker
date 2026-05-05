@@ -17,6 +17,7 @@ use App\Entity\Session;
 use App\Entity\User;
 use App\Enum\SessionStatus;
 use App\Repository\Session\SessionRepository;
+use App\Service\Contract\SessionManagerInterface;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use RuntimeException;

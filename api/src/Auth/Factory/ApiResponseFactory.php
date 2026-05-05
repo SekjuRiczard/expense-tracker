@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace App\Factory;
 
-use App\Dto\AuthTokenResponse;
-use App\Dto\UserResponse;
+use App\Auth\Dto\Request\UserResponse;
+use App\Auth\Dto\Response\AuthTokenResponse;
+use App\Auth\Service\Token\Transport\JsonBodyTokenTransport;
+use App\Auth\Service\Token\Transport\TokenTransportInterface;
 use App\Entity\User;
-
-use App\Service\Token\Transport\JsonBodyTokenTransport;
-use App\Service\Token\Transport\TokenTransportInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\JsonResponse;
 

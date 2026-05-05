@@ -11,12 +11,12 @@
 
 declare(strict_types=1);
 
-namespace App\Controller;
+namespace App\Auth\Controller;
 
-use App\Dto\SessionResponse;
 use App\Entity\Session;
 use App\Entity\User;
-use App\Service\SessionManagerInterface;
+use App\Session\Dto\Response\SessionResponse;
+use App\Session\Service\Contract\SessionManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;

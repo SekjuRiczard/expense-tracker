@@ -11,7 +11,7 @@
 
 declare(strict_types=1);
 
-namespace App\Service;
+namespace App\Service\Contract;
 
 use App\Entity\Session;
 use App\Entity\User;
