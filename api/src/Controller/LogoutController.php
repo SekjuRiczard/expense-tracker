@@ -1,19 +1,12 @@
 <?php
 
-/*
- * This file is part of the Expense Tracker.
- *
- * (c) SekjuRiczard <dawidosak32@gmail.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 declare(strict_types=1);
 
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Factory\ApiResponseFactory;
+use App\Service\AuthenticatedUserResolver;
 use App\Service\CurrentSessionResolver;
 use App\Service\SessionManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -29,6 +22,8 @@ final class LogoutController extends AbstractController
     public function __construct(
         private readonly CurrentSessionResolver $currentSessionResolver,
         private readonly SessionManagerInterface $sessionManager,
+        private readonly ApiResponseFactory $responseFactory,
+        private readonly AuthenticatedUserResolver $authenticatedUserResolver,
     ) {
     }
 
@@ -37,20 +32,14 @@ final class LogoutController extends AbstractController
         Request $request,
         #[CurrentUser] ?User $user,
     ): JsonResponse {
-        if (!$user instanceof User) {
-            return $this->json([
-                'status' => 'error',
-                'message' => 'Unauthorized.',
-            ], Response::HTTP_UNAUTHORIZED);
-        }
-
+        $user = $this->authenticatedUserResolver->resolve($user);
         $session = $this->currentSessionResolver->resolve($request, $user);
 
         $this->sessionManager->revokeSession($session);
 
-        return $this->json([
-            'status' => 'success',
-            'message' => 'Logged out successfully.',
-        ], Response::HTTP_OK);
+        return $this->responseFactory->successResponse(
+            message: 'Logged out successfully.',
+            statusCode: Response::HTTP_OK,
+        );
     }
 }

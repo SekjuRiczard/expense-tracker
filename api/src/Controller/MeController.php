@@ -1,19 +1,11 @@
 <?php
 
-/*
- * This file is part of the Expense Tracker.
- *
- * (c) SekjuRiczard <dawidosak32@gmail.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 declare(strict_types=1);
 
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Factory\ApiResponseFactory;
 use App\Service\CurrentSessionResolver;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -27,6 +19,7 @@ final class MeController extends AbstractController
 {
     public function __construct(
         private readonly CurrentSessionResolver $currentSessionResolver,
+        private readonly ApiResponseFactory $responseFactory,
     ) {
     }
 
@@ -36,22 +29,15 @@ final class MeController extends AbstractController
         #[CurrentUser] ?User $user,
     ): JsonResponse {
         if (!$user instanceof User) {
-            return $this->json([
-                'status' => 'unauthenticated',
-                'user' => null,
-            ], Response::HTTP_UNAUTHORIZED);
+            return $this->responseFactory->unauthenticatedResponse();
         }
 
         $session = $this->currentSessionResolver->resolve($request, $user);
 
-        return $this->json([
-            'status' => $session->getStatus()->value,
-            'user' => [
-                'id' => (string) $user->getId(),
-                'email' => $user->getEmail(),
-                'username' => $user->getUsername(),
-                'hasPin' => $user->getPin() !== null,
-            ],
-        ], Response::HTTP_OK);
+        return $this->responseFactory->currentUserResponse(
+            status: $session->getStatus()->value,
+            user: $user,
+            statusCode: Response::HTTP_OK,
+        );
     }
 }

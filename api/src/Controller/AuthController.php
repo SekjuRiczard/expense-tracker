@@ -1,14 +1,5 @@
 <?php
 
-/*
- * This file is part of the Expense Tracker.
- *
- * (c) SekjuRiczard <dawidosak32@gmail.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 declare(strict_types=1);
 
 namespace App\Controller;
@@ -16,22 +7,25 @@ namespace App\Controller;
 use App\Dto\LoginRequest;
 use App\Dto\UserRegistrationRequest;
 use App\Enum\SessionStatus;
-use App\Exception\InvalidLoginCredentialsException;
-use App\Exception\UserAlreadyExistsException;
+use App\Factory\ApiResponseFactory;
 use App\Service\AuthService;
 use App\Service\AuthTokenService;
+use App\Service\LoginRateLimiter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
-use App\Exception\TooManyLoginAttemptsException;
-use App\Service\LoginRateLimiter;
 
 #[Route('/api', name: 'api_')]
 final class AuthController extends AbstractController
 {
+    public function __construct(
+        private readonly ApiResponseFactory $responseFactory,
+    ) {
+    }
+
     #[Route('/register', name: 'register', methods: ['POST'])]
     public function register(
         #[MapRequestPayload] UserRegistrationRequest $dto,
@@ -39,14 +33,7 @@ final class AuthController extends AbstractController
         AuthService $authService,
         AuthTokenService $authTokenService,
     ): JsonResponse {
-        try {
-            $user = $authService->register($dto);
-        } catch (UserAlreadyExistsException $exception) {
-            return $this->json([
-                'status' => 'error',
-                'message' => $exception->getMessage(),
-            ], Response::HTTP_CONFLICT);
-        }
+        $user = $authService->register($dto);
 
         $tokenResponse = $authTokenService->createPartialToken(
             user: $user,
@@ -54,16 +41,12 @@ final class AuthController extends AbstractController
             request: $request,
         );
 
-        return $this->json([
-            ...$tokenResponse->toArray(),
-            'message' => 'User created. PIN setup required.',
-            'user' => [
-                'id' => (string) $user->getId(),
-                'email' => $user->getEmail(),
-                'username' => $user->getUsername(),
-                'hasPin' => $user->getPin() !== null,
-            ],
-        ], Response::HTTP_CREATED);
+        return $this->responseFactory->tokenResponse(
+            tokenResponse: $tokenResponse,
+            message: 'User created. PIN setup required.',
+            user: $user,
+            statusCode: Response::HTTP_CREATED,
+        );
     }
 
     #[Route('/login', name: 'login', methods: ['POST'])]
@@ -74,23 +57,8 @@ final class AuthController extends AbstractController
         AuthTokenService $authTokenService,
         LoginRateLimiter $loginRateLimiter,
     ): JsonResponse {
-        try {
-            $loginRateLimiter->consume($request, $dto->email);
-        } catch (TooManyLoginAttemptsException $exception) {
-            return $this->json([
-                'status' => 'error',
-                'message' => $exception->getMessage(),
-            ], Response::HTTP_TOO_MANY_REQUESTS);
-        }
-
-        try {
-            $user = $authService->login($dto);
-        } catch (InvalidLoginCredentialsException $exception) {
-            return $this->json([
-                'status' => 'error',
-                'message' => $exception->getMessage(),
-            ], Response::HTTP_UNAUTHORIZED);
-        }
+        $loginRateLimiter->consume($request, $dto->email);
+        $user = $authService->login($dto);
 
         $sessionStatus = $user->getPin() === null
             ? SessionStatus::PIN_SETUP_REQUIRED
@@ -106,15 +74,11 @@ final class AuthController extends AbstractController
             ? 'Password verified. PIN setup required.'
             : 'Password verified. PIN verification required.';
 
-        return $this->json([
-            ...$tokenResponse->toArray(),
-            'message' => $message,
-            'user' => [
-                'id' => (string) $user->getId(),
-                'email' => $user->getEmail(),
-                'username' => $user->getUsername(),
-                'hasPin' => $user->getPin() !== null,
-            ],
-        ], Response::HTTP_OK);
+        return $this->responseFactory->tokenResponse(
+            tokenResponse: $tokenResponse,
+            message: $message,
+            user: $user,
+            statusCode: Response::HTTP_OK,
+        );
     }
 }
