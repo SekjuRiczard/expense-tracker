@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Service;
 
+use App\Auth\Service\AuthTokenService;
 use App\Entity\Session;
 use App\Entity\User;
 use App\Enum\AuthStage;
 use App\Enum\SessionStatus;
-use App\Service\AuthTokenService;
-use App\Service\SessionManagerInterface;
+use App\Session\Service\SessionManagerInterface;
 use DateTimeImmutable;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use PHPUnit\Framework\Attributes\Small;
@@ -115,6 +115,21 @@ final class AuthTokenServiceTest extends TestCase
             ->method('markSessionAsAuthenticated')
             ->with($session, 'full-token');
 
+        $capturedRefreshToken = null;
+
+        $sessionManager
+            ->expects(self::once())
+            ->method('assignRefreshTokenToSession')
+            ->with(
+                $session,
+                self::callback(static function (string $refreshToken) use (&$capturedRefreshToken): bool {
+                    $capturedRefreshToken = $refreshToken;
+
+                    return strlen($refreshToken) === 128
+                        && ctype_xdigit($refreshToken);
+                }),
+            );
+
         $service = new AuthTokenService(
             jwtTokenManager: $jwtManager,
             sessionManager: $sessionManager,
@@ -128,9 +143,12 @@ final class AuthTokenServiceTest extends TestCase
         self::assertSame('full-token', $response->token);
         self::assertSame(AuthStage::AUTHENTICATED, $response->authStage);
         self::assertSame($session, $response->session);
+        self::assertSame($capturedRefreshToken, $response->refreshToken);
+
         self::assertSame([
             'token' => 'full-token',
             'status' => 'authenticated',
+            'refreshToken' => $capturedRefreshToken,
         ], $response->toArray());
     }
 

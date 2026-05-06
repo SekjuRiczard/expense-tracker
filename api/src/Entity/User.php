@@ -13,8 +13,8 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use App\Auth\Repository\UserRepository;
 use App\Enum\UserRole;
-use App\Repository\User\UserRepository;
 use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;

@@ -20,7 +20,7 @@ services:
             - '../src/Entity/'
             - '../src/Kernel.php'
 
-    App\Service\LoginRateLimiter:
+    App\Auth\Service\LoginRateLimiter:
         arguments:
             $loginLimiter: '@limiter.login'
     # add more service definitions when explicit configuration is needed

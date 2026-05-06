@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Service;
 
-use App\Dto\LoginRequest;
-use App\Dto\UserRegistrationRequest;
+use App\Auth\Dto\Request\LoginRequest;
+use App\Auth\Dto\Request\UserRegistrationRequest;
+use App\Auth\Repository\UserRepositoryInterface;
+use App\Auth\Service\AuthService;
 use App\Entity\User;
-use App\Exception\InvalidLoginCredentialsException;
-use App\Exception\UserAlreadyExistsException;
-use App\Repository\User\UserRepositoryInterface;
-use App\Service\AuthService;
+use App\Shared\Exception\InvalidLoginCredentialsException;
+use App\Shared\Exception\UserAlreadyExistsException;
 use PHPUnit\Framework\Attributes\Small;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
