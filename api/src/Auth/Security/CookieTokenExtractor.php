@@ -10,12 +10,39 @@ use Symfony\Component\HttpFoundation\Request;
 
 final class CookieTokenExtractor implements TokenExtractorInterface
 {
-    public function extract(Request $request): ?string
+    public function extract(Request $request): string|false
     {
-        /** @var string|null $token */
-        $token = $request->cookies->get(CookieFactory::ACCESS_TOKEN_COOKIE)
-            ?? $request->cookies->get(CookieFactory::PARTIAL_ACCESS_TOKEN_COOKIE);
+        $accessToken = $request->cookies->get(CookieFactory::ACCESS_TOKEN_COOKIE);
+        $partialAccessToken = $request->cookies->get(CookieFactory::PARTIAL_ACCESS_TOKEN_COOKIE);
 
-        return $token;
+        file_put_contents(
+            dirname(__DIR__, 3) . '/var/log/cookie_token_extractor.log',
+            sprintf(
+                "[%s] path=%s access=%s partial=%s returning=%s\n",
+                (new \DateTimeImmutable())->format('c'),
+                $request->getPathInfo(),
+                is_string($accessToken) && $accessToken !== '' ? 'yes' : 'no',
+                is_string($partialAccessToken) && $partialAccessToken !== '' ? 'yes' : 'no',
+                is_string($accessToken) && $accessToken !== ''
+                    ? 'access_token'
+                    : (
+                is_string($partialAccessToken) && $partialAccessToken !== ''
+                    ? 'partial_access_token'
+                    : 'false'
+                )
+                ,
+            ),
+            FILE_APPEND
+        );
+
+        if (is_string($accessToken) && $accessToken !== '') {
+            return $accessToken;
+        }
+
+        if (is_string($partialAccessToken) && $partialAccessToken !== '') {
+            return $partialAccessToken;
+        }
+
+        return false;
     }
 }

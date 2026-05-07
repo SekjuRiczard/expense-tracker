@@ -16,7 +16,8 @@ security:
         api:
             pattern: ^/api
             stateless: true
-            jwt: ~
+            jwt:
+                authenticator: app.jwt_cookie_authenticator
 
     access_control:
         - { path: ^/api/doc, roles: PUBLIC_ACCESS }

@@ -1,8 +1,6 @@
 # This file is the entry point to configure your own services.
 # Files in the packages/ subdirectory configure your dependencies.
 
-# Put parameters here that don't need to change on each machine where the app is deployed
-# https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
 
 services:
@@ -10,7 +8,6 @@ services:
         autowire: true
         autoconfigure: true
 
-    # 1. Najpierw auto-discovery dla wszystkiego
     App\:
         resource: '../src/'
         exclude:
@@ -32,8 +29,12 @@ services:
         tags:
             - { name: 'kernel.event_subscriber' }
 
-    App\Auth\Security\CookieTokenExtractor:
-        tags:
-            - { name: 'lexik_jwt.token_extractor' }
-    # add more service definitions when explicit configuration is needed
-    # please note that last definitions always *replace* previous ones
+    App\Auth\Security\CookieTokenExtractor: ~
+
+    app.jwt_cookie_authenticator:
+        class: App\Auth\Security\CookieJWTAuthenticator
+        parent: lexik_jwt_authentication.security.jwt_authenticator
+
+    App\Session\Service\CurrentSessionResolver:
+        arguments:
+            $logPath: '%kernel.logs_dir%/current_session_resolver.log'
