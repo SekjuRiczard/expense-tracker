@@ -1,14 +1,5 @@
 <?php
 
-/*
- * This file is part of the Expense Tracker.
- *
- * (c) SekjuRiczard <dawidosak32@gmail.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 declare(strict_types=1);
 
 namespace App\Auth\Controller;
@@ -18,6 +9,8 @@ use App\Auth\Dto\Request\UserRegistrationRequest;
 use App\Auth\Service\AuthService;
 use App\Auth\Service\AuthTokenService;
 use App\Auth\Service\LoginRateLimiter;
+use App\Entity\User;
+use App\Enum\ResponseMessage;
 use App\Enum\SessionStatus;
 use App\Shared\Exception\InvalidLoginCredentialsException;
 use App\Shared\Exception\TooManyLoginAttemptsException;
@@ -40,30 +33,21 @@ final class AuthController extends AbstractController
         AuthTokenService $authTokenService,
     ): JsonResponse {
         try {
+            /** @var User $user */
             $user = $authService->register($dto);
         } catch (UserAlreadyExistsException $exception) {
-            return $this->json([
-                'status' => 'error',
-                'message' => $exception->getMessage(),
-            ], Response::HTTP_CONFLICT);
+            return $this->json(['status' => 'error', 'message' => $exception->getMessage()], Response::HTTP_CONFLICT);
         }
 
-        $tokenResponse = $authTokenService->createPartialToken(
-            user: $user,
-            status: SessionStatus::PIN_SETUP_REQUIRED,
-            request: $request,
+        return $this->json(
+            $authTokenService->createPartialToken(
+                $user,
+                SessionStatus::PIN_SETUP_REQUIRED,
+                $request,
+                ResponseMessage::REGISTER_SUCCESS
+            )->toArray(),
+            Response::HTTP_CREATED
         );
-
-        return $this->json([
-            ...$tokenResponse->toArray(),
-            'message' => 'User created. PIN setup required.',
-            'user' => [
-                'id' => (string) $user->getId(),
-                'email' => $user->getEmail(),
-                'username' => $user->getUsername(),
-                'hasPin' => $user->getPin() !== null,
-            ],
-        ], Response::HTTP_CREATED);
     }
 
     #[Route('/login', name: 'login', methods: ['POST'])]
@@ -76,45 +60,22 @@ final class AuthController extends AbstractController
     ): JsonResponse {
         try {
             $loginRateLimiter->consume($request, $dto->email);
-        } catch (TooManyLoginAttemptsException $exception) {
-            return $this->json([
-                'status' => 'error',
-                'message' => $exception->getMessage(),
-            ], Response::HTTP_TOO_MANY_REQUESTS);
-        }
-
-        try {
+            /** @var User $user */
             $user = $authService->login($dto);
-        } catch (InvalidLoginCredentialsException $exception) {
-            return $this->json([
-                'status' => 'error',
-                'message' => $exception->getMessage(),
-            ], Response::HTTP_UNAUTHORIZED);
+        } catch (TooManyLoginAttemptsException|InvalidLoginCredentialsException $exception) {
+            return $this->json(['status' => 'error', 'message' => $exception->getMessage()], Response::HTTP_UNAUTHORIZED);
         }
 
-        $sessionStatus = $user->getPin() === null
-            ? SessionStatus::PIN_SETUP_REQUIRED
-            : SessionStatus::PIN_VERIFICATION_REQUIRED;
+        /** @var bool $hasPin */
+        $hasPin = $user->getPin() !== null;
 
-        $tokenResponse = $authTokenService->createPartialToken(
-            user: $user,
-            status: $sessionStatus,
-            request: $request,
+        return $this->json(
+            $authTokenService->createPartialToken(
+                $user,
+                $hasPin ? SessionStatus::PIN_VERIFICATION_REQUIRED : SessionStatus::PIN_SETUP_REQUIRED,
+                $request,
+                $hasPin ? ResponseMessage::LOGIN_SUCCESS : ResponseMessage::PIN_SETUP_REQUIRED
+            )->toArray()
         );
-
-        $message = $sessionStatus === SessionStatus::PIN_SETUP_REQUIRED
-            ? 'Password verified. PIN setup required.'
-            : 'Password verified. PIN verification required.';
-
-        return $this->json([
-            ...$tokenResponse->toArray(),
-            'message' => $message,
-            'user' => [
-                'id' => (string) $user->getId(),
-                'email' => $user->getEmail(),
-                'username' => $user->getUsername(),
-                'hasPin' => $user->getPin() !== null,
-            ],
-        ], Response::HTTP_OK);
     }
 }

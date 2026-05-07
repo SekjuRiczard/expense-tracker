@@ -1,14 +1,5 @@
 <?php
 
-/*
- * This file is part of the Expense Tracker.
- *
- * (c) SekjuRiczard <dawidosak32@gmail.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 declare(strict_types=1);
 
 namespace App\Auth\Service;
@@ -16,108 +7,69 @@ namespace App\Auth\Service;
 use App\Auth\Dto\Response\AuthTokenResponse;
 use App\Entity\Session;
 use App\Entity\User;
-use App\Enum\AuthStage;
+use App\Enum\ResponseMessage;
 use App\Enum\SessionStatus;
 use App\Session\Service\SessionManagerInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use RuntimeException;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Throwable;
 
-final class AuthTokenService
+final readonly class AuthTokenService
 {
     public function __construct(
-        private readonly JWTTokenManagerInterface $jwtTokenManager,
-        private readonly SessionManagerInterface $sessionManager,
+        private JWTTokenManagerInterface $jwtTokenManager,
+        private SessionManagerInterface $sessionManager,
+        private RequestStack $requestStack,
     ) {
     }
 
-    public function createPartialToken(
-        User $user,
-        SessionStatus $status,
-        Request $request,
-    ): AuthTokenResponse {
-        $session = $this->sessionManager->createSession(
-            user: $user,
-            status: $status,
-            ipAddress: $request->getClientIp(),
-            userAgent: $request->headers->get('User-Agent'),
-        );
-
-        $authStage = AuthStage::fromSessionStatus($status);
-
-        $token = $this->createAccessToken(
-            user: $user,
-            session: $session,
-            authStage: $authStage,
-        );
-
+    public function createPartialToken(User $user, SessionStatus $status, Request $request, ResponseMessage $message): AuthTokenResponse
+    {
+        /** @var Session $session */
+        $session = $this->sessionManager->createSession($user, $status, $request->getClientIp(), $request->headers->get('User-Agent'));
+        /** @var string $token */
+        $token = $this->createAccessToken($user, $session, $status);
         $this->sessionManager->assignTokenToSession($session, $token);
+        $this->requestStack->getCurrentRequest()->attributes->set('_partial_auth_token', $token);
 
-        return new AuthTokenResponse(
-            token: $token,
-            authStage: $authStage,
-            session: $session,
-        );
+        return new AuthTokenResponse($status, $user, $message);
     }
 
-    public function createAuthenticatedToken(
-        User $user,
-        Session $session,
-    ): AuthTokenResponse {
-        $accessToken = $this->createAccessToken(
-            user: $user,
-            session: $session,
-            authStage: AuthStage::AUTHENTICATED,
-        );
+    public function createAuthenticatedToken(User $user, Session $session, ResponseMessage $message): AuthTokenResponse
+    {
+        /** @var string $token */
+        $token = $this->createAccessToken($user, $session, SessionStatus::AUTHENTICATED);
+        /** @var string $refresh */
+        $refresh = $this->generateRefreshToken();
+        $this->sessionManager->markSessionAsAuthenticated($session, $token);
+        $this->sessionManager->assignRefreshTokenToSession($session, $refresh);
+        $this->requestStack->getCurrentRequest()->attributes->set('_auth_token', $token);
+        $this->requestStack->getCurrentRequest()->attributes->set('_refresh_token', $refresh);
+        $this->requestStack->getCurrentRequest()->attributes->set('_expire_partial', true);
 
-        $refreshToken = $this->generateRefreshToken();
-
-        $this->sessionManager->markSessionAsAuthenticated($session, $accessToken);
-        $this->sessionManager->assignRefreshTokenToSession($session, $refreshToken);
-
-        return new AuthTokenResponse(
-            token: $accessToken,
-            authStage: AuthStage::AUTHENTICATED,
-            session: $session,
-            refreshToken: $refreshToken,
-        );
+        return new AuthTokenResponse(SessionStatus::AUTHENTICATED, $user, $message);
     }
 
     public function refreshAuthenticatedToken(Session $session): AuthTokenResponse
     {
-        $user = $session->getUser();
+        /** @var string $token */
+        $token = $this->createAccessToken($session->getUser(), $session, SessionStatus::AUTHENTICATED);
+        /** @var string $refresh */
+        $refresh = $this->generateRefreshToken();
+        $this->sessionManager->rotateTokens($session, $token, $refresh);
+        $this->requestStack->getCurrentRequest()->attributes->set('_auth_token', $token);
+        $this->requestStack->getCurrentRequest()->attributes->set('_refresh_token', $refresh);
 
-        $accessToken = $this->createAccessToken(
-            user: $user,
-            session: $session,
-            authStage: AuthStage::AUTHENTICATED,
-        );
-
-        $refreshToken = $this->generateRefreshToken();
-
-        $this->sessionManager->rotateTokens(
-            session: $session,
-            accessToken: $accessToken,
-            refreshToken: $refreshToken,
-        );
-
-        return new AuthTokenResponse(
-            token: $accessToken,
-            authStage: AuthStage::AUTHENTICATED,
-            session: $session,
-            refreshToken: $refreshToken,
-        );
+        return new AuthTokenResponse(SessionStatus::AUTHENTICATED, $session->getUser(), ResponseMessage::SESSION_REFRESHED);
     }
 
-    private function createAccessToken(
-        User $user,
-        Session $session,
-        AuthStage $authStage,
-    ): string {
+    private function createAccessToken(User $user, Session $session, SessionStatus $status): string
+    {
         return $this->jwtTokenManager->createFromPayload($user, [
             'session_id' => $session->getIdAsString(),
-            'auth_stage' => $authStage->value,
+            'status' => $status->value,
             'has_pin' => $user->getPin() !== null,
             'jti' => $this->generateTokenId(),
         ]);

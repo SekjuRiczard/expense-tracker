@@ -1,42 +1,36 @@
 <?php
 
-/*
- * This file is part of the Expense Tracker.
- *
- * (c) SekjuRiczard <dawidosak32@gmail.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 declare(strict_types=1);
 
 namespace App\Auth\Dto\Response;
 
-use App\Entity\Session;
-use App\Enum\AuthStage;
+use App\Entity\User;
+use App\Enum\ResponseMessage;
+use App\Enum\SessionStatus;
 
-final readonly class AuthTokenResponse
+readonly class AuthTokenResponse
 {
     public function __construct(
-        public string $token,
-        public AuthStage $authStage,
-        public Session $session,
-        public ?string $refreshToken = null,
+        public SessionStatus $status,
+        public User $user,
+        public ResponseMessage $message,
     ) {
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toArray(): array
     {
-        $data = [
-            'token' => $this->token,
-            'status' => $this->authStage->value,
+        return [
+            'status' => $this->status->value,
+            'message' => $this->message->t(),
+            'user' => [
+                'id' => (string) $this->user->getId(),
+                'email' => $this->user->getEmail(),
+                'username' => $this->user->getUsername(),
+                'hasPin' => $this->user->getPin() !== null,
+            ],
         ];
-
-        if ($this->refreshToken !== null) {
-            $data['refreshToken'] = $this->refreshToken;
-        }
-
-        return $data;
     }
 }

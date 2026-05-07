@@ -6,13 +6,11 @@
 parameters:
 
 services:
-    # default configuration for services in *this* file
     _defaults:
-        autowire: true      # Automatically injects dependencies in your services.
-        autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+        autowire: true
+        autoconfigure: true
 
-    # makes classes in src/ available to be used as services
-    # this creates a service per class whose id is the fully-qualified class name
+    # 1. Najpierw auto-discovery dla wszystkiego
     App\:
         resource: '../src/'
         exclude:
@@ -23,5 +21,19 @@ services:
     App\Auth\Service\LoginRateLimiter:
         arguments:
             $loginLimiter: '@limiter.login'
+
+    App\Auth\Factory\CookieFactory:
+        arguments:
+            - '%env(bool:AUTH_COOKIE_SECURE)%'
+
+    App\Auth\EventListener\DebugAuthListener:
+        arguments:
+            $logPath: '%kernel.logs_dir%/cookie.log'
+        tags:
+            - { name: 'kernel.event_subscriber' }
+
+    App\Auth\Security\CookieTokenExtractor:
+        tags:
+            - { name: 'lexik_jwt.token_extractor' }
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

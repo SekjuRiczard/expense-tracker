@@ -1,19 +1,10 @@
 <?php
 
-/*
- * This file is part of the Expense Tracker.
- *
- * (c) SekjuRiczard <dawidosak32@gmail.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 declare(strict_types=1);
 
 namespace App\Session\EventSubscriber;
 
-use App\Auth\Service\BearerTokenExtractor;
+use App\Auth\Factory\CookieFactory;
 use App\Entity\Session;
 use App\Enum\SessionStatus;
 use App\Session\Service\SessionManagerInterface;
@@ -22,88 +13,52 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
-use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 final readonly class SessionAuthorizationSubscriber implements EventSubscriberInterface
 {
-    private const PUBLIC_PATHS = [
-        '/api/register',
-        '/api/login',
-        '/api/token/refresh',
-        '/api/doc',
-    ];
+    private const PUBLIC_PATHS = ['/api/register', '/api/login', '/api/token/refresh', '/api/doc'];
+    private const PARTIAL_AUTH_ALLOWED_PATHS = ['/api/pin/setup', '/api/pin/verify', '/api/logout', '/api/me'];
 
-    private const PARTIAL_AUTH_ALLOWED_PATHS = [
-        '/api/pin/setup',
-        '/api/pin/verify',
-        '/api/logout',
-        '/api/me',
-    ];
-
-    public function __construct(
-        private BearerTokenExtractor $bearerTokenExtractor,
-        private SessionManagerInterface $sessionManager,
-    ) {
+    public function __construct(private SessionManagerInterface $sessionManager)
+    {
     }
 
     public static function getSubscribedEvents(): array
     {
-        return [
-            KernelEvents::CONTROLLER => 'onKernelController',
-        ];
+        return [KernelEvents::CONTROLLER => 'onKernelController'];
     }
 
     public function onKernelController(ControllerEvent $event): void
     {
-        $request = $event->getRequest();
-
-        if (!$this->isApiRequest($request)) {
+        if (!$this->isApiRequest($event->getRequest()) || $this->isPublicPath($event->getRequest())) {
             return;
         }
 
-        if ($this->isPublicPath($request)) {
-            return;
-        }
-
-        $session = $this->getSessionFromRequest($request);
+        /** @var Session|null $session */
+        $session = $this->getSessionFromRequest($event->getRequest());
 
         if (!$session instanceof Session) {
-            $this->deny(
-                event: $event,
-                statusCode: Response::HTTP_UNAUTHORIZED,
-                status: 'unauthorized',
-                message: 'Invalid or expired session.',
-            );
+            $this->deny($event, Response::HTTP_UNAUTHORIZED, 'unauthorized', 'Invalid or expired session.');
 
             return;
         }
 
-        if ($session->getStatus() === SessionStatus::AUTHENTICATED) {
+        $event->getRequest()->attributes->set('app_session', $session);
+
+        if ($session->getStatus() === SessionStatus::AUTHENTICATED || $this->isPartialAuthAllowedPath($event->getRequest())) {
             return;
         }
 
-        if ($this->isPartialAuthAllowedPath($request)) {
-            return;
-        }
-
-        $this->deny(
-            event: $event,
-            statusCode: Response::HTTP_FORBIDDEN,
-            status: $session->getStatus()->value,
-            message: 'PIN authorization is required to access this resource.',
-        );
+        $this->deny($event, Response::HTTP_FORBIDDEN, $session->getStatus()->value, 'PIN authorization is required.');
     }
 
     private function getSessionFromRequest(Request $request): ?Session
     {
-        try {
-            $token = $this->bearerTokenExtractor->extract($request);
-        } catch (UnauthorizedHttpException) {
-            return null;
-        }
+        /** @var string|null $token */
+        $token = $request->cookies->get(CookieFactory::ACCESS_TOKEN_COOKIE);
 
-        return $this->sessionManager->findSessionByToken($token);
+        return $token ? $this->sessionManager->findSessionByToken($token) : null;
     }
 
     private function isApiRequest(Request $request): bool
@@ -123,24 +78,14 @@ final readonly class SessionAuthorizationSubscriber implements EventSubscriberIn
 
     private function normalizePath(Request $request): string
     {
+        /** @var string $path */
         $path = $request->getPathInfo();
 
-        if ($path === '/') {
-            return $path;
-        }
-
-        return rtrim($path, '/');
+        return '/' === $path ? $path : rtrim($path, '/');
     }
 
-    private function deny(
-        ControllerEvent $event,
-        int $statusCode,
-        string $status,
-        string $message,
-    ): void {
-        $event->setController(static fn (): JsonResponse => new JsonResponse([
-            'status' => $status,
-            'message' => $message,
-        ], $statusCode));
+    private function deny(ControllerEvent $event, int $statusCode, string $status, string $message): void
+    {
+        $event->setController(static fn (): JsonResponse => new JsonResponse(['status' => $status, 'message' => $message], $statusCode));
     }
 }

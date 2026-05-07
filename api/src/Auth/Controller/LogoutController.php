@@ -1,56 +1,35 @@
 <?php
 
-/*
- * This file is part of the Expense Tracker.
- *
- * (c) SekjuRiczard <dawidosak32@gmail.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 declare(strict_types=1);
 
 namespace App\Auth\Controller;
 
-use App\Entity\User;
-use App\Session\Service\CurrentSessionResolver;
+use App\Entity\Session;
 use App\Session\Service\SessionManagerInterface;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Security\Http\Attribute\CurrentUser;
+use Symfony\Component\Routing\Annotation\Route;
 
-#[Route('/api', name: 'api_')]
-final class LogoutController extends AbstractController
+final readonly class LogoutController
 {
     public function __construct(
-        private readonly CurrentSessionResolver $currentSessionResolver,
-        private readonly SessionManagerInterface $sessionManager,
+        private SessionManagerInterface $sessionManager,
     ) {
     }
 
-    #[Route('/logout', name: 'logout', methods: ['POST'])]
-    public function logout(
-        Request $request,
-        #[CurrentUser] ?User $user,
-    ): JsonResponse {
-        if (!$user instanceof User) {
-            return $this->json([
-                'status' => 'error',
-                'message' => 'Unauthorized.',
-            ], Response::HTTP_UNAUTHORIZED);
+    #[Route('/api/logout', name: 'auth_logout', methods: ['POST'])]
+    public function logout(Request $request): JsonResponse
+    {
+        /** @var Session|null $session */
+        $session = $request->attributes->get('app_session');
+
+        if ($session instanceof Session) {
+            $this->sessionManager->revokeSession($session);
         }
 
-        $session = $this->currentSessionResolver->resolve($request, $user);
+        $request->attributes->set('_logout', true);
 
-        $this->sessionManager->revokeSession($session);
-
-        return $this->json([
-            'status' => 'success',
-            'message' => 'Logged out successfully.',
-        ], Response::HTTP_OK);
+        return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 }
