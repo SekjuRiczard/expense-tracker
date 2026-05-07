@@ -1,0 +1,584 @@
+# Auth functional tests — use cases
+
+Dokument opisuje paczki testów funkcjonalnych dla flow autoryzacji opartego o HttpOnly cookies, `partial_access_token`, `access_token`, `refresh_token`, sesje oraz PIN.
+
+## Cel testów
+
+Testy funkcjonalne sprawdzają pełne zachowanie endpointów HTTP, a nie tylko pojedyncze klasy. W szczególności obejmują:
+
+- statusy HTTP,
+- format odpowiedzi JSON,
+- ustawianie i wygaszanie cookies,
+- tworzenie i zmianę statusu sesji,
+- zapis danych użytkownika,
+- blokowanie niepoprawnych stanów flow,
+- brak wycieku tokenów w response body.
+
+---
+
+# RegisterTest
+
+Paczka sprawdza endpoint:
+
+```http
+POST /api/register
+```
+
+## Use case: poprawna rejestracja nowego użytkownika
+
+Sprawdza, że poprawny request rejestracji:
+
+- zwraca poprawny status HTTP,
+- tworzy użytkownika w bazie,
+- zapisuje zahashowane hasło zamiast plaintextu,
+- tworzy sesję dla użytkownika,
+- ustawia status sesji `pin_setup_required`,
+- nie ustawia jeszcze PIN-u użytkownika,
+- ustawia cookie `partial_access_token`,
+- nie ustawia cookie `access_token`,
+- nie ustawia cookie `refresh_token`,
+- ustawia `partial_access_token` jako HttpOnly,
+- nie zwraca tokenów w body odpowiedzi.
+
+## Use case: rejestracja z istniejącym emailem
+
+Sprawdza, że próba rejestracji na zajęty email:
+
+- zwraca błąd konfliktu lub walidacji zgodny z aplikacją,
+- nie tworzy drugiego użytkownika,
+- nie tworzy sesji,
+- nie ustawia żadnych cookies autoryzacyjnych.
+
+## Use case: rejestracja z pustym payloadem
+
+Sprawdza, że request bez wymaganych pól:
+
+- zwraca błąd walidacji,
+- nie tworzy użytkownika,
+- nie tworzy sesji,
+- nie ustawia cookies.
+
+## Use case: rejestracja bez username
+
+Sprawdza, że brak pola `username`:
+
+- zwraca błąd walidacji,
+- nie tworzy użytkownika,
+- nie ustawia cookies.
+
+## Use case: rejestracja bez emaila
+
+Sprawdza, że brak pola `email`:
+
+- zwraca błąd walidacji,
+- nie tworzy użytkownika,
+- nie ustawia cookies.
+
+## Use case: rejestracja bez hasła
+
+Sprawdza, że brak pola `password`:
+
+- zwraca błąd walidacji,
+- nie tworzy użytkownika,
+- nie ustawia cookies.
+
+## Use case: rejestracja z pustym username
+
+Sprawdza, że pusty `username`:
+
+- zwraca błąd walidacji,
+- nie tworzy użytkownika,
+- nie ustawia cookies.
+
+## Use case: rejestracja z niepoprawnym emailem
+
+Sprawdza, że niepoprawny format emaila:
+
+- zwraca błąd walidacji,
+- nie tworzy użytkownika,
+- nie ustawia cookies.
+
+## Use case: rejestracja ze zbyt krótkim hasłem
+
+Sprawdza, że zbyt krótkie hasło:
+
+- zwraca błąd walidacji,
+- nie tworzy użytkownika,
+- nie ustawia cookies.
+
+## Use case: rejestracja z uszkodzonym JSON-em
+
+Sprawdza, że malformed JSON:
+
+- zwraca `400 Bad Request`,
+- nie tworzy użytkownika,
+- nie tworzy sesji,
+- nie ustawia cookies.
+
+---
+
+# LoginTest
+
+Paczka sprawdza endpoint:
+
+```http
+POST /api/login
+```
+
+## Use case: poprawne logowanie użytkownika bez PIN-u
+
+Sprawdza, że użytkownik bez ustawionego PIN-u po poprawnym loginie:
+
+- dostaje odpowiedź `pin_setup_required`,
+- dostaje cookie `partial_access_token`,
+- nie dostaje cookie `access_token`,
+- nie dostaje cookie `refresh_token`,
+- ma utworzoną sesję w statusie `pin_setup_required`,
+- ma zaktualizowane `lastLoginAt`,
+- nie dostaje tokenów w body odpowiedzi.
+
+## Use case: poprawne logowanie użytkownika z PIN-em
+
+Sprawdza, że użytkownik z ustawionym PIN-em po poprawnym loginie:
+
+- dostaje odpowiedź `pin_verification_required`,
+- dostaje cookie `partial_access_token`,
+- nie dostaje cookie `access_token`,
+- nie dostaje cookie `refresh_token`,
+- ma utworzoną sesję w statusie `pin_verification_required`,
+- ma zaktualizowane `lastLoginAt`,
+- nie dostaje tokenów w body odpowiedzi.
+
+## Use case: logowanie na nieistniejący email
+
+Sprawdza, że login dla nieistniejącego użytkownika:
+
+- zwraca `401 Unauthorized`,
+- nie tworzy sesji,
+- nie ustawia cookies.
+
+## Use case: logowanie z błędnym hasłem
+
+Sprawdza, że błędne hasło:
+
+- zwraca `401 Unauthorized`,
+- nie tworzy nowej sesji,
+- nie ustawia cookies.
+
+## Use case: logowanie nieaktywnego użytkownika
+
+Sprawdza, że nieaktywny użytkownik:
+
+- nie może się zalogować,
+- dostaje `401 Unauthorized`,
+- nie ma tworzonej sesji,
+- nie dostaje cookies.
+
+## Use case: logowanie z pustym payloadem
+
+Sprawdza, że brak danych logowania:
+
+- zwraca błąd walidacji,
+- nie ustawia cookies.
+
+## Use case: logowanie bez emaila
+
+Sprawdza, że brak pola `email`:
+
+- zwraca błąd walidacji,
+- nie ustawia cookies.
+
+## Use case: logowanie bez hasła
+
+Sprawdza, że brak pola `password`:
+
+- zwraca błąd walidacji,
+- nie ustawia cookies.
+
+## Use case: logowanie z pustym emailem
+
+Sprawdza, że pusty email:
+
+- zwraca błąd walidacji,
+- nie ustawia cookies.
+
+## Use case: logowanie z pustym hasłem
+
+Sprawdza, że puste hasło:
+
+- zwraca błąd walidacji,
+- nie ustawia cookies.
+
+## Use case: logowanie z niepoprawnym formatem emaila
+
+Sprawdza, że niepoprawny email:
+
+- zwraca błąd walidacji,
+- nie ustawia cookies.
+
+## Use case: logowanie z uszkodzonym JSON-em
+
+Sprawdza, że malformed JSON:
+
+- zwraca `400 Bad Request`,
+- nie tworzy sesji,
+- nie ustawia cookies.
+
+---
+
+# PinSetupTest
+
+Paczka sprawdza endpoint:
+
+```http
+POST /api/pin/setup
+```
+
+## Use case: ustawienie PIN-u z `partial_access_token`
+
+Sprawdza, że użytkownik po rejestracji lub loginie bez PIN-u może ustawić PIN:
+
+- request z `partial_access_token` przechodzi,
+- backend ustawia PIN użytkownika,
+- PIN jest zapisany jako hash, nie plaintext,
+- sesja zmienia status na `authenticated`,
+- pojawia się cookie `access_token`,
+- pojawia się cookie `refresh_token`,
+- cookie `partial_access_token` zostaje wygaszone,
+- `access_token` i `refresh_token` są HttpOnly,
+- odpowiedź nie zawiera tokenów w body.
+
+## Use case: ustawienie PIN-u bez tokena
+
+Sprawdza, że request bez żadnego tokena:
+
+- zwraca `401 Unauthorized`,
+- nie ustawia żadnych cookies autoryzacyjnych.
+
+## Use case: ustawienie PIN-u z pustym payloadem
+
+Sprawdza, że brak pola `pin`:
+
+- zwraca błąd walidacji,
+- nie ustawia PIN-u,
+- nie tworzy pełnych cookies,
+- sesja pozostaje w statusie `pin_setup_required`.
+
+## Use case: ustawienie PIN-u bez pola `pin`
+
+Sprawdza, że payload bez właściwego pola:
+
+- zwraca błąd walidacji,
+- nie ustawia PIN-u,
+- nie tworzy `access_token` ani `refresh_token`.
+
+## Use case: ustawienie pustego PIN-u
+
+Sprawdza, że pusty PIN:
+
+- zwraca błąd walidacji,
+- nie ustawia PIN-u,
+- sesja pozostaje częściowa.
+
+## Use case: ustawienie zbyt krótkiego PIN-u
+
+Sprawdza, że zbyt krótki PIN:
+
+- zwraca błąd walidacji,
+- nie ustawia PIN-u,
+- nie tworzy pełnej sesji.
+
+## Use case: malformed JSON przy ustawianiu PIN-u
+
+Sprawdza, że uszkodzony JSON:
+
+- zwraca `400 Bad Request`,
+- nie ustawia PIN-u,
+- sesja pozostaje w statusie `pin_setup_required`.
+
+## Use case: ponowne ustawienie PIN-u po pełnej autoryzacji
+
+Sprawdza, że po poprawnym setupie PIN-u drugi request do `/api/pin/setup`:
+
+- zwraca `403 Forbidden`,
+- nie zmienia istniejącego PIN-u,
+- sesja pozostaje `authenticated`.
+
+## Use case: setup PIN-u dla użytkownika, który już ma PIN
+
+Sprawdza, że użytkownik posiadający PIN po loginie trafia do flow weryfikacji PIN-u, a nie setupu:
+
+- login ustawia sesję `pin_verification_required`,
+- request do `/api/pin/setup` zwraca `403 Forbidden`,
+- istniejący PIN nie zostaje nadpisany,
+- sesja pozostaje `pin_verification_required`.
+
+---
+
+# PinVerifyTest
+
+Paczka sprawdza endpoint:
+
+```http
+POST /api/pin/verify
+```
+
+## Use case: poprawna weryfikacja PIN-u z `partial_access_token`
+
+Sprawdza, że użytkownik z ustawionym PIN-em po loginie może zweryfikować PIN:
+
+- login ustawia `partial_access_token`,
+- sesja ma status `pin_verification_required`,
+- poprawny PIN przełącza sesję na `authenticated`,
+- backend ustawia cookie `access_token`,
+- backend ustawia cookie `refresh_token`,
+- backend wygasza `partial_access_token`,
+- pełne cookies są HttpOnly,
+- response body nie zawiera tokenów.
+
+## Use case: weryfikacja PIN-u bez tokena
+
+Sprawdza, że request bez tokena:
+
+- zwraca `401 Unauthorized`,
+- nie ustawia cookies.
+
+## Use case: błędny PIN
+
+Sprawdza, że błędny PIN:
+
+- zwraca `403 Forbidden`,
+- nie autoryzuje sesji,
+- nie ustawia `access_token`,
+- nie ustawia `refresh_token`,
+- sesja pozostaje w statusie `pin_verification_required`.
+
+## Use case: weryfikacja PIN-u z pustym payloadem
+
+Sprawdza, że brak pola `pin`:
+
+- zwraca błąd walidacji,
+- nie autoryzuje sesji,
+- nie tworzy pełnych cookies.
+
+## Use case: weryfikacja PIN-u bez pola `pin`
+
+Sprawdza, że payload bez właściwego pola:
+
+- zwraca błąd walidacji,
+- sesja pozostaje `pin_verification_required`.
+
+## Use case: weryfikacja pustego PIN-u
+
+Sprawdza, że pusty PIN:
+
+- zwraca błąd walidacji,
+- nie autoryzuje użytkownika.
+
+## Use case: weryfikacja zbyt krótkiego PIN-u
+
+Sprawdza, że zbyt krótki PIN:
+
+- zwraca błąd walidacji,
+- sesja pozostaje częściowa.
+
+## Use case: malformed JSON przy weryfikacji PIN-u
+
+Sprawdza, że uszkodzony JSON:
+
+- zwraca `400 Bad Request`,
+- nie autoryzuje sesji.
+
+## Use case: próba weryfikacji PIN-u w statusie `pin_setup_required`
+
+Sprawdza, że użytkownik, który powinien dopiero ustawić PIN:
+
+- nie może wykonać `/api/pin/verify`,
+- dostaje `403 Forbidden`,
+- nie ma ustawionego PIN-u,
+- sesja pozostaje `pin_setup_required`.
+
+## Use case: ponowna weryfikacja PIN-u po pełnej autoryzacji
+
+Sprawdza, że drugi request do `/api/pin/verify` po udanej weryfikacji:
+
+- zwraca `403 Forbidden`,
+- sesja pozostaje `authenticated`,
+- refresh token pozostaje ustawiony.
+
+## Use case: blokada po trzech błędnych próbach PIN-u
+
+Sprawdza, że po trzech błędnych próbach:
+
+- użytkownik zostaje zablokowany czasowo dla PIN-u,
+- `pinLockedUntil` zostaje ustawione,
+- sesja nie zostaje autoryzowana,
+- nie powstaje refresh token.
+
+---
+
+# RefreshTokenTest
+
+Paczka sprawdza endpoint:
+
+```http
+POST /api/token/refresh
+```
+
+## Use case: refresh bez `refresh_token`
+
+Sprawdza, że request bez cookie `refresh_token`:
+
+- zwraca `401 Unauthorized`,
+- nie ustawia `access_token`,
+- nie ustawia `refresh_token`,
+- nie ustawia `partial_access_token`.
+
+## Use case: refresh z nieprawidłowym `refresh_token`
+
+Sprawdza, że nieznany lub błędny refresh token:
+
+- zwraca `401 Unauthorized`,
+- nie tworzy `access_token`,
+- nie tworzy `partial_access_token`.
+
+## Use case: refresh z poprawnym `refresh_token`
+
+Sprawdza, że poprawny refresh token:
+
+- zwraca `200 OK`,
+- utrzymuje status sesji `authenticated`,
+- ustawia nowy `access_token`,
+- ustawia nowy `refresh_token`,
+- oba cookies są HttpOnly,
+- nowy access token różni się od starego,
+- nowy refresh token różni się od starego,
+- `partial_access_token` nie jest ustawiany,
+- response body nie zawiera tokenów,
+- sesja nie jest revoked.
+
+## Use case: stary refresh token po rotacji nie działa
+
+Sprawdza, że po odświeżeniu sesji:
+
+- stary `refresh_token` zostaje unieważniony,
+- ponowny refresh z użyciem starego tokena zwraca `401 Unauthorized`.
+
+## Use case: nowy refresh token po rotacji działa
+
+Sprawdza, że po rotacji:
+
+- nowo wydany `refresh_token` może zostać użyty do kolejnego refreshu,
+- kolejny refresh również rotuje tokeny,
+- drugi refresh token różni się od pierwszego.
+
+## Use case: refresh dla revoked session
+
+Sprawdza, że sesja oznaczona jako revoked:
+
+- nie może zostać odświeżona,
+- zwraca `401 Unauthorized`.
+
+## Use case: refresh przy samym `partial_access_token`
+
+Sprawdza, że użytkownik w częściowym flow autoryzacji:
+
+- nie ma `refresh_token`,
+- nie może odświeżyć sesji,
+- dostaje `401 Unauthorized`.
+
+---
+
+# LogoutTest
+
+Paczka sprawdza endpoint:
+
+```http
+POST /api/logout
+```
+
+## Use case: logout z pełną autoryzowaną sesją
+
+Sprawdza, że user z ważnym `access_token`:
+
+- może wykonać logout,
+- dostaje `204 No Content`,
+- sesja zostaje oznaczona jako `revoked`,
+- `revokedAt` zostaje ustawione,
+- cookie `access_token` zostaje wygaszone,
+- cookie `refresh_token` zostaje wygaszone,
+- cookie `partial_access_token` zostaje wygaszone.
+
+## Use case: refresh po logout
+
+Sprawdza, że po wylogowaniu:
+
+- próba użycia starego `refresh_token` kończy się `401 Unauthorized`,
+- revoked session nie może zostać odświeżona.
+
+## Use case: logout bez tokena
+
+Sprawdza, że request bez żadnego tokena:
+
+- zwraca `401 Unauthorized`,
+- nie ustawia ani nie wygasza cookies w odpowiedzi.
+
+## Use case: logout z `partial_access_token`
+
+Sprawdza, że użytkownik w częściowym flow, np. po rejestracji przed PIN-em:
+
+- może wykonać logout,
+- dostaje `204 No Content`,
+- sesja zostaje oznaczona jako `revoked`,
+- `access_token` zostaje wygaszony,
+- `refresh_token` zostaje wygaszony,
+- `partial_access_token` zostaje wygaszony.
+
+## Use case: drugi logout po pierwszym logout
+
+Sprawdza, że po pierwszym logout:
+
+- cookies są już wygaszone,
+- drugi logout nie ma tokena,
+- backend zwraca `401 Unauthorized`.
+
+---
+
+# Podsumowanie pokrycia
+
+Aktualny zestaw funkcjonalnych testów auth pokrywa cały cykl życia sesji:
+
+```txt
+register
+→ partial_access_token
+→ pin setup
+→ access_token + refresh_token
+→ refresh rotation
+→ logout
+```
+
+oraz alternatywny flow:
+
+```txt
+login usera z PIN-em
+→ partial_access_token
+→ pin verification
+→ access_token + refresh_token
+→ refresh rotation
+→ logout
+```
+
+Testy pokrywają też najważniejsze przypadki błędne:
+
+- brak tokena,
+- błędny token,
+- błędny refresh token,
+- revoked session,
+- błędne hasło,
+- nieistniejący email,
+- inactive user,
+- malformed JSON,
+- invalid payload,
+- błędny PIN,
+- lock PIN po kilku błędnych próbach,
+- próba wykonania endpointu w złym statusie sesji.
