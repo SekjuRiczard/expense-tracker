@@ -38,3 +38,10 @@ services:
     App\Session\Service\CurrentSessionResolver:
         arguments:
             $logPath: '%kernel.logs_dir%/current_session_resolver.log'
+
+    App\Auth\Mailer\PasswordResetCodeMailerInterface:
+        alias: App\Auth\Mailer\SymfonyPasswordResetCodeMailer
+
+    App\Auth\Mailer\SymfonyPasswordResetCodeMailer:
+        arguments:
+            $fromEmail: '%env(MAILER_FROM)%'

@@ -272,4 +272,20 @@ Potencjalne use case'y:
 - subscriber ustawia `app_session` w request attributes
 ```
 
-Te dwa testy są dobrym kolejnym krokiem, ale nie są krytyczne, bo główne scenariusze są już pokryte functional testami.
+
+### `PasswordServiceTest`
+Potencjalne use case'y:
+
+```txt
+- poprawna zmiana hasła hashuje nowe hasło
+- poprawna zmiana hasła zapisuje użytkownika przez repozytorium
+- nowe hasło nie jest zapisywane w postaci jawnej
+- błędne aktualne hasło rzuca wyjątek
+- przy błędnym aktualnym haśle nowe hasło nie jest hashowane
+- przy błędnym aktualnym haśle użytkownik nie jest zapisywany
+- niezgodne `newPassword` i `confirmNewPassword` rzucają wyjątek
+- przy niezgodnym potwierdzeniu hasła nowe hasło nie jest hashowane
+- przy niezgodnym potwierdzeniu hasła użytkownik nie jest zapisywany
+- nowe hasło takie samo jak aktualne rzuca wyjątek
+- przy próbie ustawienia tego samego hasła użytkownik nie jest zapisywany
+```

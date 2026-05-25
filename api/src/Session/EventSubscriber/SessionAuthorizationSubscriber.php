@@ -22,6 +22,8 @@ final readonly class SessionAuthorizationSubscriber implements EventSubscriberIn
         '/api/login',
         '/api/token/refresh',
         '/api/doc',
+        '/api/password/forgot',
+        '/api/password/reset',
     ];
 
     private const PARTIAL_AUTH_ALLOWED_PATHS = [

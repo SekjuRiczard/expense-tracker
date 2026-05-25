@@ -582,3 +582,254 @@ Testy pokrywają też najważniejsze przypadki błędne:
 - błędny PIN,
 - lock PIN po kilku błędnych próbach,
 - próba wykonania endpointu w złym statusie sesji.
+
+## ChangePasswordTest
+
+Paczka testów sprawdza endpoint odpowiedzialny za zmianę hasła zalogowanego użytkownika.
+
+### Endpoint
+
+```http
+PATCH /api/password/change
+
+Payload
+{
+  "oldPassword": "OldPassword123!",
+  "newPassword": "NewPassword123!",
+  "confirmNewPassword": "NewPassword123!"
+}
+
+Use case’y
+Zalogowany użytkownik może poprawnie zmienić hasło.
+Po zmianie hasła stare hasło nie działa przy ponownym logowaniu.
+Po zmianie hasła nowe hasło działa przy ponownym logowaniu.
+Próba zmiany hasła z błędnym aktualnym hasłem zwraca 400 Bad Request.
+Próba zmiany hasła, gdy newPassword i confirmNewPassword różnią się, zwraca 400 Bad Request.
+Próba ustawienia nowego hasła takiego samego jak aktualne zwraca 400 Bad Request.
+Niepoprawny payload zwraca 422 Unprocessable Entity.
+Pusty payload zwraca błąd walidacji.
+Brak pola oldPassword zwraca błąd walidacji.
+Brak pola newPassword zwraca błąd walidacji.
+Brak pola confirmNewPassword zwraca błąd walidacji.
+Puste oldPassword zwraca błąd walidacji.
+Puste newPassword zwraca błąd walidacji.
+Puste confirmNewPassword zwraca błąd walidacji.
+Zbyt krótkie newPassword zwraca błąd walidacji.
+Niepoprawny JSON zwraca 400 Bad Request.
+Request bez tokena zwraca 401 Unauthorized.
+Request z samym partial_access_token zwraca 403 Forbidden.
+Zmiana hasła wymaga pełnej autoryzacji przez access_token.
+
+---
+
+# ForgotPasswordTest
+
+Paczka testów sprawdza endpoint odpowiedzialny za rozpoczęcie procesu resetowania hasła przez wysłanie kodu na email.
+
+## Endpoint
+
+```http
+POST /api/password/forgot
+```
+
+## Payload
+
+```json
+{
+  "email": "user@example.com"
+}
+```
+
+## Use case: reset hasła dla istniejącego użytkownika
+
+Sprawdza, że dla istniejącego aktywnego użytkownika:
+
+- endpoint zwraca `200 OK`,
+- response ma neutralny status `success`,
+- response nie zdradza szczegółów konta,
+- w bazie powstaje rekord kodu resetu hasła,
+- kod resetu jest zapisany jako hash,
+- hash kodu ma długość 64 znaków,
+- kod nie jest oznaczony jako użyty,
+- kod ma ustawiony czas wygaśnięcia w przyszłości.
+
+## Use case: reset hasła dla nieistniejącego użytkownika
+
+Sprawdza, że dla nieistniejącego emaila:
+
+- endpoint zwraca `200 OK`,
+- response jest taki sam jak dla istniejącego użytkownika,
+- backend nie zdradza, czy konto istnieje,
+- w bazie nie powstaje kod resetu.
+
+## Use case: reset hasła dla nieaktywnego użytkownika
+
+Sprawdza, że dla nieaktywnego użytkownika:
+
+- endpoint zwraca `200 OK`,
+- response jest neutralny,
+- kod resetu nie zostaje utworzony.
+
+## Use case: błędny payload
+
+Sprawdza, że niepoprawny payload:
+
+- zwraca `422 Unprocessable Entity`,
+- obejmuje pusty payload,
+- obejmuje brak pola `email`,
+- obejmuje puste `email`,
+- obejmuje niepoprawny format emaila.
+
+## Use case: malformed JSON
+
+Sprawdza, że niepoprawny JSON:
+
+- zwraca `400 Bad Request`.
+
+---
+
+# ResetPasswordTest
+
+Paczka testów sprawdza endpoint odpowiedzialny za ustawienie nowego hasła na podstawie kodu resetu wysłanego mailem.
+
+## Endpoint
+
+```http
+POST /api/password/reset
+```
+
+## Payload
+
+```json
+{
+  "email": "user@example.com",
+  "code": "123456",
+  "newPassword": "NewPassword123!",
+  "confirmNewPassword": "NewPassword123!"
+}
+```
+
+## Use case: poprawny reset hasła
+
+Sprawdza, że poprawny email, kod i nowe hasła:
+
+- zwracają `200 OK`,
+- zwracają status `success`,
+- zmieniają hasło użytkownika,
+- nowe hasło pasuje do zapisanego hasha,
+- stare hasło nie pasuje już do zapisanego hasha,
+- kod resetu zostaje oznaczony jako użyty przez ustawienie `usedAt`.
+
+## Use case: stare hasło nie działa po resecie
+
+Sprawdza, że po poprawnym resecie hasła:
+
+- próba logowania starym hasłem zwraca `401 Unauthorized`.
+
+## Use case: nowe hasło działa po resecie
+
+Sprawdza, że po poprawnym resecie hasła:
+
+- logowanie nowym hasłem zwraca `200 OK`.
+
+## Use case: błędny kod resetu
+
+Sprawdza, że niepoprawny kod:
+
+- zwraca `400 Bad Request`,
+- zwraca status `error`,
+- zwraca komunikat `Invalid or expired password reset code.`,
+- nie zmienia hasła użytkownika.
+
+## Use case: wygasły kod resetu
+
+Sprawdza, że kod resetu z `expiresAt` w przeszłości:
+
+- zwraca `400 Bad Request`,
+- zwraca status `error`,
+- zwraca komunikat `Invalid or expired password reset code.`,
+- nie zmienia hasła użytkownika.
+
+## Use case: użyty kod resetu
+
+Sprawdza, że kod oznaczony jako użyty:
+
+- nie może zostać wykorzystany ponownie,
+- zwraca `400 Bad Request`.
+
+## Use case: niezgodne nowe hasła
+
+Sprawdza, że gdy `newPassword` i `confirmNewPassword` różnią się:
+
+- backend zwraca `400 Bad Request`,
+- zwraca status `error`,
+- zwraca komunikat `New password and confirmation do not match.`,
+- nie zmienia hasła użytkownika.
+
+## Use case: nowe hasło takie samo jak aktualne
+
+Sprawdza, że próba ustawienia nowego hasła takiego samego jak aktualne:
+
+- zwraca `400 Bad Request`,
+- zwraca status `error`,
+- zwraca komunikat `New password must be different from current password.`,
+- nie zmienia hasła użytkownika.
+
+## Use case: błędny payload
+
+Sprawdza, że niepoprawny payload:
+
+- zwraca `422 Unprocessable Entity`,
+- obejmuje pusty payload,
+- obejmuje brak pola `email`,
+- obejmuje brak pola `code`,
+- obejmuje brak pola `newPassword`,
+- obejmuje brak pola `confirmNewPassword`,
+- obejmuje niepoprawny format emaila,
+- obejmuje kod zawierający litery,
+- obejmuje zbyt krótki kod,
+- obejmuje zbyt krótkie `newPassword`.
+
+## Use case: malformed JSON
+
+Sprawdza, że niepoprawny JSON:
+
+- zwraca `400 Bad Request`.
+
+---
+
+# Dopisek do podsumowania pokrycia
+
+Nowe testy rozszerzają pokrycie funkcjonalne auth o zmianę hasła oraz reset hasła kodem email.
+
+## Flow zmiany hasła
+
+```txt
+authenticated user
+→ oldPassword + newPassword + confirmNewPassword
+→ password changed
+→ old password rejected
+→ new password accepted
+```
+
+## Flow resetu hasła przez kod email
+
+```txt
+forgot password
+→ generated email code
+→ code hash stored in database
+→ reset password with email + code + new passwords
+→ old password rejected
+→ new password accepted
+```
+
+## Dodatkowe przypadki błędne
+
+- błędne aktualne hasło przy zmianie hasła,
+- niezgodne potwierdzenie nowego hasła,
+- nowe hasło takie samo jak aktualne,
+- błędny kod resetu hasła,
+- wygasły kod resetu hasła,
+- użyty kod resetu hasła,
+- reset hasła dla nieistniejącego użytkownika nie zdradza istnienia konta,
+- reset hasła dla nieaktywnego użytkownika nie tworzy kodu.

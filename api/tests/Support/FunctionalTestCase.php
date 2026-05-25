@@ -230,4 +230,38 @@ abstract class FunctionalTestCase extends WebTestCase
             httponly: true,
         ));
     }
+    /**
+     * @param array<string, mixed> $payload
+     */
+    protected function patchJson(string $uri, array $payload): Response
+    {
+        $this->client->request(
+            method: 'PATCH',
+            uri: $uri,
+            server: [
+                'CONTENT_TYPE' => 'application/json',
+                'HTTP_ACCEPT' => 'application/json',
+                'REMOTE_ADDR' => $this->clientIp,
+            ],
+            content: json_encode($payload, JSON_THROW_ON_ERROR),
+        );
+
+        return $this->client->getResponse();
+    }
+
+    protected function patchMalformedJson(string $uri, string $content): Response
+    {
+        $this->client->request(
+            method: 'PATCH',
+            uri: $uri,
+            server: [
+                'CONTENT_TYPE' => 'application/json',
+                'HTTP_ACCEPT' => 'application/json',
+                'REMOTE_ADDR' => $this->clientIp,
+            ],
+            content: $content,
+        );
+
+        return $this->client->getResponse();
+    }
 }
