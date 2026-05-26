@@ -1,5 +1,12 @@
-controllers:
+auth_controllers:
     resource:
-        path: ../src/Controller/
-        namespace: App\Controller
+        path: ../src/Auth/Controller/
+        namespace: App\Auth\Controller
     type: attribute
+
+session_controllers:
+    resource:
+        path: ../src/Session/Controller/
+        namespace: App\Session\Controller
+    type: attribute
+

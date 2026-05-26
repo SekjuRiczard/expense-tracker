@@ -1,0 +1,7 @@
+1.If works stop: sudo systemctl stop mysql
+sudo systemctl disable mysql
+
+2. build
+sudo docker compose up -d
+
+3.connect to db and make migration
