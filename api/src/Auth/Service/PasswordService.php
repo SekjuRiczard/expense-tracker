@@ -1,5 +1,14 @@
 <?php
 
+/**
+ * This file is part of the Expense Tracker.
+ *
+ *  (c) SekjuRiczard <dawidosak32@gmail.com>
+ *
+ *  For the full copyright and license information, please view the LICENSE
+ *  file that was distributed with this source code.
+ */
+
 declare(strict_types=1);
 
 namespace App\Auth\Service;
@@ -20,22 +29,13 @@ final readonly class PasswordService
 
     public function changePassword(User $user, ChangePasswordRequest $dto): void
     {
-        if (!$this->passwordHasher->isPasswordValid($user, (string) $dto->oldPassword)) {
-            throw InvalidPasswordChangeException::invalidCurrentPassword();
-        }
-
-        if ($dto->newPassword !== $dto->confirmNewPassword) {
-            throw InvalidPasswordChangeException::passwordsDoNotMatch();
-        }
-
-        if ($this->passwordHasher->isPasswordValid($user, (string) $dto->newPassword)) {
-            throw InvalidPasswordChangeException::sameAsCurrentPassword();
-        }
-
-        $user->setPassword(
-            $this->passwordHasher->hashPassword($user, (string) $dto->newPassword)
-        );
-
+        match (true) {
+            !$this->passwordHasher->isPasswordValid($user, (string) $dto->oldPassword) => throw InvalidPasswordChangeException::invalidCurrentPassword(),
+            $dto->newPassword !== $dto->confirmNewPassword => throw InvalidPasswordChangeException::passwordsDoNotMatch(),
+            $this->passwordHasher->isPasswordValid($user, (string) $dto->newPassword) => throw InvalidPasswordChangeException::sameAsCurrentPassword(),
+            default => null,
+        };
+        $user->setPassword($this->passwordHasher->hashPassword($user, (string) $dto->newPassword));
         $this->userRepository->save($user);
     }
 }

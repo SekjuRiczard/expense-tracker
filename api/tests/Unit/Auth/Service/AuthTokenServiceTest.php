@@ -1,5 +1,14 @@
 <?php
 
+/**
+ * This file is part of the Expense Tracker.
+ *
+ *  (c) SekjuRiczard <dawidosak32@gmail.com>
+ *
+ *  For the full copyright and license information, please view the LICENSE
+ *  file that was distributed with this source code.
+ */
+
 declare(strict_types=1);
 
 namespace App\Tests\Unit\Auth\Service;
@@ -11,7 +20,6 @@ use App\Entity\User;
 use App\Enum\ResponseMessage;
 use App\Enum\SessionStatus;
 use App\Session\Service\SessionManagerInterface;
-use DateTimeImmutable;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
@@ -70,11 +78,11 @@ final class AuthTokenServiceTest extends TestCase
             ->with(
                 $user,
                 self::callback(static function (array $payload): bool {
-                    return $payload['session_id'] === ''
+                    return '' === $payload['session_id']
                         && $payload['status'] === SessionStatus::PIN_SETUP_REQUIRED->value
-                        && $payload['has_pin'] === false
+                        && false === $payload['has_pin']
                         && is_string($payload['jti'])
-                        && $payload['jti'] !== '';
+                        && '' !== $payload['jti'];
                 }),
             )
             ->willReturn('partial-jwt-token');
@@ -123,9 +131,9 @@ final class AuthTokenServiceTest extends TestCase
                 $user,
                 self::callback(static function (array $payload): bool {
                     return $payload['status'] === SessionStatus::PIN_VERIFICATION_REQUIRED->value
-                        && $payload['has_pin'] === true
+                        && true === $payload['has_pin']
                         && is_string($payload['jti'])
-                        && $payload['jti'] !== '';
+                        && '' !== $payload['jti'];
                 }),
             )
             ->willReturn('partial-jwt-token');
@@ -156,11 +164,11 @@ final class AuthTokenServiceTest extends TestCase
             ->with(
                 $user,
                 self::callback(static function (array $payload): bool {
-                    return $payload['session_id'] === ''
+                    return '' === $payload['session_id']
                         && $payload['status'] === SessionStatus::AUTHENTICATED->value
-                        && $payload['has_pin'] === false
+                        && false === $payload['has_pin']
                         && is_string($payload['jti'])
-                        && $payload['jti'] !== '';
+                        && '' !== $payload['jti'];
                 }),
             )
             ->willReturn('authenticated-jwt-token');
@@ -175,7 +183,7 @@ final class AuthTokenServiceTest extends TestCase
             ->method('assignRefreshTokenToSession')
             ->with(
                 $session,
-                self::callback(static fn (string $refreshToken): bool => strlen($refreshToken) === 128),
+                self::callback(static fn (string $refreshToken): bool => 128 === strlen($refreshToken)),
             );
 
         $response = $this->authTokenService->createAuthenticatedToken(
@@ -203,11 +211,11 @@ final class AuthTokenServiceTest extends TestCase
             ->with(
                 $user,
                 self::callback(static function (array $payload): bool {
-                    return $payload['session_id'] === ''
+                    return '' === $payload['session_id']
                         && $payload['status'] === SessionStatus::AUTHENTICATED->value
-                        && $payload['has_pin'] === false
+                        && false === $payload['has_pin']
                         && is_string($payload['jti'])
-                        && $payload['jti'] !== '';
+                        && '' !== $payload['jti'];
                 }),
             )
             ->willReturn('refreshed-jwt-token');
@@ -218,7 +226,7 @@ final class AuthTokenServiceTest extends TestCase
             ->with(
                 $session,
                 'refreshed-jwt-token',
-                self::callback(static fn (string $refreshToken): bool => strlen($refreshToken) === 128),
+                self::callback(static fn (string $refreshToken): bool => 128 === strlen($refreshToken)),
             );
 
         $response = $this->authTokenService->refreshAuthenticatedToken($session);
@@ -283,7 +291,7 @@ final class AuthTokenServiceTest extends TestCase
         return new Session(
             user: $user,
             tokenHash: 'initial-token-hash',
-            expiresAt: (new DateTimeImmutable())->modify('+1 hour'),
+            expiresAt: (new \DateTimeImmutable())->modify('+1 hour'),
             status: $status,
             ipAddress: '127.0.0.1',
             userAgent: 'PHPUnit',

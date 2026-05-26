@@ -1,5 +1,14 @@
 <?php
 
+/**
+ * This file is part of the Expense Tracker.
+ *
+ *  (c) SekjuRiczard <dawidosak32@gmail.com>
+ *
+ *  For the full copyright and license information, please view the LICENSE
+ *  file that was distributed with this source code.
+ */
+
 declare(strict_types=1);
 
 namespace App\Auth\Security;
@@ -12,35 +21,16 @@ final class CookieTokenExtractor implements TokenExtractorInterface
 {
     public function extract(Request $request): string|false
     {
-        $accessToken = $request->cookies->get(CookieFactory::ACCESS_TOKEN_COOKIE);
-        $partialAccessToken = $request->cookies->get(CookieFactory::PARTIAL_ACCESS_TOKEN_COOKIE);
-
-        file_put_contents(
-            dirname(__DIR__, 3) . '/var/log/cookie_token_extractor.log',
-            sprintf(
-                "[%s] path=%s access=%s partial=%s returning=%s\n",
-                (new \DateTimeImmutable())->format('c'),
-                $request->getPathInfo(),
-                is_string($accessToken) && $accessToken !== '' ? 'yes' : 'no',
-                is_string($partialAccessToken) && $partialAccessToken !== '' ? 'yes' : 'no',
-                is_string($accessToken) && $accessToken !== ''
-                    ? 'access_token'
-                    : (
-                is_string($partialAccessToken) && $partialAccessToken !== ''
-                    ? 'partial_access_token'
-                    : 'false'
-                )
-                ,
-            ),
-            FILE_APPEND
-        );
-
-        if (is_string($accessToken) && $accessToken !== '') {
-            return $accessToken;
+        if (is_string($request->cookies->get(CookieFactory::ACCESS_TOKEN_COOKIE))
+            && '' !== $request->cookies->get(CookieFactory::ACCESS_TOKEN_COOKIE)
+        ) {
+            return $request->cookies->get(CookieFactory::ACCESS_TOKEN_COOKIE);
         }
-
-        if (is_string($partialAccessToken) && $partialAccessToken !== '') {
-            return $partialAccessToken;
+        if (
+            is_string($request->cookies->get(CookieFactory::PARTIAL_ACCESS_TOKEN_COOKIE))
+            && '' !== $request->cookies->get(CookieFactory::PARTIAL_ACCESS_TOKEN_COOKIE)
+        ) {
+            return $request->cookies->get(CookieFactory::PARTIAL_ACCESS_TOKEN_COOKIE);
         }
 
         return false;

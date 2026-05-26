@@ -1,5 +1,14 @@
 <?php
 
+/**
+ * This file is part of the Expense Tracker.
+ *
+ *  (c) SekjuRiczard <dawidosak32@gmail.com>
+ *
+ *  For the full copyright and license information, please view the LICENSE
+ *  file that was distributed with this source code.
+ */
+
 declare(strict_types=1);
 
 namespace App\Tests\Functional\Auth;
@@ -7,7 +16,6 @@ namespace App\Tests\Functional\Auth;
 use App\Entity\PasswordResetCode;
 use App\Entity\User;
 use App\Tests\Support\FunctionalTestCase;
-use DateTimeImmutable;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -39,7 +47,7 @@ final class ForgotPasswordTest extends FunctionalTestCase
         self::assertCount(1, $codes);
         self::assertSame(64, strlen($codes[0]->getCodeHash()));
         self::assertNull($codes[0]->getUsedAt());
-        self::assertGreaterThan(new DateTimeImmutable(), $codes[0]->getExpiresAt());
+        self::assertGreaterThan(new \DateTimeImmutable(), $codes[0]->getExpiresAt());
     }
 
     public function testForgotPasswordForUnknownUserReturnsSameNeutralSuccessAndDoesNotCreateResetCode(): void

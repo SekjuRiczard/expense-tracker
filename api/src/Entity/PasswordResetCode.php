@@ -1,11 +1,19 @@
 <?php
 
+/**
+ * This file is part of the Expense Tracker.
+ *
+ *  (c) SekjuRiczard <dawidosak32@gmail.com>
+ *
+ *  For the full copyright and license information, please view the LICENSE
+ *  file that was distributed with this source code.
+ */
+
 declare(strict_types=1);
 
 namespace App\Entity;
 
 use App\Auth\Repository\PasswordResetCodeRepository;
-use DateTimeImmutable;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Types\UuidType;
@@ -29,23 +37,23 @@ class PasswordResetCode
     private string $codeHash;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
-    private DateTimeImmutable $expiresAt;
+    private \DateTimeImmutable $expiresAt;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
-    private ?DateTimeImmutable $usedAt = null;
+    private ?\DateTimeImmutable $usedAt = null;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
-    private DateTimeImmutable $createdAt;
+    private \DateTimeImmutable $createdAt;
 
     public function __construct(
         User $user,
         string $codeHash,
-        DateTimeImmutable $expiresAt,
+        \DateTimeImmutable $expiresAt,
     ) {
         $this->user = $user;
         $this->codeHash = $codeHash;
         $this->expiresAt = $expiresAt;
-        $this->createdAt = new DateTimeImmutable();
+        $this->createdAt = new \DateTimeImmutable();
     }
 
     public function getId(): ?Uuid
@@ -63,33 +71,33 @@ class PasswordResetCode
         return $this->codeHash;
     }
 
-    public function getExpiresAt(): DateTimeImmutable
+    public function getExpiresAt(): \DateTimeImmutable
     {
         return $this->expiresAt;
     }
 
-    public function getUsedAt(): ?DateTimeImmutable
+    public function getUsedAt(): ?\DateTimeImmutable
     {
         return $this->usedAt;
     }
 
-    public function getCreatedAt(): DateTimeImmutable
+    public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
     }
 
     public function isUsed(): bool
     {
-        return $this->usedAt instanceof DateTimeImmutable;
+        return $this->usedAt instanceof \DateTimeImmutable;
     }
 
     public function isExpired(): bool
     {
-        return $this->expiresAt <= new DateTimeImmutable();
+        return $this->expiresAt <= new \DateTimeImmutable();
     }
 
     public function markAsUsed(): void
     {
-        $this->usedAt = new DateTimeImmutable();
+        $this->usedAt = new \DateTimeImmutable();
     }
 }

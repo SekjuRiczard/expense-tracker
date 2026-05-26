@@ -1,5 +1,14 @@
 <?php
 
+/**
+ * This file is part of the Expense Tracker.
+ *
+ *  (c) SekjuRiczard <dawidosak32@gmail.com>
+ *
+ *  For the full copyright and license information, please view the LICENSE
+ *  file that was distributed with this source code.
+ */
+
 declare(strict_types=1);
 
 namespace App\Auth\Dto\Response;
@@ -29,7 +38,7 @@ readonly class AuthTokenResponse
                 'id' => (string) $this->user->getId(),
                 'email' => $this->user->getEmail(),
                 'username' => $this->user->getUsername(),
-                'hasPin' => $this->user->getPin() !== null,
+                'hasPin' => null !== $this->user->getPin(),
             ],
         ];
     }

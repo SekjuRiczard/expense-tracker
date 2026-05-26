@@ -1,12 +1,12 @@
 <?php
 
-/*
+/**
  * This file is part of the Expense Tracker.
  *
- * (c) SekjuRiczard <dawidosak32@gmail.com>
+ *  (c) SekjuRiczard <dawidosak32@gmail.com>
  *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
+ *  For the full copyright and license information, please view the LICENSE
+ *  file that was distributed with this source code.
  */
 
 declare(strict_types=1);
@@ -23,13 +23,14 @@ final class JWTCreatedListener implements EventSubscriberInterface
     {
         return ['lexik_jwt_authentication.on_jwt_created' => 'onJWTCreated'];
     }
+
     public function onJWTCreated(JWTCreatedEvent $event): void
     {
         /** @var User $user */
         $user = $event->getUser();
         /** @var array<string, mixed> $payload */
         $payload = $event->getData();
-        $payload['has_pin'] = $user->getPin() !== null;
+        $payload['has_pin'] = null !== $user->getPin();
         $event->setData($payload);
     }
 }

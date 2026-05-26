@@ -1,5 +1,14 @@
 <?php
 
+/**
+ * This file is part of the Expense Tracker.
+ *
+ *  (c) SekjuRiczard <dawidosak32@gmail.com>
+ *
+ *  For the full copyright and license information, please view the LICENSE
+ *  file that was distributed with this source code.
+ */
+
 declare(strict_types=1);
 
 namespace App\Auth\Controller;
@@ -36,6 +45,7 @@ final class AuthController extends AbstractController
             /** @var User $user */
             $user = $authService->register($dto);
         } catch (UserAlreadyExistsException $exception) {
+
             return $this->json(['status' => 'error', 'message' => $exception->getMessage()], Response::HTTP_CONFLICT);
         }
 
@@ -63,11 +73,11 @@ final class AuthController extends AbstractController
             /** @var User $user */
             $user = $authService->login($dto);
         } catch (TooManyLoginAttemptsException|InvalidLoginCredentialsException $exception) {
+
             return $this->json(['status' => 'error', 'message' => $exception->getMessage()], Response::HTTP_UNAUTHORIZED);
         }
-
         /** @var bool $hasPin */
-        $hasPin = $user->getPin() !== null;
+        $hasPin = null !== $user->getPin();
 
         return $this->json(
             $authTokenService->createPartialToken(

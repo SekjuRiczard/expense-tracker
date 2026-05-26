@@ -1,12 +1,20 @@
 <?php
 
+/**
+ * This file is part of the Expense Tracker.
+ *
+ *  (c) SekjuRiczard <dawidosak32@gmail.com>
+ *
+ *  For the full copyright and license information, please view the LICENSE
+ *  file that was distributed with this source code.
+ */
+
 declare(strict_types=1);
 
 namespace App\Tests\Unit\Auth\Service;
 
 use App\Auth\Service\PinService;
 use App\Entity\User;
-use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
@@ -101,14 +109,14 @@ final class PinServiceTest extends TestCase
         self::assertFalse($this->pinService->verifyPin($user, '654321'));
 
         self::assertNotNull($user->getPinLockedUntil());
-        self::assertGreaterThan(new DateTimeImmutable(), $user->getPinLockedUntil());
+        self::assertGreaterThan(new \DateTimeImmutable(), $user->getPinLockedUntil());
     }
 
     public function testVerifyPinThrowsAccessDeniedWhenUserIsLocked(): void
     {
         $user = $this->createUser();
         $user->setPin(password_hash('123456', PASSWORD_DEFAULT));
-        $user->setPinLockedUntil((new DateTimeImmutable())->modify('+15 minutes'));
+        $user->setPinLockedUntil((new \DateTimeImmutable())->modify('+15 minutes'));
 
         $this->entityManager
             ->expects(self::never())

@@ -1,5 +1,14 @@
 <?php
 
+/**
+ * This file is part of the Expense Tracker.
+ *
+ *  (c) SekjuRiczard <dawidosak32@gmail.com>
+ *
+ *  For the full copyright and license information, please view the LICENSE
+ *  file that was distributed with this source code.
+ */
+
 declare(strict_types=1);
 
 namespace App\Tests\Unit\Session\Service;
@@ -9,7 +18,6 @@ use App\Entity\User;
 use App\Enum\SessionStatus;
 use App\Session\Repository\SessionRepository;
 use App\Session\Service\SessionService;
-use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
 
@@ -57,7 +65,7 @@ final class SessionServiceTest extends TestCase
         self::assertSame('127.0.0.1', $session->getIpAddress());
         self::assertSame('PHPUnit', $session->getUserAgent());
         self::assertNotSame('', $session->getTokenHash());
-        self::assertGreaterThan(new DateTimeImmutable(), $session->getExpiresAt());
+        self::assertGreaterThan(new \DateTimeImmutable(), $session->getExpiresAt());
     }
 
     public function testAssignTokenToSessionStoresTokenHashAndFlushes(): void
@@ -91,7 +99,7 @@ final class SessionServiceTest extends TestCase
     {
         $session = $this->createSession(
             status: SessionStatus::AUTHENTICATED,
-            expiresAt: (new DateTimeImmutable())->modify('+1 hour'),
+            expiresAt: (new \DateTimeImmutable())->modify('+1 hour'),
         );
 
         $this->sessionRepository
@@ -113,7 +121,7 @@ final class SessionServiceTest extends TestCase
     {
         $session = $this->createSession(
             status: SessionStatus::AUTHENTICATED,
-            expiresAt: (new DateTimeImmutable())->modify('-1 minute'),
+            expiresAt: (new \DateTimeImmutable())->modify('-1 minute'),
         );
 
         $this->sessionRepository
@@ -133,7 +141,7 @@ final class SessionServiceTest extends TestCase
     {
         $session = $this->createSession(
             status: SessionStatus::AUTHENTICATED,
-            expiresAt: (new DateTimeImmutable())->modify('+1 hour'),
+            expiresAt: (new \DateTimeImmutable())->modify('+1 hour'),
         );
         $session->revoke();
 
@@ -234,7 +242,7 @@ final class SessionServiceTest extends TestCase
         self::assertSame(hash('sha256', 'plain-refresh-token'), $session->getRefreshTokenHash());
         self::assertNotSame('plain-refresh-token', $session->getRefreshTokenHash());
         self::assertNotNull($session->getRefreshTokenExpiresAt());
-        self::assertGreaterThan(new DateTimeImmutable(), $session->getRefreshTokenExpiresAt());
+        self::assertGreaterThan(new \DateTimeImmutable(), $session->getRefreshTokenExpiresAt());
     }
 
     public function testFindSessionByRefreshTokenReturnsNullWhenSessionDoesNotExist(): void
@@ -254,7 +262,7 @@ final class SessionServiceTest extends TestCase
     {
         $session = $this->createSession(status: SessionStatus::AUTHENTICATED);
         $session->setRefreshTokenHash(hash('sha256', 'valid-refresh-token'));
-        $session->setRefreshTokenExpiresAt((new DateTimeImmutable())->modify('+30 days'));
+        $session->setRefreshTokenExpiresAt((new \DateTimeImmutable())->modify('+30 days'));
 
         $this->sessionRepository
             ->expects(self::once())
@@ -270,7 +278,7 @@ final class SessionServiceTest extends TestCase
     public function testFindSessionByRefreshTokenReturnsNullForRevokedSession(): void
     {
         $session = $this->createSession(status: SessionStatus::AUTHENTICATED);
-        $session->setRefreshTokenExpiresAt((new DateTimeImmutable())->modify('+30 days'));
+        $session->setRefreshTokenExpiresAt((new \DateTimeImmutable())->modify('+30 days'));
         $session->revoke();
 
         $this->sessionRepository
@@ -288,7 +296,7 @@ final class SessionServiceTest extends TestCase
     public function testFindSessionByRefreshTokenRevokesExpiredRefreshSessionAndReturnsNull(): void
     {
         $session = $this->createSession(status: SessionStatus::AUTHENTICATED);
-        $session->setRefreshTokenExpiresAt((new DateTimeImmutable())->modify('-1 minute'));
+        $session->setRefreshTokenExpiresAt((new \DateTimeImmutable())->modify('-1 minute'));
 
         $this->sessionRepository
             ->expects(self::once())
@@ -307,7 +315,7 @@ final class SessionServiceTest extends TestCase
     public function testFindSessionByRefreshTokenReturnsNullForNotAuthenticatedSession(): void
     {
         $session = $this->createSession(status: SessionStatus::PIN_VERIFICATION_REQUIRED);
-        $session->setRefreshTokenExpiresAt((new DateTimeImmutable())->modify('+30 days'));
+        $session->setRefreshTokenExpiresAt((new \DateTimeImmutable())->modify('+30 days'));
 
         $this->sessionRepository
             ->expects(self::once())
@@ -322,7 +330,7 @@ final class SessionServiceTest extends TestCase
         $session = $this->createSession(status: SessionStatus::AUTHENTICATED);
         $session->setTokenHash(hash('sha256', 'old-access-token'));
         $session->setRefreshTokenHash(hash('sha256', 'old-refresh-token'));
-        $session->setRefreshTokenExpiresAt((new DateTimeImmutable())->modify('+1 day'));
+        $session->setRefreshTokenExpiresAt((new \DateTimeImmutable())->modify('+1 day'));
 
         $this->entityManager
             ->expects(self::once())
@@ -339,7 +347,7 @@ final class SessionServiceTest extends TestCase
         self::assertNotSame(hash('sha256', 'old-access-token'), $session->getTokenHash());
         self::assertNotSame(hash('sha256', 'old-refresh-token'), $session->getRefreshTokenHash());
         self::assertNotNull($session->getRefreshTokenExpiresAt());
-        self::assertGreaterThan(new DateTimeImmutable(), $session->getRefreshTokenExpiresAt());
+        self::assertGreaterThan(new \DateTimeImmutable(), $session->getRefreshTokenExpiresAt());
     }
 
     public function testCleanupExpiredSessionsDelegatesToRepository(): void
@@ -347,7 +355,7 @@ final class SessionServiceTest extends TestCase
         $this->sessionRepository
             ->expects(self::once())
             ->method('deleteExpiredSessions')
-            ->with(self::isInstanceOf(DateTimeImmutable::class));
+            ->with(self::isInstanceOf(\DateTimeImmutable::class));
 
         $this->sessionService->cleanupExpiredSessions();
     }
@@ -363,12 +371,12 @@ final class SessionServiceTest extends TestCase
 
     private function createSession(
         SessionStatus $status = SessionStatus::AUTHENTICATED,
-        ?DateTimeImmutable $expiresAt = null,
+        ?\DateTimeImmutable $expiresAt = null,
     ): Session {
         return new Session(
             user: $this->createUser(),
             tokenHash: 'initial-token-hash',
-            expiresAt: $expiresAt ?? (new DateTimeImmutable())->modify('+1 hour'),
+            expiresAt: $expiresAt ?? (new \DateTimeImmutable())->modify('+1 hour'),
             status: $status,
             ipAddress: '127.0.0.1',
             userAgent: 'PHPUnit',

@@ -1,5 +1,14 @@
 <?php
 
+/**
+ * This file is part of the Expense Tracker.
+ *
+ *  (c) SekjuRiczard <dawidosak32@gmail.com>
+ *
+ *  For the full copyright and license information, please view the LICENSE
+ *  file that was distributed with this source code.
+ */
+
 declare(strict_types=1);
 
 namespace App\Tests\Unit\Auth\Service;
@@ -146,7 +155,7 @@ final class PasswordServiceTest extends TestCase
             ->willReturnCallback(static function (User $checkedUser, string $plainPassword) use ($user): bool {
                 self::assertSame($user, $checkedUser);
 
-                return $plainPassword === 'OldPassword123!';
+                return 'OldPassword123!' === $plainPassword;
             });
 
         $this->passwordHasher

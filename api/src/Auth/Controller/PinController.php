@@ -1,5 +1,14 @@
 <?php
 
+/**
+ * This file is part of the Expense Tracker.
+ *
+ *  (c) SekjuRiczard <dawidosak32@gmail.com>
+ *
+ *  For the full copyright and license information, please view the LICENSE
+ *  file that was distributed with this source code.
+ */
+
 declare(strict_types=1);
 
 namespace App\Auth\Controller;
@@ -41,7 +50,6 @@ final class PinController extends AbstractController
         /** @var Session $session */
         $session = $this->currentSessionResolver->resolve($request, $user);
         $this->ensureSessionStatus($session, SessionStatus::PIN_SETUP_REQUIRED);
-
         $this->pinService->setupPin($user, $dto->pin);
 
         return $this->json(
@@ -58,7 +66,6 @@ final class PinController extends AbstractController
         /** @var Session $session */
         $session = $this->currentSessionResolver->resolve($request, $user);
         $this->ensureSessionStatus($session, SessionStatus::PIN_VERIFICATION_REQUIRED);
-
         if (!$this->pinService->verifyPin($user, $dto->pin)) {
             return $this->json(['status' => 'error', 'message' => 'Invalid PIN.'], Response::HTTP_FORBIDDEN);
         }
@@ -77,7 +84,6 @@ final class PinController extends AbstractController
         /** @var Session $session */
         $session = $this->currentSessionResolver->resolve($request, $user);
         $this->ensureSessionStatus($session, SessionStatus::AUTHENTICATED);
-
         $this->pinService->changePin($user, $dto->oldPin, $dto->newPin);
 
         return $this->json(['status' => 'success', 'message' => ResponseMessage::AUTH_COMPLETE->t()]);
@@ -88,11 +94,6 @@ final class PinController extends AbstractController
         if ($session->getStatus() === $expectedStatus) {
             return;
         }
-
-        throw new AccessDeniedHttpException(sprintf(
-            'Invalid session status. Expected "%s", got "%s".',
-            $expectedStatus->value,
-            $session->getStatus()->value,
-        ));
+        throw new AccessDeniedHttpException(sprintf('Invalid session status. Expected "%s", got "%s".', $expectedStatus->value, $session->getStatus()->value));
     }
 }

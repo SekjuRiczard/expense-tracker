@@ -1,17 +1,18 @@
 <?php
 
-/*
+/**
  * This file is part of the Expense Tracker.
  *
- * (c) SekjuRiczard <dawidosak32@gmail.com>
+ *  (c) SekjuRiczard <dawidosak32@gmail.com>
  *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
+ *  For the full copyright and license information, please view the LICENSE
+ *  file that was distributed with this source code.
  */
 
 declare(strict_types=1);
 
 namespace App\Auth\EventListener;
+
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -20,10 +21,11 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 final class ApiLoggerSubscriber implements EventSubscriberInterface
 {
-    public function __construct(#[Autowire(service: 'monolog.logger.api')] private readonly LoggerInterface $logger) {}
+    public function __construct(#[Autowire(service: 'monolog.logger.api')] private readonly LoggerInterface $logger)
+    {
+    }
     public static function getSubscribedEvents(): array
     {
-
         return [KernelEvents::RESPONSE => ['onResponse', -255]];
     }
     public function onResponse(ResponseEvent $event): void

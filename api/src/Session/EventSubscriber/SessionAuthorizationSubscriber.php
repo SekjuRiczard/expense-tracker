@@ -1,5 +1,14 @@
 <?php
 
+/**
+ * This file is part of the Expense Tracker.
+ *
+ *  (c) SekjuRiczard <dawidosak32@gmail.com>
+ *
+ *  For the full copyright and license information, please view the LICENSE
+ *  file that was distributed with this source code.
+ */
+
 declare(strict_types=1);
 
 namespace App\Session\EventSubscriber;
@@ -48,34 +57,31 @@ final readonly class SessionAuthorizationSubscriber implements EventSubscriberIn
 
     public function onKernelController(ControllerEvent $event): void
     {
+        /** @var Request $request */
         $request = $event->getRequest();
-
         if (!$this->isApiRequest($request) || $this->isPublicPath($request)) {
             return;
         }
-
+        /** @var Session $session */
         $session = $this->getSessionFromRequest($request);
-
         if (!$session instanceof Session) {
             $this->deny($event, Response::HTTP_UNAUTHORIZED, 'unauthorized', 'Invalid or expired session.');
 
             return;
         }
-
         $request->attributes->set('app_session', $session);
-
-        if ($session->getStatus() === SessionStatus::AUTHENTICATED || $this->isPartialAuthAllowedPath($request)) {
+        if (SessionStatus::AUTHENTICATED === $session->getStatus() || $this->isPartialAuthAllowedPath($request)) {
             return;
         }
-
         $this->deny($event, Response::HTTP_FORBIDDEN, $session->getStatus()->value, 'PIN authorization is required.');
     }
 
     private function getSessionFromRequest(Request $request): ?Session
     {
+        /** @var String|false $token */
         $token = $this->tokenExtractor->extract($request);
+        if (!is_string($token) || '' === $token) {
 
-        if (!is_string($token) || $token === '') {
             return null;
         }
 

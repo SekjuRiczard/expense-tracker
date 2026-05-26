@@ -1,5 +1,14 @@
 <?php
 
+/**
+ * This file is part of the Expense Tracker.
+ *
+ *  (c) SekjuRiczard <dawidosak32@gmail.com>
+ *
+ *  For the full copyright and license information, please view the LICENSE
+ *  file that was distributed with this source code.
+ */
+
 declare(strict_types=1);
 
 namespace App\Auth\Service;
@@ -24,7 +33,6 @@ final readonly class AuthTokenService
         private RequestStack $requestStack,
     ) {
     }
-
     public function createPartialToken(User $user, SessionStatus $status, Request $request, ResponseMessage $message): AuthTokenResponse
     {
         /** @var Session $session */
@@ -36,7 +44,6 @@ final readonly class AuthTokenService
 
         return new AuthTokenResponse($status, $user, $message);
     }
-
     public function createAuthenticatedToken(User $user, Session $session, ResponseMessage $message): AuthTokenResponse
     {
         /** @var string $token */
@@ -51,7 +58,6 @@ final readonly class AuthTokenService
 
         return new AuthTokenResponse(SessionStatus::AUTHENTICATED, $user, $message);
     }
-
     public function refreshAuthenticatedToken(Session $session): AuthTokenResponse
     {
         /** @var string $token */
@@ -64,17 +70,15 @@ final readonly class AuthTokenService
 
         return new AuthTokenResponse(SessionStatus::AUTHENTICATED, $session->getUser(), ResponseMessage::SESSION_REFRESHED);
     }
-
     private function createAccessToken(User $user, Session $session, SessionStatus $status): string
     {
         return $this->jwtTokenManager->createFromPayload($user, [
             'session_id' => $session->getIdAsString(),
             'status' => $status->value,
-            'has_pin' => $user->getPin() !== null,
+            'has_pin' => null !== $user->getPin(),
             'jti' => $this->generateTokenId(),
         ]);
     }
-
     private function generateRefreshToken(): string
     {
         try {
@@ -83,7 +87,6 @@ final readonly class AuthTokenService
             throw new RuntimeException('Could not generate refresh token.', 0, $exception);
         }
     }
-
     private function generateTokenId(): string
     {
         try {

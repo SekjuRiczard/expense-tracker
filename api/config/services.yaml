@@ -23,21 +23,11 @@ services:
         arguments:
             - '%env(bool:AUTH_COOKIE_SECURE)%'
 
-    App\Auth\EventListener\DebugAuthListener:
-        arguments:
-            $logPath: '%kernel.logs_dir%/cookie.log'
-        tags:
-            - { name: 'kernel.event_subscriber' }
-
     App\Auth\Security\CookieTokenExtractor: ~
 
     app.jwt_cookie_authenticator:
         class: App\Auth\Security\CookieJWTAuthenticator
         parent: lexik_jwt_authentication.security.jwt_authenticator
-
-    App\Session\Service\CurrentSessionResolver:
-        arguments:
-            $logPath: '%kernel.logs_dir%/current_session_resolver.log'
 
     App\Auth\Mailer\PasswordResetCodeMailerInterface:
         alias: App\Auth\Mailer\SymfonyPasswordResetCodeMailer

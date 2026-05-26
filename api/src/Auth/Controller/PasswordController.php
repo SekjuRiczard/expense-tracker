@@ -1,5 +1,14 @@
 <?php
 
+/**
+ * This file is part of the Expense Tracker.
+ *
+ *  (c) SekjuRiczard <dawidosak32@gmail.com>
+ *
+ *  For the full copyright and license information, please view the LICENSE
+ *  file that was distributed with this source code.
+ */
+
 declare(strict_types=1);
 
 namespace App\Auth\Controller;
@@ -33,6 +42,7 @@ final readonly class PasswordController
     #[Route('/change', name: 'auth_password_change', methods: ['PATCH'])]
     public function changePassword(#[MapRequestPayload] ChangePasswordRequest $dto): JsonResponse
     {
+
         $user = $this->security->getUser();
 
         if (!$user instanceof User) {

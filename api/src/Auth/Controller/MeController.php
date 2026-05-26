@@ -1,18 +1,19 @@
 <?php
 
-/*
+/**
  * This file is part of the Expense Tracker.
  *
- * (c) SekjuRiczard <dawidosak32@gmail.com>
+ *  (c) SekjuRiczard <dawidosak32@gmail.com>
  *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
+ *  For the full copyright and license information, please view the LICENSE
+ *  file that was distributed with this source code.
  */
 
 declare(strict_types=1);
 
 namespace App\Auth\Controller;
 
+use App\Entity\Session;
 use App\Entity\User;
 use App\Session\Service\CurrentSessionResolver;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -29,7 +30,6 @@ final class MeController extends AbstractController
         private readonly CurrentSessionResolver $currentSessionResolver,
     ) {
     }
-
     #[Route('/me', name: 'me', methods: ['GET'])]
     public function me(
         Request $request,
@@ -41,7 +41,7 @@ final class MeController extends AbstractController
                 'user' => null,
             ], Response::HTTP_UNAUTHORIZED);
         }
-
+        /** @var Session $session */
         $session = $this->currentSessionResolver->resolve($request, $user);
 
         return $this->json([
@@ -50,7 +50,7 @@ final class MeController extends AbstractController
                 'id' => (string) $user->getId(),
                 'email' => $user->getEmail(),
                 'username' => $user->getUsername(),
-                'hasPin' => $user->getPin() !== null,
+                'hasPin' => null !== $user->getPin(),
             ],
         ], Response::HTTP_OK);
     }
