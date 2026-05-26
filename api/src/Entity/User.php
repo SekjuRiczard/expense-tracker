@@ -1,23 +1,20 @@
 <?php
 
-/*
+/**
  * This file is part of the Expense Tracker.
  *
- * (c) SekjuRiczard <dawidosak32@gmail.com>
+ *  (c) SekjuRiczard <dawidosak32@gmail.com>
  *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
+ *  For the full copyright and license information, please view the LICENSE
+ *  file that was distributed with this source code.
  */
 
 declare(strict_types=1);
 
 namespace App\Entity;
 
+use App\Auth\Repository\UserRepository;
 use App\Enum\UserRole;
-use App\Repository\User\UserRepository;
-use DateTime;
-use DateTimeImmutable;
-use DateTimeInterface;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Types\UuidType;
@@ -55,8 +52,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private array $roles;
 
-    #[ORM\Column]
-    private DateTimeImmutable $createdAt;
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
+    private \DateTimeImmutable $createdAt;
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $avatarUrl = null;
@@ -64,12 +61,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private bool $isActive;
 
-    #[ORM\Column(nullable: true)]
-    private ?DateTimeImmutable $lastLoginAt = null;
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    private ?\DateTimeImmutable $lastLoginAt = null;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
-    private ?DateTimeInterface $pinLockedUntil = null;
-
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    private ?\DateTimeImmutable $pinLockedUntil = null;
 
     public function __construct(string $email, string $username, string $password)
     {
@@ -77,7 +73,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->username = $username;
         $this->password = $password;
         $this->roles = ['ROLE_USER'];
-        $this->createdAt = new DateTimeImmutable();
+        $this->createdAt = new \DateTimeImmutable();
         $this->isActive = true;
     }
 
@@ -107,6 +103,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
         return array_unique($roles);
     }
+
     public function getPassword(): string
     {
         return $this->password;
@@ -127,17 +124,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->pin;
     }
 
-    public function getCreatedAt(): DateTimeImmutable
+    public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
     }
 
-    public function getLastLoginAt(): ?DateTimeImmutable
+    public function getLastLoginAt(): ?\DateTimeImmutable
     {
         return $this->lastLoginAt;
     }
 
-    public function getPinLockedUntil(): ?DateTimeInterface
+    public function getPinLockedUntil(): ?\DateTimeInterface
     {
         return $this->pinLockedUntil;
     }
@@ -172,7 +169,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->pin = $pin;
     }
 
-    public function setLastLoginAt(?DateTimeImmutable $lastLoginAt): void
+    public function setLastLoginAt(?\DateTimeImmutable $lastLoginAt): void
     {
         $this->lastLoginAt = $lastLoginAt;
     }
@@ -195,6 +192,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function isPinLocked(): bool
     {
-        return $this->pinLockedUntil !== null && $this->pinLockedUntil > new DateTime();
+        return null !== $this->pinLockedUntil && $this->pinLockedUntil > new \DateTime();
     }
 }
