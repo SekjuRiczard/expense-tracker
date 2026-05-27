@@ -10,3 +10,8 @@ session_controllers:
         namespace: App\Session\Controller
     type: attribute
 
+wallet_controllers:
+    resource:
+        path: ../src/Wallet/Controller/
+        namespace: App\Wallet\Controller
+    type: attribute
