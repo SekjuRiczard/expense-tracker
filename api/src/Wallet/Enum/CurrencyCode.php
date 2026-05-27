@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace App\Wallet\Enum;
 
-enum CurrencyCode: String{
+enum CurrencyCode: string{
     case PLN = 'PLN';
     case EUR = 'EUR';
     case USD = 'USD';

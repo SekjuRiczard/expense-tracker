@@ -27,8 +27,9 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 #[Route(path: '/api/wallets', name: 'api_wallet_')]
 final class WalletController extends AbstractController
 {
-    public function __construct(private readonly WalletService $walletService)
-    {
+    public function __construct(
+        private readonly WalletService $walletService,
+    ) {
     }
 
     #[Route(path: '', name: 'create', methods: ['POST'])]

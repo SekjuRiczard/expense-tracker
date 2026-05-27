@@ -43,25 +43,18 @@ final class WalletRepository extends ServiceEntityRepository
      */
     public function findByUser(User $user): array
     {
-        return $this->createQueryBuilder('wallet')
-            ->innerJoin('wallet.user', 'user')
-            ->andWhere('user.id = :userId')
-            ->setParameter('userId', $this->getUserId($user))
-            ->orderBy('wallet.createdAt', 'DESC')
-            ->getQuery()
-            ->getResult();
+        return $this->findBy(
+            ['user' => $user],
+            ['createdAt' => 'DESC'],
+        );
     }
 
     public function findOneByIdAndUser(int $id, User $user): ?Wallet
     {
-        return $this->createQueryBuilder('wallet')
-            ->innerJoin('wallet.user', 'user')
-            ->andWhere('wallet.id = :id')
-            ->andWhere('user.id = :userId')
-            ->setParameter('id', $id)
-            ->setParameter('userId', $this->getUserId($user))
-            ->getQuery()
-            ->getOneOrNullResult();
+        return $this->findOneBy([
+            'id' => $id,
+            'user' => $user,
+        ]);
     }
 
     private function getUserId(User $user): string
