@@ -15,3 +15,10 @@ wallet_controllers:
         path: ../src/Wallet/Controller/
         namespace: App\Wallet\Controller
     type: attribute
+
+
+category_controllers:
+    resource:
+        path: ../src/Category/Controller/
+        namespace: App\Category\Controller
+    type: attribute
