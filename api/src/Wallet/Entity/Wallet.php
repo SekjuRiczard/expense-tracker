@@ -114,4 +114,16 @@ class Wallet
         $this->type = $type;
         $this->updatedAt = new DateTimeImmutable();
     }
+
+    public function increaseBalance(int $amount): void
+    {
+        $this->balanceAmount += $amount;
+        $this->updatedAt = new DateTimeImmutable();
+    }
+
+    public function decreaseBalance(int $amount): void
+    {
+        $this->balanceAmount -= $amount;
+        $this->updatedAt = new DateTimeImmutable();
+    }
 }

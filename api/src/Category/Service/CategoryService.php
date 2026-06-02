@@ -20,11 +20,14 @@ use App\Category\Entity\Category;
 use App\Category\Exception\CategoryException;
 use App\Category\Repository\CategoryRepository;
 use App\Entity\User;
+use App\Transaction\Repository\TransactionRepository;
 
 final readonly class CategoryService
 {
-    public function __construct(private CategoryRepository $categoryRepository)
-    {
+    public function __construct(
+        private CategoryRepository $categoryRepository,
+        private TransactionRepository $transactionRepository,
+    ) {
     }
 
     public function createCategory(CreateCategoryRequest $request, User $user): CategoryResponse
@@ -87,7 +90,9 @@ final readonly class CategoryService
         /** @var Category $category */
         $category = $this->categoryRepository->findSingleUserCategory($id, $user)
             ?? throw CategoryException::notFound();
-
+        if ($this->transactionRepository->existsForCategory($category)) {
+            throw CategoryException::hasTransactions();
+        }
         $this->categoryRepository->remove($category);
     }
 }

@@ -27,4 +27,9 @@ final class WalletException extends HttpException
     {
         return new self(Response::HTTP_BAD_REQUEST, 'At least one wallet field must be provided.');
     }
+
+    public static function hasTransactions(): self
+    {
+        return new self(Response::HTTP_CONFLICT, 'Wallet has transactions and cannot be deleted.');
+    }
 }
