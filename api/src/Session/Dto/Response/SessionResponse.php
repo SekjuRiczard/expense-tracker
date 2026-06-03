@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace App\Session\Dto\Response;
 
 use App\Entity\Session;
+use DateTimeInterface;
 
 class SessionResponse
 {
@@ -32,8 +33,8 @@ class SessionResponse
             (string) $session->getId(),
             $session->getIpAddress(),
             $session->getUserAgent(),
-            $session->getCreatedAt()->format(\DateTimeInterface::ATOM),
-            $session->getExpiresAt()->format(\DateTimeInterface::ATOM)
+            $session->getCreatedAt()->format(DateTimeInterface::ATOM),
+            $session->getExpiresAt()->format(DateTimeInterface::ATOM)
         );
     }
 }

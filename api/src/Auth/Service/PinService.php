@@ -18,6 +18,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\Cache\InvalidArgumentException as CacheInvalidArgumentException;
+use RuntimeException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
@@ -93,7 +94,7 @@ final class PinService
             $cacheItem->expiresAfter(self::LOCKOUT_MINUTES * 60);
             $this->cache->save($cacheItem);
         } catch (CacheInvalidArgumentException $exception) {
-            throw new \RuntimeException('Communication error with the cache during PIN attempt handling.', 0, $exception);
+            throw new RuntimeException('Communication error with the cache during PIN attempt handling.', 0, $exception);
         }
     }
 
@@ -111,7 +112,7 @@ final class PinService
         try {
             $this->cache->deleteItem(self::CACHE_KEY_PREFIX.$user->getId());
         } catch (CacheInvalidArgumentException $exception) {
-            throw new \RuntimeException('Communication error with the cache during PIN attempts clearing.', 0, $exception);
+            throw new RuntimeException('Communication error with the cache during PIN attempts clearing.', 0, $exception);
         }
         if (null === $user->getPinLockedUntil()) {
             return;
