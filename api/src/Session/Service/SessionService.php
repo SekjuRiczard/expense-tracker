@@ -18,8 +18,6 @@ use App\Entity\User;
 use App\Enum\SessionStatus;
 use App\Session\Repository\SessionRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use RuntimeException;
-use Throwable;
 
 class SessionService implements SessionManagerInterface
 {
@@ -63,7 +61,6 @@ class SessionService implements SessionManagerInterface
             'tokenHash' => $this->hashToken($token),
         ]);
         if (!$session instanceof Session) {
-
             return null;
         }
         if ($session->isExpired()) {
@@ -74,7 +71,6 @@ class SessionService implements SessionManagerInterface
         }
 
         if ($session->isRevoked()) {
-
             return null;
         }
 
@@ -119,8 +115,8 @@ class SessionService implements SessionManagerInterface
     {
         try {
             return hash('sha256', bin2hex(random_bytes(32)));
-        } catch (Throwable $exception) {
-            throw new RuntimeException('Could not generate temporary session token hash.', 0, $exception);
+        } catch (\Throwable $exception) {
+            throw new \RuntimeException('Could not generate temporary session token hash.', 0, $exception);
         }
     }
 
@@ -150,7 +146,6 @@ class SessionService implements SessionManagerInterface
             return null;
         }
         if (!$session->isAuthenticated()) {
-
             return null;
         }
 

@@ -45,7 +45,6 @@ final class AuthController extends AbstractController
             /** @var User $user */
             $user = $authService->register($dto);
         } catch (UserAlreadyExistsException $exception) {
-
             return $this->json(['status' => 'error', 'message' => $exception->getMessage()], Response::HTTP_CONFLICT);
         }
 
@@ -73,7 +72,6 @@ final class AuthController extends AbstractController
             /** @var User $user */
             $user = $authService->login($dto);
         } catch (TooManyLoginAttemptsException|InvalidLoginCredentialsException $exception) {
-
             return $this->json(['status' => 'error', 'message' => $exception->getMessage()], Response::HTTP_UNAUTHORIZED);
         }
         /** @var bool $hasPin */

@@ -15,13 +15,12 @@ namespace App\Tests\Functional\Category;
 
 use App\Category\Enum\CategoryType;
 use App\Tests\Support\CategoryFunctionalTestCase;
-use Symfony\Component\HttpFoundation\Response;
 use App\Transaction\Entity\Transaction;
 use App\Transaction\Enum\TransactionType;
 use App\Wallet\Entity\Wallet;
 use App\Wallet\Enum\CurrencyCode;
 use App\Wallet\Enum\WalletType;
-use DateTimeImmutable;
+use Symfony\Component\HttpFoundation\Response;
 
 final class DeleteCategoryTest extends CategoryFunctionalTestCase
 {
@@ -150,45 +149,45 @@ final class DeleteCategoryTest extends CategoryFunctionalTestCase
     }
 
     public function testCannotDeleteCategoryWithTransactions(): void
-{
-    $user = $this->authenticateUser();
+    {
+        $user = $this->authenticateUser();
 
-    $category = $this->createUserCategory(
-        user: $user,
-        name: 'Subskrypcje',
-        type: CategoryType::EXPENSE,
-    );
+        $category = $this->createUserCategory(
+            user: $user,
+            name: 'Subskrypcje',
+            type: CategoryType::EXPENSE,
+        );
 
-    /** @var Wallet $wallet */
-    $wallet = new Wallet(
-        user: $user,
-        name: 'Gotówka',
-        type: WalletType::CASH,
-        currency: CurrencyCode::PLN,
-        balanceAmount: 50000,
-    );
-    $this->entityManager->persist($wallet);
+        /** @var Wallet $wallet */
+        $wallet = new Wallet(
+            user: $user,
+            name: 'Gotówka',
+            type: WalletType::CASH,
+            currency: CurrencyCode::PLN,
+            balanceAmount: 50000,
+        );
+        $this->entityManager->persist($wallet);
 
-    /** @var Transaction $transaction */
-    $transaction = new Transaction(
-        user: $user,
-        wallet: $wallet,
-        category: $category,
-        type: TransactionType::EXPENSE,
-        amount: 1000,
-        title: 'Netflix',
-        description: null,
-        transactionDate: new DateTimeImmutable('2024-06-15T12:00:00+00:00'),
-    );
-    $this->entityManager->persist($transaction);
-    $this->entityManager->flush();
+        /** @var Transaction $transaction */
+        $transaction = new Transaction(
+            user: $user,
+            wallet: $wallet,
+            category: $category,
+            type: TransactionType::EXPENSE,
+            amount: 1000,
+            title: 'Netflix',
+            description: null,
+            transactionDate: new \DateTimeImmutable('2024-06-15T12:00:00+00:00'),
+        );
+        $this->entityManager->persist($transaction);
+        $this->entityManager->flush();
 
-    /** @var int $categoryId */
-    $categoryId = $category->getId() ?? 0;
+        /** @var int $categoryId */
+        $categoryId = $category->getId() ?? 0;
 
-    $response = $this->deleteJson(sprintf('/api/categories/%d', $categoryId));
+        $response = $this->deleteJson(sprintf('/api/categories/%d', $categoryId));
 
-    self::assertSame(Response::HTTP_CONFLICT, $response->getStatusCode());
-    self::assertNotNull($this->findCategoryFresh($categoryId));
-}
+        self::assertSame(Response::HTTP_CONFLICT, $response->getStatusCode());
+        self::assertNotNull($this->findCategoryFresh($categoryId));
+    }
 }

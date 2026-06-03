@@ -21,12 +21,12 @@ use App\Auth\Repository\UserRepositoryInterface;
 use App\Entity\PasswordResetCode;
 use App\Entity\User;
 use App\Shared\Exception\PasswordResetException;
-use DateTimeImmutable;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 final readonly class PasswordResetService
 {
     public const CODE_TTL = '+15 minutes';
+
     public function __construct(
         private UserRepositoryInterface $userRepository,
         private PasswordResetCodeRepository $passwordResetCodeRepository,
@@ -34,6 +34,7 @@ final readonly class PasswordResetService
         private UserPasswordHasherInterface $passwordHasher,
     ) {
     }
+
     public function requestPasswordReset(ForgotPasswordRequest $dto): void
     {
         /** @var User|null $user */
@@ -44,11 +45,12 @@ final readonly class PasswordResetService
             $this->passwordResetCodeRepository->save(new PasswordResetCode(
                 user: $user,
                 codeHash: $this->hashCode($code),
-                expiresAt: (new DateTimeImmutable())->modify(self::CODE_TTL),
+                expiresAt: (new \DateTimeImmutable())->modify(self::CODE_TTL),
             ));
             $this->passwordResetCodeMailer->sendPasswordResetCode($user, $code);
         }
     }
+
     public function resetPassword(ResetPasswordRequest $dto): void
     {
         /** @var User|null $user */
@@ -73,10 +75,12 @@ final readonly class PasswordResetService
         $passwordResetCode->markAsUsed();
         $this->userRepository->save($user);
     }
+
     private function generateCode(): string
     {
         return (string) random_int(100000, 999999);
     }
+
     private function hashCode(string $code): string
     {
         return hash('sha256', $code);

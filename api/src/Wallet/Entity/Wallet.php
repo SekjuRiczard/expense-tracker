@@ -46,6 +46,9 @@ class Wallet
     #[ORM\Column(type: Types::INTEGER)]
     private int $balanceAmount;
 
+    #[ORM\Version]
+    #[ORM\Column(type: Types::INTEGER)]
+    private int $version = 1;
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     private DateTimeImmutable $createdAt;
 

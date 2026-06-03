@@ -14,9 +14,8 @@ declare(strict_types=1);
 namespace App\Transaction\Dto\Request;
 
 use App\Transaction\Enum\TransactionType;
-use DateTimeImmutable;
 use Symfony\Component\Validator\Constraints as Assert;
-
+use DateTimeImmutable;
 final readonly class UpdateTransactionRequest
 {
     public function __construct(

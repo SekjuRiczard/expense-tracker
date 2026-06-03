@@ -30,6 +30,7 @@ final class MeController extends AbstractController
         private readonly CurrentSessionResolver $currentSessionResolver,
     ) {
     }
+
     #[Route('/me', name: 'me', methods: ['GET'])]
     public function me(
         Request $request,

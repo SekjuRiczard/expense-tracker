@@ -19,7 +19,6 @@ use App\Transaction\Enum\TransactionType;
 use App\Transaction\Repository\TransactionRepository;
 use App\Wallet\Entity\Wallet;
 use App\Wallet\Enum\CurrencyCode;
-use DateTimeImmutable;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -57,13 +56,13 @@ class Transaction
     private ?string $description;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
-    private DateTimeImmutable $transactionDate;
+    private \DateTimeImmutable $transactionDate;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
-    private DateTimeImmutable $createdAt;
+    private \DateTimeImmutable $createdAt;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
-    private DateTimeImmutable $updatedAt;
+    private \DateTimeImmutable $updatedAt;
 
     public function __construct(
         User $user,
@@ -73,7 +72,7 @@ class Transaction
         int $amount,
         string $title,
         ?string $description,
-        DateTimeImmutable $transactionDate,
+        \DateTimeImmutable $transactionDate,
     ) {
         $this->user = $user;
         $this->wallet = $wallet;
@@ -83,8 +82,8 @@ class Transaction
         $this->title = $title;
         $this->description = $description;
         $this->transactionDate = $transactionDate;
-        $this->createdAt = new DateTimeImmutable();
-        $this->updatedAt = new DateTimeImmutable();
+        $this->createdAt = new \DateTimeImmutable();
+        $this->updatedAt = new \DateTimeImmutable();
     }
 
     public function getId(): ?int
@@ -132,17 +131,17 @@ class Transaction
         return $this->description;
     }
 
-    public function getTransactionDate(): DateTimeImmutable
+    public function getTransactionDate(): \DateTimeImmutable
     {
         return $this->transactionDate;
     }
 
-    public function getCreatedAt(): DateTimeImmutable
+    public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
     }
 
-    public function getUpdatedAt(): DateTimeImmutable
+    public function getUpdatedAt(): \DateTimeImmutable
     {
         return $this->updatedAt;
     }
@@ -154,7 +153,7 @@ class Transaction
         int $amount,
         string $title,
         ?string $description,
-        DateTimeImmutable $transactionDate,
+        \DateTimeImmutable $transactionDate,
     ): void {
         $this->wallet = $wallet;
         $this->category = $category;
@@ -163,6 +162,6 @@ class Transaction
         $this->title = $title;
         $this->description = $description;
         $this->transactionDate = $transactionDate;
-        $this->updatedAt = new DateTimeImmutable();
+        $this->updatedAt = new \DateTimeImmutable();
     }
 }

@@ -14,10 +14,10 @@ declare(strict_types=1);
 namespace App\Category\Repository;
 
 use App\Category\Entity\Category;
+use App\Category\Enum\CategoryType;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
-use App\Category\Enum\CategoryType;
 
 final class CategoryRepository extends ServiceEntityRepository
 {

@@ -40,10 +40,10 @@ readonly class AuthCookieSubscriber implements EventSubscriberInterface
         if ($request->attributes->has('_logout')) {
             /** @var string $cookieName */
             foreach ([
-                         CookieFactory::ACCESS_TOKEN_COOKIE,
-                         CookieFactory::REFRESH_TOKEN_COOKIE,
-                         CookieFactory::PARTIAL_ACCESS_TOKEN_COOKIE,
-                     ] as $cookieName) {
+                CookieFactory::ACCESS_TOKEN_COOKIE,
+                CookieFactory::REFRESH_TOKEN_COOKIE,
+                CookieFactory::PARTIAL_ACCESS_TOKEN_COOKIE,
+            ] as $cookieName) {
                 $response->headers->setCookie($this->cookieFactory->expireCookie($cookieName));
             }
 

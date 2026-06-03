@@ -24,7 +24,6 @@ use App\Wallet\Entity\Wallet;
 use App\Wallet\Enum\CurrencyCode;
 use App\Wallet\Enum\WalletType;
 use App\Wallet\Repository\WalletRepository;
-use DateTimeImmutable;
 use Symfony\Component\HttpFoundation\Response;
 
 abstract class TransactionFunctionalTestCase extends FunctionalTestCase
@@ -115,7 +114,7 @@ abstract class TransactionFunctionalTestCase extends FunctionalTestCase
         int $amount = 1000,
         string $title = 'Zakupy',
         ?string $description = null,
-        ?DateTimeImmutable $transactionDate = null,
+        ?\DateTimeImmutable $transactionDate = null,
     ): Transaction {
         /** @var Transaction $transaction */
         $transaction = new Transaction(
@@ -126,7 +125,7 @@ abstract class TransactionFunctionalTestCase extends FunctionalTestCase
             amount: $amount,
             title: $title,
             description: $description,
-            transactionDate: $transactionDate ?? new DateTimeImmutable(self::DEFAULT_TRANSACTION_DATE),
+            transactionDate: $transactionDate ?? new \DateTimeImmutable(self::DEFAULT_TRANSACTION_DATE),
         );
         $this->entityManager->persist($transaction);
         $this->entityManager->flush();

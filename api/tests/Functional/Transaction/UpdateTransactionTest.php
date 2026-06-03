@@ -16,7 +16,6 @@ namespace App\Tests\Functional\Transaction;
 use App\Category\Enum\CategoryType;
 use App\Tests\Support\TransactionFunctionalTestCase;
 use App\Transaction\Entity\Transaction;
-use App\Transaction\Enum\TransactionType;
 use App\Wallet\Entity\Wallet;
 use Symfony\Component\HttpFoundation\Response;
 

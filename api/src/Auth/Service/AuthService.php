@@ -19,7 +19,6 @@ use App\Auth\Repository\UserRepositoryInterface;
 use App\Entity\User;
 use App\Shared\Exception\InvalidLoginCredentialsException;
 use App\Shared\Exception\UserAlreadyExistsException;
-use DateTimeImmutable;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 final class AuthService
@@ -44,7 +43,7 @@ final class AuthService
             username: (string) $dto->username,
             password: '',
         );
-        /** @var String $hashedPassword */
+        /** @var string $hashedPassword */
         $hashedPassword = $this->passwordHasher->hashPassword(
             user: $user,
             plainPassword: (string) $dto->password,
@@ -71,7 +70,7 @@ final class AuthService
         if (!$this->passwordHasher->isPasswordValid($user, (string) $dto->password)) {
             throw InvalidLoginCredentialsException::create();
         }
-        $user->setLastLoginAt(new DateTimeImmutable());
+        $user->setLastLoginAt(new \DateTimeImmutable());
         $this->userRepository->save($user);
 
         return $user;
