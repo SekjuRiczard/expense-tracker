@@ -42,7 +42,6 @@ final readonly class PasswordController
     #[Route('/change', name: 'auth_password_change', methods: ['PATCH'])]
     public function changePassword(#[MapRequestPayload] ChangePasswordRequest $dto): JsonResponse
     {
-
         $user = $this->security->getUser();
 
         if (!$user instanceof User) {

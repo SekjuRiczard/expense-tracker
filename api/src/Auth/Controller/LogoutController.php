@@ -28,6 +28,7 @@ final readonly class LogoutController
         private SessionManagerInterface $sessionManager,
     ) {
     }
+
     #[Route('/api/logout', name: 'auth_logout', methods: ['POST'])]
     public function logout(Request $request): JsonResponse
     {

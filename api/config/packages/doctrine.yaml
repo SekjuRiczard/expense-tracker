@@ -30,6 +30,20 @@ doctrine:
                 prefix: 'App\Wallet\Entity'
                 alias: Wallet
 
+            Category:
+                type: attribute
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Category/Entity'
+                prefix: 'App\Category\Entity'
+                alias: Category
+
+            Transaction:
+                type: attribute
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Transaction/Entity'
+                prefix: 'App\Transaction\Entity'
+                alias: Transaction
+
 when@test:
     doctrine:
         dbal:

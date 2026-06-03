@@ -46,6 +46,9 @@ class Wallet
     #[ORM\Column(type: Types::INTEGER)]
     private int $balanceAmount;
 
+    #[ORM\Version]
+    #[ORM\Column(type: Types::INTEGER)]
+    private int $version = 1;
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     private DateTimeImmutable $createdAt;
 
@@ -112,6 +115,18 @@ class Wallet
     {
         $this->name = $name;
         $this->type = $type;
+        $this->updatedAt = new DateTimeImmutable();
+    }
+
+    public function increaseBalance(int $amount): void
+    {
+        $this->balanceAmount += $amount;
+        $this->updatedAt = new DateTimeImmutable();
+    }
+
+    public function decreaseBalance(int $amount): void
+    {
+        $this->balanceAmount -= $amount;
         $this->updatedAt = new DateTimeImmutable();
     }
 }

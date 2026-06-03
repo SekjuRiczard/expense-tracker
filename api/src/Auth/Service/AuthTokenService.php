@@ -20,10 +20,8 @@ use App\Enum\ResponseMessage;
 use App\Enum\SessionStatus;
 use App\Session\Service\SessionManagerInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
-use RuntimeException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Throwable;
 
 final readonly class AuthTokenService
 {
@@ -33,6 +31,7 @@ final readonly class AuthTokenService
         private RequestStack $requestStack,
     ) {
     }
+
     public function createPartialToken(User $user, SessionStatus $status, Request $request, ResponseMessage $message): AuthTokenResponse
     {
         /** @var Session $session */
@@ -44,6 +43,7 @@ final readonly class AuthTokenService
 
         return new AuthTokenResponse($status, $user, $message);
     }
+
     public function createAuthenticatedToken(User $user, Session $session, ResponseMessage $message): AuthTokenResponse
     {
         /** @var string $token */
@@ -58,6 +58,7 @@ final readonly class AuthTokenService
 
         return new AuthTokenResponse(SessionStatus::AUTHENTICATED, $user, $message);
     }
+
     public function refreshAuthenticatedToken(Session $session): AuthTokenResponse
     {
         /** @var string $token */
@@ -70,6 +71,7 @@ final readonly class AuthTokenService
 
         return new AuthTokenResponse(SessionStatus::AUTHENTICATED, $session->getUser(), ResponseMessage::SESSION_REFRESHED);
     }
+
     private function createAccessToken(User $user, Session $session, SessionStatus $status): string
     {
         return $this->jwtTokenManager->createFromPayload($user, [
@@ -79,20 +81,22 @@ final readonly class AuthTokenService
             'jti' => $this->generateTokenId(),
         ]);
     }
+
     private function generateRefreshToken(): string
     {
         try {
             return bin2hex(random_bytes(64));
-        } catch (Throwable $exception) {
-            throw new RuntimeException('Could not generate refresh token.', 0, $exception);
+        } catch (\Throwable $exception) {
+            throw new \RuntimeException('Could not generate refresh token.', 0, $exception);
         }
     }
+
     private function generateTokenId(): string
     {
         try {
             return bin2hex(random_bytes(16));
-        } catch (Throwable $exception) {
-            throw new RuntimeException('Could not generate token identifier.', 0, $exception);
+        } catch (\Throwable $exception) {
+            throw new \RuntimeException('Could not generate token identifier.', 0, $exception);
         }
     }
 }

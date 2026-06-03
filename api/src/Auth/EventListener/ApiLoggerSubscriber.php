@@ -24,10 +24,12 @@ final class ApiLoggerSubscriber implements EventSubscriberInterface
     public function __construct(#[Autowire(service: 'monolog.logger.api')] private readonly LoggerInterface $logger)
     {
     }
+
     public static function getSubscribedEvents(): array
     {
         return [KernelEvents::RESPONSE => ['onResponse', -255]];
     }
+
     public function onResponse(ResponseEvent $event): void
     {
         if (str_contains($event->getRequest()->getPathInfo(), '/api')) {

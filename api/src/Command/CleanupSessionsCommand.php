@@ -26,6 +26,7 @@ class CleanupSessionsCommand extends Command
     {
         parent::__construct();
     }
+
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->sessionManager->cleanupExpiredSessions();

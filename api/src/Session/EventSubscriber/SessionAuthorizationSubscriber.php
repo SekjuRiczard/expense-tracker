@@ -78,10 +78,9 @@ final readonly class SessionAuthorizationSubscriber implements EventSubscriberIn
 
     private function getSessionFromRequest(Request $request): ?Session
     {
-        /** @var String|false $token */
+        /** @var string|false $token */
         $token = $this->tokenExtractor->extract($request);
         if (!is_string($token) || '' === $token) {
-
             return null;
         }
 

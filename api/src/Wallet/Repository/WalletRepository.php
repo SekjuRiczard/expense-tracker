@@ -17,7 +17,6 @@ use App\Entity\User;
 use App\Wallet\Entity\Wallet;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
-use LogicException;
 
 final class WalletRepository extends ServiceEntityRepository
 {
@@ -59,6 +58,6 @@ final class WalletRepository extends ServiceEntityRepository
 
     private function getUserId(User $user): string
     {
-        return $user->getId()?->toRfc4122() ?? throw new LogicException('User ID is required.');
+        return $user->getId()?->toRfc4122() ?? throw new \LogicException('User ID is required.');
     }
 }
