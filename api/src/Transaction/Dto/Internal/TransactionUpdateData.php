@@ -16,6 +16,7 @@ namespace App\Transaction\Dto\Internal;
 use App\Category\Entity\Category;
 use App\Transaction\Enum\TransactionType;
 use App\Wallet\Entity\Wallet;
+use DateTimeImmutable;
 
 final readonly class TransactionUpdateData
 {
@@ -26,7 +27,7 @@ final readonly class TransactionUpdateData
         public int $amount,
         public string $title,
         public ?string $description,
-        public \DateTimeImmutable $transactionDate,
+        public DateTimeImmutable $transactionDate,
     ) {
     }
 }

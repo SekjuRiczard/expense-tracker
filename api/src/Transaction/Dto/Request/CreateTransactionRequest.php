@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace App\Transaction\Dto\Request;
 
 use App\Transaction\Enum\TransactionType;
+use DateTimeImmutable;
 use Symfony\Component\Validator\Constraints as Assert;
 
 final readonly class CreateTransactionRequest
@@ -39,7 +40,7 @@ final readonly class CreateTransactionRequest
         public string $title,
 
         #[Assert\NotNull]
-        public \DateTimeImmutable $transactionDate,
+        public DateTimeImmutable $transactionDate,
 
         #[Assert\Length(max: 1000)]
         public ?string $description = null,

@@ -16,6 +16,7 @@ namespace App\Transaction\Dto\Request;
 use App\Transaction\Enum\TransactionType;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
+use DateTimeImmutable;
 
 final readonly class TransactionFilterRequest
 {
@@ -29,8 +30,8 @@ final readonly class TransactionFilterRequest
         public ?int $walletId = null,
         #[Assert\Positive]
         public ?int $categoryId = null,
-        public ?\DateTimeImmutable $from = null,
-        public ?\DateTimeImmutable $to = null,
+        public ?DateTimeImmutable $from = null,
+        public ?DateTimeImmutable $to = null,
     ) {
     }
 
