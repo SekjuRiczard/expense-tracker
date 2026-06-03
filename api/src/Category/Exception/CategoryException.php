@@ -33,4 +33,12 @@ final class CategoryException extends HttpException
             message: 'No category data provided for update.',
         );
     }
+
+    public static function hasTransactions(): self
+    {
+        return new self(
+            statusCode: Response::HTTP_CONFLICT,
+            message: 'Category has transactions and cannot be deleted.',
+        );
+    }
 }

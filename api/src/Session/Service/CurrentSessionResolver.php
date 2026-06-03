@@ -29,7 +29,7 @@ final readonly class CurrentSessionResolver
 
     public function resolve(Request $request, User $user): Session
     {
-        /** @var String|false $token */
+        /** @var string|false $token */
         $token = $this->tokenExtractor->extract($request);
         if (!is_string($token)) {
             throw new AccessDeniedHttpException('JWT token not found.');

@@ -98,9 +98,9 @@ abstract class CategoryFunctionalTestCase extends FunctionalTestCase
     protected function createCategoryThroughApi(array $payload = []): array
     {
         $response = $this->postJson('/api/categories', $payload + [
-                'name' => 'Subskrypcje',
-                'type' => 'expense',
-            ]);
+            'name' => 'Subskrypcje',
+            'type' => 'expense',
+        ]);
 
         self::assertSame(Response::HTTP_CREATED, $response->getStatusCode());
 

@@ -16,7 +16,6 @@ namespace App\Auth\Service;
 use App\Shared\Exception\TooManyLoginAttemptsException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\RateLimiter\LimiterInterface;
-use Symfony\Component\RateLimiter\RateLimit;
 use Symfony\Component\RateLimiter\RateLimiterFactory;
 
 final readonly class LoginRateLimiter
@@ -31,7 +30,6 @@ final readonly class LoginRateLimiter
         /** @var LimiterInterface $limiter */
         $limiter = $this->loginLimiter->create($this->createLimiterKey($request, $email));
         if ($limiter->consume(1)->isAccepted()) {
-
             return;
         }
         throw TooManyLoginAttemptsException::create();

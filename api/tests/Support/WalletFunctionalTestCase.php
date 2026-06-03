@@ -18,7 +18,6 @@ use App\Wallet\Entity\Wallet;
 use App\Wallet\Enum\CurrencyCode;
 use App\Wallet\Enum\WalletType;
 use App\Wallet\Repository\WalletRepository;
-use JsonException;
 use Symfony\Component\HttpFoundation\Response;
 
 abstract class WalletFunctionalTestCase extends FunctionalTestCase
@@ -71,17 +70,19 @@ abstract class WalletFunctionalTestCase extends FunctionalTestCase
 
     /**
      * @param array<string, mixed> $payload
+     *
      * @return array<string, mixed>
-     * @throws JsonException
+     *
+     * @throws \JsonException
      */
     protected function createWalletThroughApi(array $payload = []): array
     {
         $response = $this->postJson('/api/wallets', $payload + [
-                'name' => 'Gotówka',
-                'type' => 'cash',
-                'currency' => 'PLN',
-                'balanceAmount' => 50000,
-            ]);
+            'name' => 'Gotówka',
+            'type' => 'cash',
+            'currency' => 'PLN',
+            'balanceAmount' => 50000,
+        ]);
 
         self::assertSame(Response::HTTP_CREATED, $response->getStatusCode());
 

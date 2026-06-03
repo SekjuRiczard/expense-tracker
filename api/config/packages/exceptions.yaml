@@ -1,0 +1,5 @@
+framework:
+  exceptions:
+    Doctrine\ORM\OptimisticLockException:
+      status_code: 409
+      log_level: warning

@@ -22,3 +22,9 @@ category_controllers:
         path: ../src/Category/Controller/
         namespace: App\Category\Controller
     type: attribute
+
+transaction_controllers:
+    resource:
+        path: ../src/Transaction/Controller/
+        namespace: App\Transaction\Controller
+    type: attribute
