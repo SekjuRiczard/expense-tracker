@@ -13,7 +13,9 @@ declare(strict_types=1);
 
 namespace App\Shared\Exception;
 
-final class TooManyLoginAttemptsException extends \RuntimeException
+use RuntimeException;
+
+final class TooManyLoginAttemptsException extends RuntimeException
 {
     public static function create(): self
     {

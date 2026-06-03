@@ -20,8 +20,10 @@ use App\Enum\ResponseMessage;
 use App\Enum\SessionStatus;
 use App\Session\Service\SessionManagerInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
+use RuntimeException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Throwable;
 
 final readonly class AuthTokenService
 {
@@ -86,8 +88,8 @@ final readonly class AuthTokenService
     {
         try {
             return bin2hex(random_bytes(64));
-        } catch (\Throwable $exception) {
-            throw new \RuntimeException('Could not generate refresh token.', 0, $exception);
+        } catch (Throwable $exception) {
+            throw new RuntimeException('Could not generate refresh token.', 0, $exception);
         }
     }
 
@@ -95,8 +97,8 @@ final readonly class AuthTokenService
     {
         try {
             return bin2hex(random_bytes(16));
-        } catch (\Throwable $exception) {
-            throw new \RuntimeException('Could not generate token identifier.', 0, $exception);
+        } catch (Throwable $exception) {
+            throw new RuntimeException('Could not generate token identifier.', 0, $exception);
         }
     }
 }

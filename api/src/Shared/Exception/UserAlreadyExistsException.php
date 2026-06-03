@@ -13,7 +13,9 @@ declare(strict_types=1);
 
 namespace App\Shared\Exception;
 
-class UserAlreadyExistsException extends \DomainException
+use DomainException;
+
+class UserAlreadyExistsException extends DomainException
 {
     public static function forEmail(string $email): self
     {

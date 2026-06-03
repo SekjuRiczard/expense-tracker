@@ -21,6 +21,7 @@ use App\Auth\Repository\UserRepositoryInterface;
 use App\Entity\PasswordResetCode;
 use App\Entity\User;
 use App\Shared\Exception\PasswordResetException;
+use DateTimeImmutable;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 final readonly class PasswordResetService
@@ -45,7 +46,7 @@ final readonly class PasswordResetService
             $this->passwordResetCodeRepository->save(new PasswordResetCode(
                 user: $user,
                 codeHash: $this->hashCode($code),
-                expiresAt: (new \DateTimeImmutable())->modify(self::CODE_TTL),
+                expiresAt: (new DateTimeImmutable())->modify(self::CODE_TTL),
             ));
             $this->passwordResetCodeMailer->sendPasswordResetCode($user, $code);
         }

@@ -15,6 +15,7 @@ namespace App\Entity;
 
 use App\Auth\Repository\UserRepository;
 use App\Enum\UserRole;
+use DateTimeImmutable;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Types\UuidType;
@@ -53,7 +54,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private array $roles;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
-    private \DateTimeImmutable $createdAt;
+    private DateTimeImmutable $createdAt;
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $avatarUrl = null;
@@ -62,10 +63,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private bool $isActive;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
-    private ?\DateTimeImmutable $lastLoginAt = null;
+    private ?DateTimeImmutable $lastLoginAt = null;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
-    private ?\DateTimeImmutable $pinLockedUntil = null;
+    private ?DateTimeImmutable $pinLockedUntil = null;
 
     public function __construct(string $email, string $username, string $password)
     {
@@ -73,7 +74,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->username = $username;
         $this->password = $password;
         $this->roles = ['ROLE_USER'];
-        $this->createdAt = new \DateTimeImmutable();
+        $this->createdAt = new DateTimeImmutable();
         $this->isActive = true;
     }
 
@@ -124,12 +125,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->pin;
     }
 
-    public function getCreatedAt(): \DateTimeImmutable
+    public function getCreatedAt(): DateTimeImmutable
     {
         return $this->createdAt;
     }
 
-    public function getLastLoginAt(): ?\DateTimeImmutable
+    public function getLastLoginAt(): ?DateTimeImmutable
     {
         return $this->lastLoginAt;
     }
@@ -169,7 +170,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->pin = $pin;
     }
 
-    public function setLastLoginAt(?\DateTimeImmutable $lastLoginAt): void
+    public function setLastLoginAt(?DateTimeImmutable $lastLoginAt): void
     {
         $this->lastLoginAt = $lastLoginAt;
     }

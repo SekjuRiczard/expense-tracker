@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace App\Auth\EventListener;
 
+use DateTimeImmutable;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -33,7 +34,7 @@ final class ApiLoggerSubscriber implements EventSubscriberInterface
     public function onResponse(ResponseEvent $event): void
     {
         if (str_contains($event->getRequest()->getPathInfo(), '/api')) {
-            $this->logger->info(sprintf("\nCZAS: %s\nURL: %s\nSTATUS: %d\nPAYLOAD:\n%s\nRESPONSE:\n%s", (new \DateTimeImmutable())->format('Y-m-d H:i:s.v'), $event->getRequest()->getUri(), $event->getResponse()->getStatusCode(), json_encode(json_decode($event->getRequest()->getContent() ?: '{}', true) ?? ['raw' => $event->getRequest()->getContent()], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), json_encode(json_decode($event->getResponse()->getContent() ?: '{}', true) ?? ['raw' => $event->getResponse()->getContent()], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)));
+            $this->logger->info(sprintf("\nCZAS: %s\nURL: %s\nSTATUS: %d\nPAYLOAD:\n%s\nRESPONSE:\n%s", (new DateTimeImmutable())->format('Y-m-d H:i:s.v'), $event->getRequest()->getUri(), $event->getResponse()->getStatusCode(), json_encode(json_decode($event->getRequest()->getContent() ?: '{}', true) ?? ['raw' => $event->getRequest()->getContent()], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), json_encode(json_decode($event->getResponse()->getContent() ?: '{}', true) ?? ['raw' => $event->getResponse()->getContent()], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)));
         }
     }
 }

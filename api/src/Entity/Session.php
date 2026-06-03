@@ -15,6 +15,7 @@ namespace App\Entity;
 
 use App\Enum\SessionStatus;
 use App\Session\Repository\SessionRepository;
+use DateTimeImmutable;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Types\UuidType;
@@ -30,7 +31,7 @@ class Session
     #[ORM\CustomIdGenerator(class: 'doctrine.uuid_generator')]
     private ?Uuid $id = null;
 
-    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'sessions')]
+    #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private User $user;
 
@@ -47,27 +48,27 @@ class Session
     private ?string $userAgent = null;
 
     #[ORM\Column]
-    private \DateTimeImmutable $createdAt;
+    private DateTimeImmutable $createdAt;
 
     #[ORM\Column]
-    private \DateTimeImmutable $expiresAt;
+    private DateTimeImmutable $expiresAt;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
-    private ?\DateTimeImmutable $authenticatedAt = null;
+    private ?DateTimeImmutable $authenticatedAt = null;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
-    private ?\DateTimeImmutable $revokedAt = null;
+    private ?DateTimeImmutable $revokedAt = null;
 
     #[ORM\Column(length: 255, unique: true, nullable: true)]
     private ?string $refreshTokenHash = null;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
-    private ?\DateTimeImmutable $refreshTokenExpiresAt = null;
+    private ?DateTimeImmutable $refreshTokenExpiresAt = null;
 
     public function __construct(
         User $user,
         string $tokenHash,
-        \DateTimeImmutable $expiresAt,
+        DateTimeImmutable $expiresAt,
         SessionStatus $status,
         ?string $ipAddress = null,
         ?string $userAgent = null,
@@ -78,7 +79,7 @@ class Session
         $this->status = $status->value;
         $this->ipAddress = $ipAddress;
         $this->userAgent = $userAgent;
-        $this->createdAt = new \DateTimeImmutable();
+        $this->createdAt = new DateTimeImmutable();
     }
 
     public function getId(): ?Uuid
@@ -126,27 +127,27 @@ class Session
         return $this->userAgent;
     }
 
-    public function getCreatedAt(): \DateTimeImmutable
+    public function getCreatedAt(): DateTimeImmutable
     {
         return $this->createdAt;
     }
 
-    public function getExpiresAt(): \DateTimeImmutable
+    public function getExpiresAt(): DateTimeImmutable
     {
         return $this->expiresAt;
     }
 
-    public function setExpiresAt(\DateTimeImmutable $expiresAt): void
+    public function setExpiresAt(DateTimeImmutable $expiresAt): void
     {
         $this->expiresAt = $expiresAt;
     }
 
-    public function getAuthenticatedAt(): ?\DateTimeImmutable
+    public function getAuthenticatedAt(): ?DateTimeImmutable
     {
         return $this->authenticatedAt;
     }
 
-    public function getRevokedAt(): ?\DateTimeImmutable
+    public function getRevokedAt(): ?DateTimeImmutable
     {
         return $this->revokedAt;
     }
@@ -154,14 +155,14 @@ class Session
     public function markAsAuthenticated(): void
     {
         $this->status = SessionStatus::AUTHENTICATED->value;
-        $this->authenticatedAt = new \DateTimeImmutable();
+        $this->authenticatedAt = new DateTimeImmutable();
         $this->revokedAt = null;
     }
 
     public function revoke(): void
     {
         $this->status = SessionStatus::REVOKED->value;
-        $this->revokedAt = new \DateTimeImmutable();
+        $this->revokedAt = new DateTimeImmutable();
         $this->clearRefreshToken();
     }
 
@@ -172,7 +173,7 @@ class Session
 
     public function isExpired(): bool
     {
-        return $this->expiresAt <= new \DateTimeImmutable();
+        return $this->expiresAt <= new DateTimeImmutable();
     }
 
     public function isRevoked(): bool
@@ -205,12 +206,12 @@ class Session
         $this->refreshTokenHash = $refreshTokenHash;
     }
 
-    public function getRefreshTokenExpiresAt(): ?\DateTimeImmutable
+    public function getRefreshTokenExpiresAt(): ?DateTimeImmutable
     {
         return $this->refreshTokenExpiresAt;
     }
 
-    public function setRefreshTokenExpiresAt(?\DateTimeImmutable $refreshTokenExpiresAt): void
+    public function setRefreshTokenExpiresAt(?DateTimeImmutable $refreshTokenExpiresAt): void
     {
         $this->refreshTokenExpiresAt = $refreshTokenExpiresAt;
     }
@@ -218,7 +219,7 @@ class Session
     public function hasExpiredRefreshToken(): bool
     {
         return null === $this->refreshTokenExpiresAt
-            || $this->refreshTokenExpiresAt <= new \DateTimeImmutable();
+            || $this->refreshTokenExpiresAt <= new DateTimeImmutable();
     }
 
     public function clearRefreshToken(): void
