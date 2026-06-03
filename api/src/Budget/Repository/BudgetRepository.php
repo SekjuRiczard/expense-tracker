@@ -84,20 +84,24 @@ final class BudgetRepository extends ServiceEntityRepository
         DateTimeImmutable $startDate,
         DateTimeImmutable $endDate,
     ): bool {
-        return null !== $this->createQueryBuilder('budget')
-                ->andWhere('budget.id != :budgetId')
-                ->andWhere('budget.user = :user')
-                ->andWhere('budget.currency = :currency')
-                ->andWhere('budget.periodType = :periodType')
-                ->andWhere('budget.startDate = :startDate')
-                ->andWhere('budget.endDate = :endDate')
-                ->setParameter('budgetId', $budget->getId())
-                ->setParameter('user', $user)
-                ->setParameter('currency', $currency)
-                ->setParameter('periodType', $periodType)
-                ->setParameter('startDate', $startDate)
-                ->setParameter('endDate', $endDate)
-                ->getQuery()
-                ->getOneOrNullResult();
+        /** @var string $result */
+        $result = $this->createQueryBuilder('budget')
+            ->select('COUNT(budget.id)')
+            ->andWhere('budget.id != :budgetId')
+            ->andWhere('budget.user = :user')
+            ->andWhere('budget.currency = :currency')
+            ->andWhere('budget.periodType = :periodType')
+            ->andWhere('budget.startDate = :startDate')
+            ->andWhere('budget.endDate = :endDate')
+            ->setParameter('budgetId', $budget->getId())
+            ->setParameter('user', $user)
+            ->setParameter('currency', $currency->value)
+            ->setParameter('periodType', $periodType->value)
+            ->setParameter('startDate', $startDate)
+            ->setParameter('endDate', $endDate)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return 0 < (int) $result;
     }
 }

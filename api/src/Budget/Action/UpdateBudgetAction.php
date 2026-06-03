@@ -24,6 +24,7 @@ use App\Budget\Resolver\BudgetUpdateResolver;
 use App\Budget\Validator\BudgetValidator;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 
 final readonly class UpdateBudgetAction
 {

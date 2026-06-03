@@ -21,7 +21,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 final readonly class UpdateBudgetRequest
 {
     public function __construct(
-        #[Assert\NotBlank]
+        #[Assert\NotBlank(allowNull: true)]
         #[Assert\Length(max: 100)]
         public ?string $name = null,
         #[Assert\Positive]
