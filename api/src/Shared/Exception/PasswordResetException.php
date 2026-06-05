@@ -13,7 +13,9 @@ declare(strict_types=1);
 
 namespace App\Shared\Exception;
 
-final class PasswordResetException extends \RuntimeException
+use RuntimeException;
+
+final class PasswordResetException extends RuntimeException
 {
     public static function invalidOrExpiredCode(): self
     {

@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace App\Session\Repository;
 
 use App\Entity\Session;
+use DateTimeImmutable;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -24,7 +25,7 @@ class SessionRepository extends ServiceEntityRepository
         parent::__construct($registry, Session::class);
     }
 
-    public function deleteExpiredSessions(\DateTimeImmutable $now): int
+    public function deleteExpiredSessions(DateTimeImmutable $now): int
     {
         return (int) $this->createQueryBuilder('s')->delete()->where('s.expiresAt <= :now')->setParameter('now', $now)->getQuery()->execute();
     }

@@ -28,3 +28,15 @@ transaction_controllers:
         path: ../src/Transaction/Controller/
         namespace: App\Transaction\Controller
     type: attribute
+
+budget_controllers:
+    resource:
+        path: ../src/Budget/Controller/
+        namespace: App\Budget\Controller
+    type: attribute
+
+analytics_controllers:
+    resource:
+        path: ../src/Analytics/Controller/
+        namespace: App\Analytics\Controller
+    type: attribute

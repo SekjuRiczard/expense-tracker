@@ -3,3 +3,7 @@ framework:
     Doctrine\ORM\OptimisticLockException:
       status_code: 409
       log_level: warning
+
+    Doctrine\DBAL\Exception\UniqueConstraintViolationException:
+      status_code: 409
+      log_level: warning

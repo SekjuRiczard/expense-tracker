@@ -13,7 +13,9 @@ declare(strict_types=1);
 
 namespace App\Shared\Exception;
 
-final class InvalidPasswordChangeException extends \RuntimeException
+use RuntimeException;
+
+final class InvalidPasswordChangeException extends RuntimeException
 {
     public static function invalidCurrentPassword(): self
     {

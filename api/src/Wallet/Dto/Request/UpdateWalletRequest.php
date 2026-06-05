@@ -21,7 +21,6 @@ final readonly class UpdateWalletRequest
     public function __construct(
         #[Assert\Length(min: 1, max: 255)]
         public ?string $name = null,
-
         public ?WalletType $type = null,
     ) {
     }

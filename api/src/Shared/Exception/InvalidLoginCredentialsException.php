@@ -13,7 +13,9 @@ declare(strict_types=1);
 
 namespace App\Shared\Exception;
 
-final class InvalidLoginCredentialsException extends \RuntimeException
+use RuntimeException;
+
+final class InvalidLoginCredentialsException extends RuntimeException
 {
     public static function create(): self
     {
