@@ -34,3 +34,9 @@ budget_controllers:
         path: ../src/Budget/Controller/
         namespace: App\Budget\Controller
     type: attribute
+
+analytics_controllers:
+    resource:
+        path: ../src/Analytics/Controller/
+        namespace: App\Analytics\Controller
+    type: attribute
