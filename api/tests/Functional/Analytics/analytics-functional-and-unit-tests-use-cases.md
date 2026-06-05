@@ -470,6 +470,367 @@ budget usage
 → monthly cash flow
 ```
 
+---
+
+# GetBudgetUsageTest
+
+Paczka sprawdza endpoint:
+
+```http
+GET /api/analytics/budgets/{id}/usage
+```
+
+Endpoint zwraca wykorzystanie wskazanego budżetu.
+
+## Use case: użytkownik otrzymuje zerowe wykorzystanie pustego budżetu
+
+Sprawdza, że budżet bez wydatków:
+
+- zwraca status `200 OK`,
+- zwraca `spent = 0`,
+- zwraca pełną kwotę jako `remaining`,
+- zwraca `percentage = 0`,
+- zwraca `exceeded = false`.
+
+## Use case: wydatki z okresu budżetu są sumowane
+
+Sprawdza, że endpoint sumuje wydatki typu `expense`, poprawnie wylicza `spent`, `remaining` i `percentage` oraz nie oznacza budżetu jako przekroczonego, jeżeli wydatki nie przekraczają limitu.
+
+## Use case: wydatek z ostatniego dnia okresu jest uwzględniany
+
+Sprawdza, że transakcja wykonana ostatniego dnia budżetu, np. `2026-06-30T23:59:59`, jest uwzględniona w agregacji.
+
+## Use case: przychody nie wpływają na wykorzystanie budżetu
+
+Sprawdza, że transakcje typu `income` nie zwiększają `spent`.
+
+## Use case: wydatki spoza okresu są ignorowane
+
+Sprawdza, że transakcje po dacie końcowej budżetu nie wpływają na wynik.
+
+## Use case: wydatki w innej walucie są ignorowane
+
+Sprawdza, że budżet PLN nie uwzględnia wydatków z portfela EUR.
+
+## Use case: przekroczony budżet jest poprawnie oznaczany
+
+Sprawdza, że gdy `spent > budgetAmount`, endpoint zwraca ujemne `remaining`, `percentage > 100` i `exceeded = true`.
+
+## Use case: transakcje innych użytkowników są ignorowane
+
+Sprawdza, że agregacja wykorzystuje wyłącznie transakcje właściciela budżetu.
+
+## Use case: użytkownik nie może odczytać wykorzystania cudzego budżetu
+
+Sprawdza, że próba odczytu budżetu innego użytkownika zwraca `404 Not Found`.
+
+## Use case: brakujący budżet zwraca not found
+
+Sprawdza, że nieistniejący identyfikator budżetu zwraca `404 Not Found`.
+
+## Use case: gość nie może pobrać wykorzystania budżetu
+
+Sprawdza, że niezalogowany użytkownik otrzymuje `401 Unauthorized`.
+
+---
+
+# GetPeriodSummaryTest
+
+Paczka sprawdza endpoint:
+
+```http
+GET /api/analytics/summary?from=2026-06-01&to=2026-06-30&currency=PLN
+```
+
+## Use case: użytkownik otrzymuje puste podsumowanie
+
+Sprawdza, że brak transakcji zwraca `income = 0`, `expense = 0`, `balance = 0` i `transactionCount = 0`.
+
+## Use case: podsumowanie poprawnie liczy przychody, wydatki i bilans
+
+Sprawdza wzory:
+
+```text
+income  = suma transakcji typu income
+expense = suma transakcji typu expense
+balance = income - expense
+```
+
+Sprawdza również liczbę transakcji w okresie.
+
+## Use case: transakcja z ostatniego dnia okresu jest uwzględniana
+
+Sprawdza, że transakcja wykonana ostatniego dnia o późnej godzinie trafia do podsumowania.
+
+## Use case: transakcje spoza okresu są ignorowane
+
+Sprawdza, że agregacja nie uwzględnia rekordów spoza zakresu `from → to`.
+
+## Use case: transakcje w innej walucie są ignorowane
+
+Sprawdza, że podsumowanie PLN nie zawiera transakcji z portfela EUR.
+
+## Use case: transakcje innych użytkowników są ignorowane
+
+Sprawdza, że użytkownik widzi tylko własne agregaty.
+
+## Use case: niepoprawny zakres dat jest odrzucany
+
+Sprawdza, że `from > to` zwraca `422 Unprocessable Entity`.
+
+## Use case: gość nie może pobrać podsumowania
+
+Sprawdza, że niezalogowany użytkownik otrzymuje `401 Unauthorized`.
+
+---
+
+# GetCategoryBreakdownTest
+
+Paczka sprawdza endpoint:
+
+```http
+GET /api/analytics/categories?from=2026-06-01&to=2026-06-30&currency=PLN
+```
+
+## Use case: użytkownik otrzymuje pustą listę kategorii
+
+Sprawdza, że brak wydatków zwraca pustą tablicę JSON.
+
+## Use case: wydatki są grupowane według kategorii
+
+Sprawdza, że endpoint sumuje wydatki przypisane do tej samej kategorii i zwraca `categoryId`, `categoryName`, `amount` oraz `percentage`.
+
+## Use case: kategorie są sortowane malejąco po kwocie
+
+Sprawdza, że największa kategoria wydatków znajduje się na początku listy.
+
+## Use case: przychody są ignorowane
+
+Sprawdza, że transakcje typu `income` nie pojawiają się w rozkładzie wydatków.
+
+## Use case: wydatek z ostatniego dnia okresu jest uwzględniany
+
+Sprawdza, że transakcja z ostatniego dnia okresu trafia do właściwej kategorii.
+
+## Use case: wydatki spoza okresu są ignorowane
+
+Sprawdza, że transakcje spoza zakresu dat nie wpływają na wyniki.
+
+## Use case: wydatki w innej walucie są ignorowane
+
+Sprawdza, że agregacja dla PLN nie uwzględnia transakcji z portfela EUR.
+
+## Use case: wydatki innych użytkowników są ignorowane
+
+Sprawdza, że endpoint zwraca wyłącznie agregaty aktualnie zalogowanego użytkownika.
+
+## Use case: niepoprawny zakres dat jest odrzucany
+
+Sprawdza, że `from > to` zwraca `422 Unprocessable Entity`.
+
+## Use case: gość nie może pobrać rozkładu kategorii
+
+Sprawdza, że niezalogowany użytkownik otrzymuje `401 Unauthorized`.
+
+---
+
+# GetCashFlowTest
+
+Paczka sprawdza endpoint:
+
+```http
+GET /api/analytics/cash-flow?from=2026-01-01&to=2026-12-31&currency=PLN
+```
+
+## Use case: użytkownik otrzymuje pusty cash flow
+
+Sprawdza, że brak transakcji zwraca pustą tablicę JSON.
+
+## Use case: transakcje są grupowane według miesiąca
+
+Sprawdza, że endpoint grupuje przychody i wydatki miesięcznie, zwraca osobne rekordy dla kolejnych miesięcy oraz wylicza `balance`.
+
+## Use case: wiele transakcji z jednego miesiąca jest sumowanych
+
+Sprawdza, że kilka przychodów i kilka wydatków z tego samego miesiąca tworzy jeden punkt cash flow.
+
+## Use case: ujemny bilans jest zwracany poprawnie
+
+Sprawdza, że gdy `expense > income`, endpoint zwraca ujemne `balance`.
+
+## Use case: okresy są sortowane chronologicznie
+
+Sprawdza kolejność `2026-01`, `2026-02`, `2026-03`.
+
+## Use case: miesiące z różnych lat są rozdzielane
+
+Sprawdza, że `2025-12` oraz `2026-01` są traktowane jako dwa osobne okresy.
+
+## Use case: transakcja z ostatniego dnia okresu jest uwzględniana
+
+Sprawdza, że transakcja wykonana ostatniego dnia zakresu trafia do odpowiedniego miesiąca.
+
+## Use case: transakcje spoza okresu są ignorowane
+
+Sprawdza, że endpoint nie uwzględnia rekordów spoza zakresu dat.
+
+## Use case: transakcje w innej walucie są ignorowane
+
+Sprawdza, że cash flow PLN nie zawiera transakcji z portfela EUR.
+
+## Use case: transakcje innych użytkowników są ignorowane
+
+Sprawdza, że użytkownik otrzymuje wyłącznie własne agregaty.
+
+## Use case: niepoprawny zakres dat jest odrzucany
+
+Sprawdza, że `from > to` zwraca `422 Unprocessable Entity`.
+
+## Use case: gość nie może pobrać cash flow
+
+Sprawdza, że niezalogowany użytkownik otrzymuje `401 Unauthorized`.
+
+---
+
+# GetDashboardTest
+
+Paczka sprawdza endpoint:
+
+```http
+GET /api/analytics/dashboard?from=2026-01-01&to=2026-12-31&currency=PLN
+```
+
+Dashboard składa w jednym response dane z trzech istniejących use case’ów:
+
+```text
+summary
+categoryBreakdown
+cashFlow
+```
+
+## Use case: użytkownik otrzymuje pusty dashboard
+
+Sprawdza, że brak transakcji:
+
+- zwraca status `200 OK`,
+- zwraca zerowe wartości w `summary`,
+- zwraca pustą listę `categoryBreakdown`,
+- zwraca pustą listę `cashFlow`.
+
+## Use case: dashboard zwraca pełny przegląd finansowy
+
+Sprawdza, że dashboard poprawnie składa sekcje `summary`, `categoryBreakdown` i `cashFlow` dla danych zawierających przychody oraz wydatki.
+
+## Use case: dashboard zwraca cash flow dla wielu miesięcy
+
+Sprawdza, że dashboard zwraca osobne punkty cash flow dla kolejnych miesięcy, zachowuje poprawną kolejność okresów oraz poprawnie sumuje przychody i wydatki w `summary`.
+
+## Use case: transakcja z ostatniego dnia okresu jest uwzględniana
+
+Sprawdza, że transakcja wykonana ostatniego dnia zakresu wpływa jednocześnie na `summary`, `categoryBreakdown` i `cashFlow`.
+
+## Use case: transakcje spoza okresu są ignorowane
+
+Sprawdza, że rekordy spoza zakresu dat nie wpływają na żadną sekcję dashboardu.
+
+## Use case: transakcje w innej walucie są ignorowane
+
+Sprawdza, że dashboard PLN nie uwzględnia transakcji z portfela EUR.
+
+## Use case: transakcje innych użytkowników są ignorowane
+
+Sprawdza, że dashboard zwraca wyłącznie agregaty aktualnie zalogowanego użytkownika.
+
+## Use case: niepoprawny zakres dat jest odrzucany
+
+Sprawdza, że `from > to` zwraca `422 Unprocessable Entity`.
+
+## Use case: gość nie może pobrać dashboardu
+
+Sprawdza, że niezalogowany użytkownik otrzymuje `401 Unauthorized`.
+
+---
+
+# BudgetUsageCalculatorTest
+
+Paczka testów jednostkowych dla klasy:
+
+```text
+BudgetUsageCalculator
+```
+
+## Use case: kalkulator wylicza częściowe wykorzystanie budżetu
+
+Sprawdza, że dla `budgetAmount = 300000` oraz `spent = 185000` wynik to `remaining = 115000`, `percentage = 61.67` oraz `exceeded = false`.
+
+## Use case: kalkulator obsługuje budżet bez wydatków
+
+Sprawdza, że dla `spent = 0` wynik to pełne `remaining`, `percentage = 0` oraz `exceeded = false`.
+
+## Use case: kalkulator oznacza przekroczony budżet
+
+Sprawdza, że dla `spent > budgetAmount` wynik zawiera ujemne `remaining`, `percentage > 100` i `exceeded = true`.
+
+## Use case: dokładne wykorzystanie 100% nie oznacza przekroczenia
+
+Sprawdza, że `spent = budgetAmount` zwraca `remaining = 0`, `percentage = 100` i `exceeded = false`.
+
+## Use case: kalkulator odrzuca budżet z niedodatnią kwotą
+
+Sprawdza ochronę przed dzieleniem przez zero. Dla `budgetAmount <= 0` kalkulator rzuca `LogicException`.
+
+## Use case: kalkulator przekazuje koniec zakresu jako datę wyłączną
+
+Sprawdza, że dla budżetu `2026-06-01 → 2026-06-30` reader otrzymuje `endDateExclusive = 2026-07-01`.
+
+---
+
+# CategoryBreakdownCalculatorTest
+
+Paczka testów jednostkowych dla klasy:
+
+```text
+CategoryBreakdownCalculator
+```
+
+## Use case: pusta lista zwraca pusty wynik
+
+Sprawdza, że kalkulator poprawnie obsługuje brak danych.
+
+## Use case: kalkulator wylicza udział procentowy kategorii
+
+Sprawdza wzór:
+
+```text
+percentage = categoryAmount / totalAmount * 100
+```
+
+## Use case: pojedyncza kategoria otrzymuje 100%
+
+Sprawdza, że jedna kategoria obejmująca cały wydatek otrzymuje `percentage = 100`.
+
+## Use case: kalkulator zachowuje kolejność danych wejściowych
+
+Sprawdza, że kalkulator nie sortuje samodzielnie wyników. Sortowanie pozostaje odpowiedzialnością repozytorium.
+
+## Use case: suma równa zero nie powoduje dzielenia przez zero
+
+Sprawdza, że dla `totalAmount = 0` kalkulator zwraca `percentage = 0`.
+
+---
+
+# Podsumowanie pokrycia
+
+Testy modułu Analytics obejmują pełny zakres MVP:
+
+```text
+budget usage
+→ summary
+→ category breakdown
+→ monthly cash flow
+→ dashboard
+```
+
 Najważniejsze reguły objęte testami:
 
 ```text

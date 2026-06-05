@@ -24,6 +24,7 @@ use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use App\Analytics\Action\GetPeriodSummaryAction;
 use App\Analytics\Dto\Request\AnalyticsPeriodRequest;
 use Symfony\Component\HttpKernel\Attribute\MapQueryString;
+use App\Analytics\Action\GetDashboardAction;
 
 #[Route(path: '/api/analytics', name: 'api_analytics_')]
 final class AnalyticsController extends AbstractController
@@ -33,6 +34,7 @@ final class AnalyticsController extends AbstractController
         private readonly GetPeriodSummaryAction $getPeriodSummaryAction,
         private readonly GetCategoryBreakdownAction $getCategoryBreakdownAction,
         private readonly GetCashFlowAction $getCashFlowAction,
+        private readonly GetDashboardAction $getDashboardAction,
     ) {
     }
 
@@ -110,4 +112,20 @@ final class AnalyticsController extends AbstractController
         );
     }
 
+    #[Route(
+        path: '/dashboard',
+        name: 'dashboard',
+        methods: ['GET'],
+    )]
+    public function getDashboard(
+        #[MapQueryString]
+        AnalyticsPeriodRequest $request,
+    ): JsonResponse {
+        return $this->json(
+            $this->getDashboardAction->execute(
+                $request,
+                $this->getAuthenticatedUser(),
+            ),
+        );
+    }
 }
