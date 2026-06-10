@@ -8,6 +8,9 @@ import type {
   ReactNode,
 } from 'react';
 import {
+  BrowserRouter,
+} from 'react-router-dom';
+import {
   AuthProvider,
 } from '../../features/auth';
 import { theme, } from '../theme';
@@ -24,11 +27,13 @@ export const AppProviders = ({
     <ThemeProvider theme={theme}>
       <CssBaseline />
 
-      <QueryProvider>
-        <AuthProvider>
-          {children}
-        </AuthProvider>
-      </QueryProvider>
+      <BrowserRouter>
+        <QueryProvider>
+          <AuthProvider>
+            {children}
+          </AuthProvider>
+        </QueryProvider>
+      </BrowserRouter>
     </ThemeProvider>
   );
 };

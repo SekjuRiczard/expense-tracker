@@ -129,10 +129,10 @@ export const CurrencyCard = ({
       </Box>
 
       <Stack
-        alignItems="center"
-        direction="row"
-        spacing={0.45}
         sx={{
+          alignItems: 'center',
+          flexDirection: 'row',
+          gap: 0.45,
           position: 'absolute',
           top: {
             md: 17,

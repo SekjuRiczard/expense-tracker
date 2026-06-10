@@ -202,10 +202,10 @@ export const PinView = ({
   if (isSubmitting) {
     return (
       <Stack
-        alignItems="center"
-        justifyContent="center"
-        spacing={2}
         sx={{
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 2,
           minHeight: 320,
         }}
       >
@@ -244,9 +244,9 @@ export const PinView = ({
 
   return (
     <Stack
-      alignItems="center"
-      spacing={2.7}
       sx={{
+        alignItems: 'center',
+        gap: 2.7,
         width: '100%',
       }}
     >
@@ -259,9 +259,9 @@ export const PinView = ({
       />
 
       <Stack
-        alignItems="center"
-        spacing={1.5}
         sx={{
+          alignItems: 'center',
+          gap: 1.5,
           width: '100%',
         }}
       >

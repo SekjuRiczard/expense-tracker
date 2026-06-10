@@ -1,0 +1,56 @@
+import {
+  Navigate,
+  Route,
+  Routes,
+} from 'react-router-dom';
+import { AppLayout, } from '../layouts/AppLayout';
+import { DashboardPage, } from '../../features/dashboard';
+import { PlaceholderPage, } from './PlaceholderPage';
+
+export const AppRouter = () => {
+  return (
+    <Routes>
+      <Route element={<AppLayout />}>
+        <Route
+          element={<DashboardPage />}
+          path="/dashboard"
+        />
+
+        <Route
+          element={<PlaceholderPage title="Wallets" />}
+          path="/wallets"
+        />
+
+        <Route
+          element={<PlaceholderPage title="Transactions" />}
+          path="/transactions"
+        />
+
+        <Route
+          element={<PlaceholderPage title="Categories" />}
+          path="/categories"
+        />
+
+        <Route
+          element={<PlaceholderPage title="Budgets" />}
+          path="/budgets"
+        />
+
+        <Route
+          element={<PlaceholderPage title="Analytics" />}
+          path="/analytics"
+        />
+
+        <Route
+          element={<PlaceholderPage title="Settings" />}
+          path="/settings"
+        />
+      </Route>
+
+      <Route
+        element={<Navigate replace to="/dashboard" />}
+        path="*"
+      />
+    </Routes>
+  );
+};

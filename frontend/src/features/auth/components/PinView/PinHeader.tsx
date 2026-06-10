@@ -38,9 +38,9 @@ export const PinHeader = ({
     }}
   >
     <Stack
-      alignItems="center"
-      spacing={1.3}
       sx={{
+        alignItems: 'center',
+        gap: 1.3,
         width: {
           xs: 280,
           sm: 352,
@@ -92,9 +92,9 @@ export const PinHeader = ({
       </MotionBox>
 
       <Stack
-        alignItems="center"
-        spacing={0.65}
         sx={{
+          alignItems: 'center',
+          gap: 0.65,
           width: '100%',
         }}
       >

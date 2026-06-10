@@ -1,0 +1,3 @@
+export {
+  useDashboardPageData,
+} from './useDashboardPageData';

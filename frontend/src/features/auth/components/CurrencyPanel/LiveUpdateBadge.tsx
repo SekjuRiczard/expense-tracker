@@ -13,11 +13,11 @@ const MotionBox = motion.create(Box);
 export const LiveUpdateBadge = () => {
   return (
     <Stack
-      alignItems="center"
-      direction="row"
-      justifyContent="center"
-      spacing={0.9}
       sx={{
+        alignItems: 'center',
+        flexDirection: 'row',
+        justifyContent: 'center',
+        gap: 0.9,
         width: 'fit-content',
         minHeight: 34,
         px: 1.45,
