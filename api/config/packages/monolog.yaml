@@ -13,9 +13,9 @@ when@dev:
         channels: ["!event", "!api"]
       api_log:
         type: stream
-        path: "%kernel.logs_dir%/api.log"
+        path: "%kernel.logs_dir%/api.jsonl"
         level: debug
-        channels: ["api"]
+        channels: [ "api" ]
         formatter: monolog.formatter.json
       console:
         type: console
