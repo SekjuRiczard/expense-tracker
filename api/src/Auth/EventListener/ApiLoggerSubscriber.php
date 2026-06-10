@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace App\Auth\EventListener;
 
-use DateTimeImmutable;
+use JsonException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -22,8 +22,10 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 final class ApiLoggerSubscriber implements EventSubscriberInterface
 {
-    public function __construct(#[Autowire(service: 'monolog.logger.api')] private readonly LoggerInterface $logger)
-    {
+    public function __construct(
+        #[Autowire(service: 'monolog.logger.api')]
+        private readonly LoggerInterface $apiLogger,
+    ) {
     }
 
     public static function getSubscribedEvents(): array
@@ -33,8 +35,42 @@ final class ApiLoggerSubscriber implements EventSubscriberInterface
 
     public function onResponse(ResponseEvent $event): void
     {
-        if (str_contains($event->getRequest()->getPathInfo(), '/api')) {
-            $this->logger->info(sprintf("\nCZAS: %s\nURL: %s\nSTATUS: %d\nPAYLOAD:\n%s\nRESPONSE:\n%s", (new DateTimeImmutable())->format('Y-m-d H:i:s.v'), $event->getRequest()->getUri(), $event->getResponse()->getStatusCode(), json_encode(json_decode($event->getRequest()->getContent() ?: '{}', true) ?? ['raw' => $event->getRequest()->getContent()], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), json_encode(json_decode($event->getResponse()->getContent() ?: '{}', true) ?? ['raw' => $event->getResponse()->getContent()], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)));
+        if (!$event->isMainRequest()) {
+            return;
+        }
+
+        $request = $event->getRequest();
+
+        if (!str_starts_with($request->getPathInfo(), '/api')) {
+            return;
+        }
+
+        $response = $event->getResponse();
+
+        $this->apiLogger->info('API response', [
+            'method' => $request->getMethod(),
+            'endpoint' => $request->getRequestUri(),
+            'statusCode' => $response->getStatusCode(),
+            'payload' => $this->decodeContent($request->getContent()),
+            'response' => $this->decodeContent($response->getContent()),
+        ]);
+    }
+
+    private function decodeContent(string|false $content): mixed
+    {
+        if (false === $content || '' === trim($content)) {
+            return null;
+        }
+
+        try {
+            return json_decode(
+                $content,
+                true,
+                512,
+                JSON_THROW_ON_ERROR,
+            );
+        } catch (JsonException) {
+            return ['raw' => $content];
         }
     }
 }
