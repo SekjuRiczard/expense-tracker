@@ -118,6 +118,7 @@ export const LoginForm = ({
           justifyContent="center"
           spacing={1.5}
           sx={{
+            width: '100%',
             pt: 0.5,
           }}
         >

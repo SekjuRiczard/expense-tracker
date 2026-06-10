@@ -1,6 +1,5 @@
 import {
   Box,
-  Stack,
 } from '@mui/material';
 import {
   motion,
@@ -181,67 +180,67 @@ export const PinInput = ({
   };
 
   return (
-  <MotionBox
-    key={shakeKey}
-    animate={
-      shakeKey > 0
-        ? {
-          x: [0, -10, 10, -8, 8, -4, 4, 0,],
-        }
-        : {
-          x: 0,
-        }
-    }
-    transition={{
-      duration: 0.42,
-    }}
-    sx={{
-      display: 'grid',
-      width: 'fit-content',
-      mx: 'auto',
-      gridTemplateColumns: {
-        xs: 'repeat(6, 42px)',
-        sm: 'repeat(6, 52px)',
-      },
-      gap: {
-        xs: 0.7,
-        sm: 1,
-      },
-    }}
-  >
-    {digits.map((digit, index) => (
-      <MotionBox
-        key={`pin-digit-${index}`}
-        initial={{
-          opacity: 0,
-          y: 10,
-        }}
-        animate={{
-          opacity: 1,
-          y: 0,
-        }}
-        transition={{
-          duration: 0.2,
-          delay: index * 0.045,
-        }}
-      >
-        <PinDigit
-          disabled={disabled}
-          index={index}
-          inputRef={(element) => {
-            inputRefs.current[index] = element;
+    <MotionBox
+      key={shakeKey}
+      animate={
+        shakeKey > 0
+          ? {
+            x: [0, -10, 10, -8, 8, -4, 4, 0,],
+          }
+          : {
+            x: 0,
+          }
+      }
+      transition={{
+        duration: 0.42,
+      }}
+      sx={{
+        display: 'grid',
+        width: '100%',
+        justifyContent: 'center',
+        gridTemplateColumns: {
+          xs: 'repeat(6, 42px)',
+          sm: 'repeat(6, 52px)',
+        },
+        gap: {
+          xs: 0.7,
+          sm: 1,
+        },
+      }}
+    >
+      {digits.map((digit, index) => (
+        <MotionBox
+          key={`pin-digit-${index}`}
+          initial={{
+            opacity: 0,
+            y: 10,
           }}
-          onChange={(event) => {
-            handleChange(index, event);
+          animate={{
+            opacity: 1,
+            y: 0,
           }}
-          onKeyDown={(event) => {
-            handleKeyDown(index, event);
+          transition={{
+            duration: 0.2,
+            delay: index * 0.045,
           }}
-          onPaste={handlePaste}
-          value={digit}
-        />
-      </MotionBox>
-    ))}
-  </MotionBox>
-);
+        >
+          <PinDigit
+            disabled={disabled}
+            index={index}
+            inputRef={(element) => {
+              inputRefs.current[index] = element;
+            }}
+            onChange={(event) => {
+              handleChange(index, event);
+            }}
+            onKeyDown={(event) => {
+              handleKeyDown(index, event);
+            }}
+            onPaste={handlePaste}
+            value={digit}
+          />
+        </MotionBox>
+      ))}
+    </MotionBox>
+  );
 };

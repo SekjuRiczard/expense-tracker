@@ -65,7 +65,7 @@ export const AuthFormField = <
         sx={{
           '& .MuiOutlinedInput-root': {
             minHeight: 54,
-            borderRadius: 2.5,
+            borderRadius: 1.75,
             backgroundColor: flowlyPalette.auth.background,
             transition: 'transform 180ms ease, box-shadow 180ms ease',
 

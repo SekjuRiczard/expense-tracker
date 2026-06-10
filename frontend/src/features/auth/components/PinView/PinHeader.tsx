@@ -30,62 +30,66 @@ export const PinHeader = ({
   description,
 }: PinHeaderProps) => {
   return (
+  <Box
+    sx={{
+      display: 'flex',
+      width: '100%',
+      justifyContent: 'center',
+    }}
+  >
     <Stack
       alignItems="center"
       spacing={1.3}
       sx={{
-        width: '100%',
+        width: {
+          xs: 280,
+          sm: 352,
+        },
       }}
     >
-      <Box
-        sx={{
-          display: 'flex',
-          width: '100%',
-          justifyContent: 'center',
+      <MotionBox
+        key={variant}
+        initial={{
+          opacity: 0,
+          scale: 0.45,
         }}
+        animate={{
+          opacity: 1,
+          scale: 1,
+        }}
+        transition={{
+          type: 'spring',
+          stiffness: 320,
+          damping: 18,
+        }}
+        sx={{
+    display: 'grid',
+    width: 76,
+    height: 76,
+    placeItems: 'center',
+    alignSelf: 'center',
+    mx: 'auto',
+    borderRadius: '50%',
+    backgroundColor: '#EEF3FF',
+    color: flowlyPalette.auth.focus,
+  }}
       >
-        <MotionBox
-          key={variant}
-          initial={{
-            opacity: 0,
-            scale: 0.45,
-          }}
-          animate={{
-            opacity: 1,
-            scale: 1,
-          }}
-          transition={{
-            type: 'spring',
-            stiffness: 320,
-            damping: 18,
-          }}
-          sx={{
-            display: 'grid',
-            width: 76,
-            height: 76,
-            placeItems: 'center',
-            borderRadius: '50%',
-            backgroundColor: '#EEF3FF',
-            color: flowlyPalette.auth.focus,
-          }}
-        >
-          {variant === 'check'
-            ? (
-              <CheckRounded
-                sx={{
-                  fontSize: 40,
-                }}
-              />
-            )
-            : (
-              <ShieldOutlined
-                sx={{
-                  fontSize: 40,
-                }}
-              />
-            )}
-        </MotionBox>
-      </Box>
+        {variant === 'check'
+          ? (
+            <CheckRounded
+              sx={{
+                fontSize: 40,
+              }}
+            />
+          )
+          : (
+            <ShieldOutlined
+              sx={{
+                fontSize: 40,
+              }}
+            />
+          )}
+      </MotionBox>
 
       <Stack
         alignItems="center"
@@ -97,6 +101,7 @@ export const PinHeader = ({
         <Typography
           component="h1"
           sx={{
+            width: '100%',
             color: flowlyPalette.auth.textPrimary,
             fontSize: 'clamp(1.9rem, 4vw, 2.3rem)',
             fontWeight: 850,
@@ -111,7 +116,6 @@ export const PinHeader = ({
         <Typography
           sx={{
             width: '100%',
-            maxWidth: 390,
             color: flowlyPalette.auth.textSecondary,
             fontSize: '0.975rem',
             lineHeight: 1.65,
@@ -122,5 +126,6 @@ export const PinHeader = ({
         </Typography>
       </Stack>
     </Stack>
-  );
+  </Box>
+);
 };

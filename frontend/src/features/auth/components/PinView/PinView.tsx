@@ -37,15 +37,19 @@ const MotionBox = motion.create(Box);
 
 const PreviousPinPreview = () => {
   return (
-    <Stack
-      direction="row"
-      justifyContent="center"
-      spacing={{
-        xs: 0.7,
-        sm: 1,
-      }}
+    <Box
       sx={{
+        display: 'grid',
         width: '100%',
+        justifyContent: 'center',
+        gridTemplateColumns: {
+          xs: 'repeat(6, 42px)',
+          sm: 'repeat(6, 52px)',
+        },
+        gap: {
+          xs: 0.7,
+          sm: 1,
+        },
       }}
     >
       {Array.from(
@@ -65,7 +69,6 @@ const PreviousPinPreview = () => {
                 xs: 50,
                 sm: 60,
               },
-              flexShrink: 0,
               placeItems: 'center',
               border: `1px solid ${flowlyPalette.auth.borderMuted}`,
               borderRadius: 2,
@@ -79,7 +82,7 @@ const PreviousPinPreview = () => {
           </Box>
         ),
       )}
-    </Stack>
+    </Box>
   );
 };
 
