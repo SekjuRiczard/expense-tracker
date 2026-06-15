@@ -40,3 +40,9 @@ analytics_controllers:
         path: ../src/Analytics/Controller/
         namespace: App\Analytics\Controller
     type: attribute
+
+demo_data_controllers:
+    resource:
+        path: ../src/DemoData/Controller/
+        namespace: App\DemoData\Controller
+    type: attribute
