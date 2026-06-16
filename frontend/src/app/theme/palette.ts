@@ -32,4 +32,31 @@ export const flowlyPalette = {
     blobGreen: '#027A48',
     blobPurple: '#6941C6',
   },
+
+  dashboard: {
+    background: '#F9FAFB',
+    surface: '#FFFFFF',
+
+    border: '#E2E8F0',
+    borderSoft: '#F1F5F9',
+
+    textPrimary: '#0F172A',
+    textSecondary: '#64748B',
+    textMuted: '#94A3B8',
+
+    indigo: '#6366F1',
+    indigoDark: '#4F46E5',
+    indigoSoft: '#EEF2FF',
+
+    emerald: '#10B981',
+    emeraldSoft: '#ECFDF5',
+
+    amber: '#F59E0B',
+    amberSoft: '#FFFBEB',
+
+    rose: '#F43F5E',
+    roseSoft: '#FFF1F2',
+
+    action: '#0F172A',
+  },
 } as const;

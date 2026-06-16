@@ -55,12 +55,12 @@ export const CurrencyPanel = () => {
       }}
     >
       <Stack
-        justifyContent="center"
-        spacing={{
-          md: 1.4,
-          lg: 1.8,
-        }}
         sx={{
+          justifyContent: 'center',
+          gap: {
+            md: 1.4,
+            lg: 1.8,
+          },
           flex: 1,
         }}
       >
@@ -73,7 +73,11 @@ export const CurrencyPanel = () => {
         )}
 
         {isError && (
-          <Stack spacing={1.5}>
+          <Stack
+            sx={{
+              gap: 1.5,
+            }}
+          >
             <Alert severity="error">
               NBP exchange rates could not be loaded.
             </Alert>

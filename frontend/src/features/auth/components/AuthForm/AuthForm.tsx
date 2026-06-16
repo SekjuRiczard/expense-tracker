@@ -40,10 +40,16 @@ export const AuthForm = <
   footer,
 }: AuthFormProps<TFieldValues>) => {
   return (
-    <Stack spacing={3.2}>
+    <Stack
+      sx={{
+        gap: 3.2,
+      }}
+    >
       <Stack
-        alignItems="center"
-        spacing={0.7}
+        sx={{
+          alignItems: 'center',
+          gap: 0.7,
+        }}
       >
         <Typography
           component="h1"
@@ -76,7 +82,9 @@ export const AuthForm = <
         component="form"
         noValidate
         onSubmit={onSubmit}
-        spacing={2.1}
+        sx={{
+          gap: 2.1,
+        }}
       >
         {errorMessage && (
           <Alert severity="error">

@@ -113,11 +113,11 @@ export const LoginForm = ({
       onSubmit={handleSubmit(submitLogin)}
       footer={(
         <Stack
-          alignItems="center"
-          direction="row"
-          justifyContent="center"
-          spacing={1.5}
           sx={{
+            alignItems: 'center',
+            flexDirection: 'row',
+            justifyContent: 'center',
+            gap: 1.5,
             width: '100%',
             pt: 0.5,
           }}

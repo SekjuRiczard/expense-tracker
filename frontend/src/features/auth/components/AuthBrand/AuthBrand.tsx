@@ -8,10 +8,10 @@ import { flowlyPalette, } from '../../../../app/theme';
 export const AuthBrand = () => {
   return (
     <Stack
-      alignItems="center"
-      direction="row"
-      spacing={1.25}
       sx={{
+        alignItems: 'center',
+        flexDirection: 'row',
+        gap: 1.25,
         width: 'fit-content',
       }}
     >
