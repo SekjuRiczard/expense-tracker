@@ -4,4 +4,6 @@ export type {
   TransactionList,
   TransactionPagination,
   TransactionType,
+  CreateTransactionPayload,
+  UpdateTransactionPayload,
 } from './transaction.types';
