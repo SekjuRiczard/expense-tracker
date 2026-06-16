@@ -1,6 +1,10 @@
-import type {
-  DashboardPeriod,
-} from '../../../shared/lib';
+export type AnalyticsCurrency = 'PLN' | 'EUR' | 'USD';
+
+export interface AnalyticsDashboardParams {
+  readonly from: string;
+  readonly to: string;
+  readonly currency: AnalyticsCurrency;
+}
 
 export interface AnalyticsSummary {
   readonly currency: string;
@@ -31,5 +35,3 @@ export interface AnalyticsDashboard {
   readonly categoryBreakdown: readonly CategoryBreakdownItem[];
   readonly cashFlow: readonly CashFlowPoint[];
 }
-
-export type AnalyticsDashboardParams = DashboardPeriod;

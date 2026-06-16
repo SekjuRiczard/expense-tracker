@@ -1,4 +1,5 @@
 export type {
+  AnalyticsCurrency,
   AnalyticsDashboard,
   AnalyticsDashboardParams,
   AnalyticsSummary,

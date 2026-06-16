@@ -7,6 +7,8 @@ import { AppLayout } from '../layouts/AppLayout';
 import { DashboardPage } from '../../features/dashboard';
 import { WalletsPage } from '../../features/wallets/pages';
 import { TransactionsPage } from '../../features/transactions/pages';
+import { CategoriesPage } from '../../features/categories/pages';
+import { AnalyticsPage } from '../../features/analytics/pages';
 import { SettingsPage } from '../../features/settings';
 import { PlaceholderPage } from './PlaceholderPage';
 
@@ -30,7 +32,7 @@ export const AppRouter = () => {
         />
 
         <Route
-          element={<PlaceholderPage title="Categories" />}
+          element={<CategoriesPage />}
           path="/categories"
         />
 
@@ -40,7 +42,7 @@ export const AppRouter = () => {
         />
 
         <Route
-          element={<PlaceholderPage title="Analytics" />}
+          element={<AnalyticsPage />}
           path="/analytics"
         />
       </Route>

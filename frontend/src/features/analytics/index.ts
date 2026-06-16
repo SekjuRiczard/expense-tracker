@@ -7,10 +7,12 @@ export {
 } from './hooks';
 
 export {
+  analyticsCurrencySchema,
   analyticsDashboardSchema,
 } from './schemas';
 
 export type {
+  AnalyticsCurrency,
   AnalyticsDashboard,
   AnalyticsDashboardParams,
   AnalyticsSummary,
