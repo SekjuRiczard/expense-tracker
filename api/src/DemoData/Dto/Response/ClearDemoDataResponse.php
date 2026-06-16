@@ -19,6 +19,7 @@ final readonly class ClearDemoDataResponse
         public int $transactionsDeleted,
         public int $budgetsDeleted,
         public int $walletsDeleted,
+        public bool $demoDataExists = false,
     ) {
     }
 }

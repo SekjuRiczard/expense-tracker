@@ -1,5 +1,6 @@
 import {
   useCallback,
+  useEffect,
   useMemo,
   type ReactNode,
 } from 'react';
@@ -11,6 +12,7 @@ import {
 import {
   isApiError,
   normalizeApiError,
+  setUnauthorizedHandler,
 } from '../../../shared/api';
 import {
   getCurrentUser,
@@ -98,6 +100,23 @@ export const AuthProvider = ({
     },
     [queryClient],
   );
+
+  const clearUserData = useCallback((): void => {
+    queryClient.removeQueries({
+      predicate: (query) => query.queryKey[0] !== 'auth',
+    });
+  }, [queryClient]);
+
+  useEffect(() => {
+    setUnauthorizedHandler(() => {
+      setSession(null);
+      clearUserData();
+    });
+
+    return () => {
+      setUnauthorizedHandler(null);
+    };
+  }, [setSession, clearUserData]);
 
   const state = useMemo<AuthState>(() => {
     if (isPending) {
@@ -206,8 +225,9 @@ export const AuthProvider = ({
       await logoutRequest();
 
       setSession(null);
+      clearUserData();
     },
-    [setSession],
+    [setSession, clearUserData],
   );
 
   const value = useMemo<AuthContextValue>(() => {

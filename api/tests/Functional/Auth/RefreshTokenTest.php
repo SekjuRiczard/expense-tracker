@@ -41,8 +41,11 @@ final class RefreshTokenTest extends FunctionalTestCase
 
         self::assertSame(Response::HTTP_UNAUTHORIZED, $response->getStatusCode());
 
-        $this->assertCookieMissing(CookieFactory::ACCESS_TOKEN_COOKIE);
-        $this->assertCookieMissing(CookieFactory::PARTIAL_ACCESS_TOKEN_COOKIE);
+        // A present-but-invalid refresh token clears all auth cookies so the
+        // stale state cannot block a fresh login.
+        $this->assertCookieExpired(CookieFactory::ACCESS_TOKEN_COOKIE);
+        $this->assertCookieExpired(CookieFactory::REFRESH_TOKEN_COOKIE);
+        $this->assertCookieExpired(CookieFactory::PARTIAL_ACCESS_TOKEN_COOKIE);
     }
 
     public function testRefreshWithValidRefreshTokenSetsNewAccessAndRefreshCookies(): void

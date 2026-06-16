@@ -15,6 +15,7 @@ namespace App\DemoData\Controller;
 
 use App\DemoData\Service\DemoDataCleaner;
 use App\DemoData\Service\DemoDataGenerator;
+use App\DemoData\Service\DemoDataStatusProvider;
 use App\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -30,7 +31,18 @@ final class AdminDemoDataController extends AbstractController
     public function __construct(
         private readonly DemoDataGenerator $demoDataGenerator,
         private readonly DemoDataCleaner $demoDataCleaner,
+        private readonly DemoDataStatusProvider $demoDataStatusProvider,
     ) {
+    }
+
+    #[Route(path: '/status', name: 'status', methods: ['GET'])]
+    public function status(): JsonResponse
+    {
+        return $this->json(
+            data: $this->demoDataStatusProvider->getStatus(
+                user: $this->getAuthenticatedUser(),
+            ),
+        );
     }
 
     #[Route(path: '', name: 'generate', methods: ['POST'])]

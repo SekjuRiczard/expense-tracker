@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { isApiError } from '../../../shared/api';
 import { clearDemoData } from '../api';
+import { invalidateDemoDataRelatedQueries } from './invalidateDemoDataRelatedQueries';
 
 export interface UseClearDemoDataCallbacks {
   readonly onSuccess: () => void;
@@ -16,9 +17,7 @@ export const useClearDemoData = (
   return useMutation({
     mutationFn: clearDemoData,
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ['analytics'] });
-      void queryClient.invalidateQueries({ queryKey: ['wallets'] });
-      void queryClient.invalidateQueries({ queryKey: ['transactions'] });
+      invalidateDemoDataRelatedQueries(queryClient);
       callbacks.onSuccess();
     },
     onError: (error: unknown) => {

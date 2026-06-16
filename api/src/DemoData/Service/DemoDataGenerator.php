@@ -15,23 +15,27 @@ namespace App\DemoData\Service;
 
 use App\Budget\Action\CreateBudgetAction;
 use App\Budget\Dto\Request\CreateBudgetRequest;
+use App\Budget\Entity\Budget;
 use App\Budget\Enum\BudgetPeriodType;
 use App\Category\Entity\Category;
 use App\Category\Repository\CategoryRepository;
 use App\Category\Service\DefaultCategoryInitializer;
 use App\DemoData\Dto\Response\GenerateDemoDataResponse;
+use App\DemoData\Entity\DemoDataBatch;
+use App\DemoData\Entity\DemoDataRecord;
 use App\DemoData\Exception\DemoDataException;
+use App\DemoData\Repository\DemoDataBatchRepository;
+use App\DemoData\Repository\DemoDataRecordRepository;
 use App\Entity\User;
 use App\Transaction\Action\CreateTransactionAction;
 use App\Transaction\Dto\Request\CreateTransactionRequest;
+use App\Transaction\Entity\Transaction;
 use App\Transaction\Enum\TransactionType;
 use App\Wallet\Entity\Wallet;
 use App\Wallet\Enum\CurrencyCode;
 use App\Wallet\Enum\WalletType;
 use App\Wallet\Repository\WalletRepository;
-use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
-use LogicException;
 use Random\Engine\Mt19937;
 use Random\Randomizer;
 
@@ -53,6 +57,8 @@ final readonly class DemoDataGenerator
         private WalletRepository $walletRepository,
         private CreateBudgetAction $createBudgetAction,
         private CreateTransactionAction $createTransactionAction,
+        private DemoDataBatchRepository $demoDataBatchRepository,
+        private DemoDataRecordRepository $demoDataRecordRepository,
         private EntityManagerInterface $entityManager,
     ) {
     }
@@ -66,42 +72,78 @@ final readonly class DemoDataGenerator
 
         return $this->entityManager->wrapInTransaction(
             function () use ($user, $resolvedSeed, $randomizer): GenerateDemoDataResponse {
-                $this->assertUserHasNoWallets($user);
+                $this->assertNoActiveBatch($user);
                 /** @var int $defaultCategoriesCreated */
                 $defaultCategoriesCreated = $this->defaultCategoryInitializer->initialize();
                 /** @var array<string, Wallet> $wallets */
                 $wallets = $this->createWallets($user);
                 /** @var array<string, Category> $categories */
                 $categories = $this->getCategoriesIndexedByName($user);
-                /** @var int $budgetsCreated */
-                $budgetsCreated = $this->createMonthlyBudgets(
+                /** @var list<int> $budgetIds */
+                $budgetIds = $this->createMonthlyBudgets(
                     user: $user,
                     randomizer: $randomizer,
                 );
-                /** @var int $transactionsCreated */
-                $transactionsCreated = $this->createTransactions(
+                /** @var list<int> $transactionIds */
+                $transactionIds = $this->createTransactions(
                     user: $user,
                     wallets: $wallets,
                     categories: $categories,
                     randomizer: $randomizer,
                 );
+                /** @var list<int> $walletIds */
+                $walletIds = array_map(
+                    static fn (Wallet $wallet): int => $wallet->getId()
+                        ?? throw new \LogicException('Demo wallet ID is required.'),
+                    array_values($wallets),
+                );
+
+                $batch = new DemoDataBatch(
+                    user: $user,
+                    seed: $resolvedSeed,
+                    walletsCount: count($walletIds),
+                    budgetsCount: count($budgetIds),
+                    transactionsCount: count($transactionIds),
+                );
+                $this->demoDataBatchRepository->add($batch);
+                $this->recordEntities($batch, Wallet::class, $walletIds);
+                $this->recordEntities($batch, Budget::class, $budgetIds);
+                $this->recordEntities($batch, Transaction::class, $transactionIds);
+                $this->entityManager->flush();
 
                 return new GenerateDemoDataResponse(
                     seed: $resolvedSeed,
                     monthsGenerated: self::MONTHS_TO_GENERATE,
                     defaultCategoriesCreated: $defaultCategoriesCreated,
-                    walletsCreated: count($wallets),
-                    budgetsCreated: $budgetsCreated,
-                    transactionsCreated: $transactionsCreated,
+                    walletsCreated: count($walletIds),
+                    budgetsCreated: count($budgetIds),
+                    transactionsCreated: count($transactionIds),
+                    demoDataExists: true,
                 );
             },
         );
     }
 
-    private function assertUserHasNoWallets(User $user): void
+    private function assertNoActiveBatch(User $user): void
     {
-        if ([] !== $this->walletRepository->findByUser($user)) {
+        if (null !== $this->demoDataBatchRepository->findActiveByUser($user)) {
             throw DemoDataException::alreadyGenerated();
+        }
+    }
+
+    /**
+     * @param class-string $entityClass
+     * @param list<int>    $entityIds
+     */
+    private function recordEntities(
+        DemoDataBatch $batch,
+        string $entityClass,
+        array $entityIds,
+    ): void {
+        foreach ($entityIds as $entityId) {
+            $this->demoDataRecordRepository->add(
+                new DemoDataRecord($batch, $entityClass, $entityId),
+            );
         }
     }
 
@@ -164,18 +206,23 @@ final readonly class DemoDataGenerator
         return $categories;
     }
 
+    /**
+     * @return list<int>
+     */
     private function createMonthlyBudgets(
         User $user,
         Randomizer $randomizer,
-    ): int {
-        /** @var DateTimeImmutable $currentMonth */
-        $currentMonth = new DateTimeImmutable('first day of this month 00:00:00');
+    ): array {
+        /** @var list<int> $budgetIds */
+        $budgetIds = [];
+        /** @var \DateTimeImmutable $currentMonth */
+        $currentMonth = new \DateTimeImmutable('first day of this month 00:00:00');
         for ($offset = self::MONTHS_TO_GENERATE - 1; $offset >= 0; --$offset) {
-            /** @var DateTimeImmutable $startDate */
+            /** @var \DateTimeImmutable $startDate */
             $startDate = $currentMonth->modify(sprintf('-%d months', $offset));
-            /** @var DateTimeImmutable $endDate */
+            /** @var \DateTimeImmutable $endDate */
             $endDate = $startDate->modify('last day of this month 23:59:59');
-            $this->createBudgetAction->execute(
+            $budgetIds[] = $this->createBudgetAction->execute(
                 request: new CreateBudgetRequest(
                     name: sprintf('Budżet %s', $startDate->format('m/Y')),
                     amount: $randomizer->getInt(500_000, 750_000),
@@ -185,100 +232,114 @@ final readonly class DemoDataGenerator
                     endDate: $endDate,
                 ),
                 user: $user,
-            );
+            )->id;
         }
 
-        return self::MONTHS_TO_GENERATE;
+        return $budgetIds;
     }
 
     /**
      * @param array<string, Wallet>   $wallets
      * @param array<string, Category> $categories
+     */
+    /**
+     * @return list<int>
      */
     private function createTransactions(
         User $user,
         array $wallets,
         array $categories,
         Randomizer $randomizer,
-    ): int {
-        /** @var int $transactionsCreated */
-        $transactionsCreated = 0;
-        /** @var DateTimeImmutable $currentMonth */
-        $currentMonth = new DateTimeImmutable('first day of this month 00:00:00');
+    ): array {
+        /** @var list<int> $transactionIds */
+        $transactionIds = [];
+        /** @var \DateTimeImmutable $currentMonth */
+        $currentMonth = new \DateTimeImmutable('first day of this month 00:00:00');
         for ($offset = self::MONTHS_TO_GENERATE - 1; $offset >= 0; --$offset) {
-            /** @var DateTimeImmutable $month */
+            /** @var \DateTimeImmutable $month */
             $month = $currentMonth->modify(sprintf('-%d months', $offset));
-            $transactionsCreated += $this->createSalaryTransaction(
-                user: $user,
-                wallet: $wallets['main'],
-                categories: $categories,
-                month: $month,
-                randomizer: $randomizer,
-            );
-            $transactionsCreated += $this->createRecurringExpenseTransactions(
-                user: $user,
-                wallets: $wallets,
-                categories: $categories,
-                month: $month,
-                randomizer: $randomizer,
-            );
-            $transactionsCreated += $this->createExtraIncomeTransactions(
-                user: $user,
-                wallet: $wallets['main'],
-                categories: $categories,
-                month: $month,
-                randomizer: $randomizer,
-            );
-            $transactionsCreated += $this->createVariableExpenseTransactions(
-                user: $user,
-                wallets: $wallets,
-                categories: $categories,
-                month: $month,
-                randomizer: $randomizer,
-            );
+            $transactionIds = [
+                ...$transactionIds,
+                ...$this->createSalaryTransaction(
+                    user: $user,
+                    wallet: $wallets['main'],
+                    categories: $categories,
+                    month: $month,
+                    randomizer: $randomizer,
+                ),
+                ...$this->createRecurringExpenseTransactions(
+                    user: $user,
+                    wallets: $wallets,
+                    categories: $categories,
+                    month: $month,
+                    randomizer: $randomizer,
+                ),
+                ...$this->createExtraIncomeTransactions(
+                    user: $user,
+                    wallet: $wallets['main'],
+                    categories: $categories,
+                    month: $month,
+                    randomizer: $randomizer,
+                ),
+                ...$this->createVariableExpenseTransactions(
+                    user: $user,
+                    wallets: $wallets,
+                    categories: $categories,
+                    month: $month,
+                    randomizer: $randomizer,
+                ),
+            ];
         }
 
-        return $transactionsCreated;
+        return $transactionIds;
     }
 
     /**
      * @param array<string, Category> $categories
      */
+    /**
+     * @return list<int>
+     */
     private function createSalaryTransaction(
         User $user,
         Wallet $wallet,
         array $categories,
-        DateTimeImmutable $month,
+        \DateTimeImmutable $month,
         Randomizer $randomizer,
-    ): int {
-        $this->createTransaction(
-            user: $user,
-            wallet: $wallet,
-            category: $this->getRequiredCategory($categories, 'Pensja'),
-            type: TransactionType::INCOME,
-            amount: $randomizer->getInt(680_000, 950_000),
-            title: 'Wynagrodzenie',
-            transactionDate: $this->randomDateInMonth(
-                month: $month,
-                randomizer: $randomizer,
-                preferredDay: 1,
+    ): array {
+        return [
+            $this->createTransaction(
+                user: $user,
+                wallet: $wallet,
+                category: $this->getRequiredCategory($categories, 'Pensja'),
+                type: TransactionType::INCOME,
+                amount: $randomizer->getInt(680_000, 950_000),
+                title: 'Wynagrodzenie',
+                transactionDate: $this->randomDateInMonth(
+                    month: $month,
+                    randomizer: $randomizer,
+                    preferredDay: 1,
+                ),
             ),
-        );
-
-        return 1;
+        ];
     }
 
     /**
      * @param array<string, Wallet>   $wallets
      * @param array<string, Category> $categories
      */
+    /**
+     * @return list<int>
+     */
     private function createRecurringExpenseTransactions(
         User $user,
         array $wallets,
         array $categories,
-        DateTimeImmutable $month,
+        \DateTimeImmutable $month,
         Randomizer $randomizer,
-    ): int {
+    ): array {
+        /** @var list<int> $transactionIds */
+        $transactionIds = [];
         /** @var list<array{category: string, title: string, minAmount: int, maxAmount: int, day: int}> $expenses */
         $expenses = [
             [
@@ -319,7 +380,7 @@ final readonly class DemoDataGenerator
         ];
         /** @var array{category: string, title: string, minAmount: int, maxAmount: int, day: int} $expense */
         foreach ($expenses as $expense) {
-            $this->createTransaction(
+            $transactionIds[] = $this->createTransaction(
                 user: $user,
                 wallet: $wallets['main'],
                 category: $this->getRequiredCategory($categories, $expense['category']),
@@ -337,19 +398,24 @@ final readonly class DemoDataGenerator
             );
         }
 
-        return count($expenses);
+        return $transactionIds;
     }
 
     /**
      * @param array<string, Category> $categories
      */
+    /**
+     * @return list<int>
+     */
     private function createExtraIncomeTransactions(
         User $user,
         Wallet $wallet,
         array $categories,
-        DateTimeImmutable $month,
+        \DateTimeImmutable $month,
         Randomizer $randomizer,
-    ): int {
+    ): array {
+        /** @var list<int> $transactionIds */
+        $transactionIds = [];
         /** @var list<array{category: string, title: string, minAmount: int, maxAmount: int}> $templates */
         $templates = [
             [
@@ -385,7 +451,7 @@ final readonly class DemoDataGenerator
         for ($index = 0; $index < $transactionsToCreate; ++$index) {
             /** @var array{category: string, title: string, minAmount: int, maxAmount: int} $template */
             $template = $this->randomItem($templates, $randomizer);
-            $this->createTransaction(
+            $transactionIds[] = $this->createTransaction(
                 user: $user,
                 wallet: $wallet,
                 category: $this->getRequiredCategory($categories, $template['category']),
@@ -402,20 +468,25 @@ final readonly class DemoDataGenerator
             );
         }
 
-        return $transactionsToCreate;
+        return $transactionIds;
     }
 
     /**
      * @param array<string, Wallet>   $wallets
      * @param array<string, Category> $categories
      */
+    /**
+     * @return list<int>
+     */
     private function createVariableExpenseTransactions(
         User $user,
         array $wallets,
         array $categories,
-        DateTimeImmutable $month,
+        \DateTimeImmutable $month,
         Randomizer $randomizer,
-    ): int {
+    ): array {
+        /** @var list<int> $transactionIds */
+        $transactionIds = [];
         /** @var list<array{category: string, title: string, minAmount: int, maxAmount: int}> $templates */
         $templates = [
             [
@@ -499,7 +570,7 @@ final readonly class DemoDataGenerator
         for ($index = 0; $index < $transactionsToCreate; ++$index) {
             /** @var array{category: string, title: string, minAmount: int, maxAmount: int} $template */
             $template = $this->randomItem($templates, $randomizer);
-            $this->createTransaction(
+            $transactionIds[] = $this->createTransaction(
                 user: $user,
                 wallet: $wallets[$this->randomExpenseWalletKey($randomizer)],
                 category: $this->getRequiredCategory($categories, $template['category']),
@@ -516,7 +587,7 @@ final readonly class DemoDataGenerator
             );
         }
 
-        return $transactionsToCreate;
+        return $transactionIds;
     }
 
     /**
@@ -527,7 +598,7 @@ final readonly class DemoDataGenerator
         string $name,
     ): Category {
         return $categories[$name]
-            ?? throw new LogicException(sprintf('Demo category "%s" not found.', $name));
+            ?? throw new \LogicException(sprintf('Demo category "%s" not found.', $name));
     }
 
     private function randomExpenseWalletKey(Randomizer $randomizer): string
@@ -543,12 +614,12 @@ final readonly class DemoDataGenerator
     }
 
     private function randomDateInMonth(
-        DateTimeImmutable $month,
+        \DateTimeImmutable $month,
         Randomizer $randomizer,
         ?int $preferredDay = null,
-    ): DateTimeImmutable {
-        /** @var DateTimeImmutable $today */
-        $today = new DateTimeImmutable('today');
+    ): \DateTimeImmutable {
+        /** @var \DateTimeImmutable $today */
+        $today = new \DateTimeImmutable('today');
         /** @var int $lastAllowedDay */
         $lastAllowedDay = (int) $month->format('t');
         if ($month->format('Y-m') === $today->format('Y-m')) {
@@ -592,15 +663,16 @@ final readonly class DemoDataGenerator
         TransactionType $type,
         int $amount,
         string $title,
-        DateTimeImmutable $transactionDate,
-    ): void {
+        \DateTimeImmutable $transactionDate,
+    ): int {
         /** @var int $walletId */
         $walletId = $wallet->getId()
-            ?? throw new LogicException('Demo wallet ID is required.');
+            ?? throw new \LogicException('Demo wallet ID is required.');
         /** @var int $categoryId */
         $categoryId = $category->getId()
-            ?? throw new LogicException('Demo category ID is required.');
-        $this->createTransactionAction->execute(
+            ?? throw new \LogicException('Demo category ID is required.');
+
+        return $this->createTransactionAction->execute(
             request: new CreateTransactionRequest(
                 walletId: $walletId,
                 categoryId: $categoryId,
@@ -610,6 +682,6 @@ final readonly class DemoDataGenerator
                 transactionDate: $transactionDate,
             ),
             user: $user,
-        );
+        )->id;
     }
 }
