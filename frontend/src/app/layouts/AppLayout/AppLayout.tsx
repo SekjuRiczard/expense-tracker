@@ -1,22 +1,20 @@
-import {
-  Box,
-} from '@mui/material';
-import {
-  useState,
-} from 'react';
-import {
-  Outlet,
-} from 'react-router-dom';
-import { flowlyPalette, } from '../../theme';
-import { AppHeader, } from './AppHeader';
-import {
-  APP_SIDEBAR_WIDTH,
-  AppSidebar,
-} from './AppSidebar';
-import { MobileNavigationDrawer, } from './MobileNavigationDrawer';
+import { Box } from '@mui/material';
+import { useState } from 'react';
+import { Outlet } from 'react-router-dom';
+import { flowlyPalette } from '../../theme';
+import { AppHeader } from './AppHeader';
+import { APP_SIDEBAR_WIDTH, AppSidebar } from './AppSidebar';
+import { MobileNavigationDrawer } from './MobileNavigationDrawer';
+import type { AppLayoutOutletContext, PageHeaderOverride } from './pageHeader.types';
 
 export const AppLayout = () => {
-  const [isDrawerOpen, setIsDrawerOpen,] = useState(false);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [headerOverride, setHeaderOverride] =
+    useState<PageHeaderOverride | null>(null);
+
+  const outletContext: AppLayoutOutletContext = {
+    setHeaderOverride,
+  };
 
   return (
     <Box
@@ -60,6 +58,7 @@ export const AppLayout = () => {
         }}
       >
         <AppHeader
+          headerOverride={headerOverride}
           onMenuClick={() => {
             setIsDrawerOpen(true);
           }}
@@ -79,7 +78,7 @@ export const AppLayout = () => {
             },
           }}
         >
-          <Outlet />
+          <Outlet context={outletContext} />
         </Box>
       </Box>
     </Box>

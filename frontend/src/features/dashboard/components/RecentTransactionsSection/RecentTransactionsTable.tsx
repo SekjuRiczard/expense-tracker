@@ -2,7 +2,6 @@ import {
   MoreHorizRounded,
 } from '@mui/icons-material';
 import {
-  Box,
   IconButton,
   Stack,
   Table,

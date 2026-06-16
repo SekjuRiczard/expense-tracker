@@ -3,10 +3,11 @@ import {
   Route,
   Routes,
 } from 'react-router-dom';
-import { AppLayout, } from '../layouts/AppLayout';
-import { DashboardPage, } from '../../features/dashboard';
-import { SettingsPage, } from '../../features/settings';
-import { PlaceholderPage, } from './PlaceholderPage';
+import { AppLayout } from '../layouts/AppLayout';
+import { DashboardPage } from '../../features/dashboard';
+import { WalletsPage } from '../../features/wallets/pages';
+import { SettingsPage } from '../../features/settings';
+import { PlaceholderPage } from './PlaceholderPage';
 
 export const AppRouter = () => {
   return (
@@ -18,7 +19,7 @@ export const AppRouter = () => {
         />
 
         <Route
-          element={<PlaceholderPage title="Wallets" />}
+          element={<WalletsPage />}
           path="/wallets"
         />
 
