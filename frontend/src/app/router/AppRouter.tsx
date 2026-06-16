@@ -5,6 +5,7 @@ import {
 } from 'react-router-dom';
 import { AppLayout, } from '../layouts/AppLayout';
 import { DashboardPage, } from '../../features/dashboard';
+import { SettingsPage, } from '../../features/settings';
 import { PlaceholderPage, } from './PlaceholderPage';
 
 export const AppRouter = () => {
@@ -40,12 +41,17 @@ export const AppRouter = () => {
           element={<PlaceholderPage title="Analytics" />}
           path="/analytics"
         />
-
-        <Route
-          element={<PlaceholderPage title="Settings" />}
-          path="/settings"
-        />
       </Route>
+
+      <Route
+        element={<SettingsPage />}
+        path="/settings"
+      />
+
+      <Route
+        element={<Navigate replace to="/settings" />}
+        path="/Settings"
+      />
 
       <Route
         element={<Navigate replace to="/dashboard" />}
