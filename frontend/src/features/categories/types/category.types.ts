@@ -8,3 +8,13 @@ export interface Category {
   readonly createdAt: string;
   readonly updatedAt: string;
 }
+
+export interface CreateCategoryPayload {
+  readonly name: string;
+  readonly type: CategoryType;
+}
+
+export interface UpdateCategoryPayload {
+  readonly name?: string;
+  readonly type?: CategoryType;
+}
