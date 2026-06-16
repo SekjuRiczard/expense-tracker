@@ -53,7 +53,7 @@ readonly class AuthCookieSubscriber implements EventSubscriberInterface
         $tokenMap = [
             '_partial_auth_token' => [CookieFactory::PARTIAL_ACCESS_TOKEN_COOKIE, 900],
             '_auth_token' => [CookieFactory::ACCESS_TOKEN_COOKIE, 900],
-            '_refresh_token' => [CookieFactory::REFRESH_TOKEN_COOKIE, 604800],
+            '_refresh_token' => [CookieFactory::REFRESH_TOKEN_COOKIE, 2592000],
         ];
         /** @var string $attributeName */
         /** @var array{0: string, 1: int} $cookieConfig */

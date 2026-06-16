@@ -205,6 +205,44 @@ final class ResetPasswordTest extends FunctionalTestCase
         self::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
     }
 
+    public function testResetPasswordIsRateLimitedAfterTooManyAttempts(): void
+    {
+        $email = $this->uniqueEmail('dawid');
+
+        $user = $this->createUser(
+            email: $email,
+            username: $this->uniqueUsername('dawid'),
+            plainPassword: 'OldPassword123!',
+        );
+
+        $this->createPasswordResetCode($user, '123456');
+
+        for ($attempt = 1; $attempt <= 5; ++$attempt) {
+            $response = $this->postJson('/api/password/reset', [
+                'email' => $email,
+                'code' => '654321',
+                'newPassword' => 'NewPassword123!',
+                'confirmNewPassword' => 'NewPassword123!',
+            ]);
+
+            self::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+        }
+
+        $response = $this->postJson('/api/password/reset', [
+            'email' => $email,
+            'code' => '654321',
+            'newPassword' => 'NewPassword123!',
+            'confirmNewPassword' => 'NewPassword123!',
+        ]);
+
+        self::assertSame(Response::HTTP_TOO_MANY_REQUESTS, $response->getStatusCode());
+
+        $data = $this->jsonResponse();
+
+        self::assertSame('error', $data['status']);
+        self::assertSame('Too many password reset attempts. Try again later.', $data['message']);
+    }
+
     public function testResetPasswordWithConfirmationMismatchReturnsBadRequest(): void
     {
         $email = $this->uniqueEmail('dawid');

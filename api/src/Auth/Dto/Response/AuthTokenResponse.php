@@ -39,6 +39,7 @@ readonly class AuthTokenResponse
                 'email' => $this->user->getEmail(),
                 'username' => $this->user->getUsername(),
                 'hasPin' => null !== $this->user->getPin(),
+                'roles' => $this->user->getRoles(),
             ],
         ];
     }
