@@ -1,6 +1,9 @@
-import {
-  z,
-} from 'zod';
+import { z } from 'zod';
+
+export const transactionTypeSchema = z.enum([
+  'income',
+  'expense',
+]);
 
 export const transactionSchema = z.object({
   id: z.number().int().positive(),
@@ -8,10 +11,7 @@ export const transactionSchema = z.object({
   walletName: z.string(),
   categoryId: z.number().int().positive(),
   categoryName: z.string(),
-  type: z.enum([
-    'income',
-    'expense',
-  ]),
+  type: transactionTypeSchema,
   amount: z.number().int(),
   currency: z.string().length(3),
   title: z.string(),

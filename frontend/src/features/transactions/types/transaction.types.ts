@@ -39,3 +39,23 @@ export interface TransactionFilters {
   readonly from?: string;
   readonly to?: string;
 }
+
+export interface CreateTransactionPayload {
+  readonly walletId: number;
+  readonly categoryId: number;
+  readonly type: TransactionType;
+  readonly amount: number;
+  readonly title: string;
+  readonly transactionDate: string;
+  readonly description?: string | null;
+}
+
+export interface UpdateTransactionPayload {
+  readonly walletId?: number;
+  readonly categoryId?: number;
+  readonly type?: TransactionType;
+  readonly amount?: number;
+  readonly title?: string;
+  readonly transactionDate?: string;
+  readonly description?: string | null;
+}

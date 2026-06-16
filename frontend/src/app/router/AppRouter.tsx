@@ -6,6 +6,7 @@ import {
 import { AppLayout } from '../layouts/AppLayout';
 import { DashboardPage } from '../../features/dashboard';
 import { WalletsPage } from '../../features/wallets/pages';
+import { TransactionsPage } from '../../features/transactions/pages';
 import { SettingsPage } from '../../features/settings';
 import { PlaceholderPage } from './PlaceholderPage';
 
@@ -24,7 +25,7 @@ export const AppRouter = () => {
         />
 
         <Route
-          element={<PlaceholderPage title="Transactions" />}
+          element={<TransactionsPage />}
           path="/transactions"
         />
 
