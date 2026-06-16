@@ -51,10 +51,24 @@ readonly class AuthCookieSubscriber implements EventSubscriberInterface
         }
         /** @var array<string, array{0: string, 1: int}> $tokenMap */
         $tokenMap = [
-            '_partial_auth_token' => [CookieFactory::PARTIAL_ACCESS_TOKEN_COOKIE, 900],
-            '_auth_token' => [CookieFactory::ACCESS_TOKEN_COOKIE, 900],
+            '_partial_auth_token' => [CookieFactory::PARTIAL_ACCESS_TOKEN_COOKIE, 3600],
+            '_auth_token' => [CookieFactory::ACCESS_TOKEN_COOKIE, 3600],
             '_refresh_token' => [CookieFactory::REFRESH_TOKEN_COOKIE, 2592000],
         ];
+        if ($request->attributes->has('_partial_auth_token')) {
+            // A login/registration starts a brand new partial session. Expire any
+            // stale full-session cookies that were sent with the request so they
+            // cannot shadow the new partial token (the cookie extractor prefers
+            // the access token), which would otherwise block a fresh login.
+            foreach ([
+                CookieFactory::ACCESS_TOKEN_COOKIE,
+                CookieFactory::REFRESH_TOKEN_COOKIE,
+            ] as $cookieName) {
+                if ($request->cookies->has($cookieName)) {
+                    $response->headers->setCookie($this->cookieFactory->expireCookie($cookieName));
+                }
+            }
+        }
         /** @var string $attributeName */
         /** @var array{0: string, 1: int} $cookieConfig */
         foreach ($tokenMap as $attributeName => $cookieConfig) {

@@ -12,56 +12,66 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 import { flowlyPalette } from '../../../app/theme';
-import { useGenerateDemoData, useClearDemoData } from '../hooks';
+import {
+  useClearDemoData,
+  useDemoDataStatus,
+  useGenerateDemoData,
+} from '../hooks';
 import { ClearDemoDataDialog } from './ClearDemoDataDialog';
 
 export interface DemoDataActionsProps {
   readonly showToast: (message: string, severity: 'success' | 'error') => void;
+  readonly enabled?: boolean;
 }
 
-export const DemoDataActions = ({ showToast }: DemoDataActionsProps) => {
-  const [demoDataExists, setDemoDataExists] = useState(false);
+export const DemoDataActions = ({
+  showToast,
+  enabled = true,
+}: DemoDataActionsProps) => {
   const [warningMessage, setWarningMessage] = useState<string | null>(null);
   const [clearDialogOpen, setClearDialogOpen] = useState(false);
 
+  const statusQuery = useDemoDataStatus({ enabled });
+  const demoDataExists = statusQuery.data?.demoDataExists ?? false;
+
   const generateMutation = useGenerateDemoData({
     onSuccess: () => {
-      setDemoDataExists(true);
       setWarningMessage(null);
       showToast('Demo data has been generated.', 'success');
     },
     onDataExists: () => {
-      setDemoDataExists(true);
       setWarningMessage(
-        'Financial data already exists. Clear it before generating demo data again.',
+        'Demo data has already been generated. Clear it before generating again.',
       );
     },
     onForbidden: () => {
-      showToast('You do not have permission to generate demo data.', 'error');
+      showToast('You do not have permission to manage demo data.', 'error');
     },
     onError: () => {
-      showToast('Failed to generate demo data.', 'error');
+      showToast('Something went wrong. Please try again.', 'error');
     },
   });
 
   const clearMutation = useClearDemoData({
     onSuccess: () => {
-      setDemoDataExists(false);
       setWarningMessage(null);
       setClearDialogOpen(false);
       showToast('Demo data has been cleared.', 'success');
     },
     onForbidden: () => {
       setClearDialogOpen(false);
-      showToast('You do not have permission to clear demo data.', 'error');
+      showToast('You do not have permission to manage demo data.', 'error');
     },
     onError: () => {
       setClearDialogOpen(false);
-      showToast('Failed to clear demo data.', 'error');
+      showToast('Something went wrong. Please try again.', 'error');
     },
   });
 
-  const isBusy = generateMutation.isPending || clearMutation.isPending;
+  const isBusy =
+    generateMutation.isPending ||
+    clearMutation.isPending ||
+    statusQuery.isPending;
 
   return (
     <>
@@ -187,7 +197,7 @@ export const DemoDataActions = ({ showToast }: DemoDataActionsProps) => {
             {generateMutation.isPending
               ? 'Generating...'
               : demoDataExists
-                ? 'Demo data already exists'
+                ? 'Demo data already generated'
                 : 'Generate demo data'}
           </Button>
 

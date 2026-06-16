@@ -5,7 +5,6 @@ import {
   ListItemIcon,
   ListItemText,
   Stack,
-  Typography,
 } from '@mui/material';
 import { NavLink, } from 'react-router-dom';
 import logo from '../../../assets/logo.png';
@@ -31,32 +30,22 @@ export const AppSidebar = () => {
         sx={{
           alignItems: 'center',
           flexDirection: 'row',
+          justifyContent: 'center',
           gap: 1.1,
           px: 1,
           pb: 3,
         }}
       >
         <Box
-          alt="Flowly logo"
+          alt="Flowly"
           component="img"
           src={logo}
           sx={{
-            width: 40,
-            height: 40,
+            width: 150,
+            height: 150,
             objectFit: 'contain',
           }}
         />
-
-        <Typography
-          sx={{
-            color: flowlyPalette.dashboard.textPrimary,
-            fontSize: '1.2rem',
-            fontWeight: 900,
-            letterSpacing: '-0.04em',
-          }}
-        >
-          Flowly
-        </Typography>
       </Stack>
 
       <List

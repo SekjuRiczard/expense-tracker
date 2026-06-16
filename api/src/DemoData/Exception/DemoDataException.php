@@ -20,7 +20,7 @@ final class DemoDataException extends ConflictHttpException
     public static function alreadyGenerated(): self
     {
         return new self(
-            'Demo data cannot be generated because the user already has wallets.',
+            'Demo data has already been generated.',
         );
     }
 }

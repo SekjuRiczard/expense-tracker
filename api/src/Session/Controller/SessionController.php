@@ -16,6 +16,7 @@ namespace App\Session\Controller;
 use App\Entity\Session;
 use App\Entity\User;
 use App\Session\Dto\Response\SessionResponse;
+use App\Session\Repository\SessionRepository;
 use App\Session\Service\SessionManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -26,9 +27,16 @@ use Symfony\Component\Security\Http\Attribute\CurrentUser;
 class SessionController extends AbstractController
 {
     #[Route('', name: 'api_session_list', methods: ['GET'])]
-    public function list(#[CurrentUser] User $user): JsonResponse
-    {
-        return $this->json(array_map(fn (Session $s): SessionResponse => SessionResponse::fromEntity($s), $user->getSessions()->toArray()));
+    public function list(
+        #[CurrentUser] User $user,
+        SessionRepository $sessionRepository,
+    ): JsonResponse {
+        return $this->json(
+            array_map(
+                static fn (Session $session): SessionResponse => SessionResponse::fromEntity($session),
+                $sessionRepository->findByUser($user),
+            ),
+        );
     }
 
     #[Route('/{id}', name: 'api_session_delete', methods: ['DELETE'])]

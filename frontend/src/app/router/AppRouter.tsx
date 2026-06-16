@@ -9,8 +9,8 @@ import { WalletsPage } from '../../features/wallets/pages';
 import { TransactionsPage } from '../../features/transactions/pages';
 import { CategoriesPage } from '../../features/categories/pages';
 import { AnalyticsPage } from '../../features/analytics/pages';
+import { BudgetsPage } from '../../features/budgets/pages';
 import { SettingsPage } from '../../features/settings';
-import { PlaceholderPage } from './PlaceholderPage';
 
 export const AppRouter = () => {
   return (
@@ -37,7 +37,7 @@ export const AppRouter = () => {
         />
 
         <Route
-          element={<PlaceholderPage title="Budgets" />}
+          element={<BudgetsPage />}
           path="/budgets"
         />
 

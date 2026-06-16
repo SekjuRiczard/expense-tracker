@@ -14,7 +14,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import { useLocation } from 'react-router-dom';
+import { Link as RouterLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../../../features/auth';
 import { flowlyPalette } from '../../theme';
 import { navigationItems } from './navigation';
@@ -302,61 +302,79 @@ export const AppHeader = ({
           )}
 
           <Stack
+            aria-label="Open account settings"
+            component={RouterLink}
+            to="/settings"
             sx={{
-              display: {
-                xs: 'none',
-                md: 'flex',
+              alignItems: 'center',
+              flexDirection: 'row',
+              gap: 1,
+              px: 0.5,
+              py: 0.5,
+              borderRadius: 2,
+              cursor: 'pointer',
+              textDecoration: 'none',
+              transition: 'background-color 160ms ease',
+              '&:hover': {
+                backgroundColor: flowlyPalette.dashboard.background,
               },
-              minWidth: 0,
-              alignItems: 'flex-start',
-              flexDirection: 'column',
-              gap: 0.2,
-              px: 0.4,
             }}
           >
-            <Typography
+            <Stack
               sx={{
-                maxWidth: 130,
-                overflow: 'hidden',
-                color: flowlyPalette.dashboard.textPrimary,
-                fontSize: '0.78rem',
-                fontWeight: 750,
-                lineHeight: 1.25,
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
+                display: {
+                  xs: 'none',
+                  md: 'flex',
+                },
+                minWidth: 0,
+                alignItems: 'flex-end',
+                flexDirection: 'column',
+                gap: 0.2,
               }}
             >
-              {username}
-            </Typography>
+              <Typography
+                sx={{
+                  maxWidth: 130,
+                  overflow: 'hidden',
+                  color: flowlyPalette.dashboard.textPrimary,
+                  fontSize: '0.78rem',
+                  fontWeight: 750,
+                  lineHeight: 1.25,
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                {username}
+              </Typography>
 
-            <Typography
+              <Typography
+                sx={{
+                  maxWidth: 150,
+                  overflow: 'hidden',
+                  color: flowlyPalette.dashboard.textSecondary,
+                  fontSize: '0.7rem',
+                  lineHeight: 1.25,
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                {email}
+              </Typography>
+            </Stack>
+
+            <Avatar
               sx={{
-                maxWidth: 150,
-                overflow: 'hidden',
-                color: flowlyPalette.dashboard.textSecondary,
-                fontSize: '0.7rem',
-                lineHeight: 1.25,
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
+                width: 38,
+                height: 38,
+                backgroundColor: flowlyPalette.dashboard.indigo,
+                color: '#FFFFFF',
+                fontSize: '0.76rem',
+                fontWeight: 800,
               }}
             >
-              {email}
-            </Typography>
+              {initials}
+            </Avatar>
           </Stack>
-
-          <Avatar
-            aria-label={`${username} profile`}
-            sx={{
-              width: 38,
-              height: 38,
-              backgroundColor: flowlyPalette.dashboard.indigo,
-              color: '#FFFFFF',
-              fontSize: '0.76rem',
-              fontWeight: 800,
-            }}
-          >
-            {initials}
-          </Avatar>
         </Stack>
       </Stack>
     </Box>

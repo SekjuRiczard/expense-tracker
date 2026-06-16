@@ -65,8 +65,8 @@ export const ClearDemoDataDialog = ({
             lineHeight: 1.6,
           }}
         >
-          This action will remove generated financial data for this account.
-          This cannot be undone.
+          This will remove only generated demo data. Your real data will not be
+          removed.
         </Typography>
 
         <Box

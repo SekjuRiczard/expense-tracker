@@ -17,6 +17,7 @@ use App\Budget\Action\CreateBudgetAction;
 use App\Budget\Action\DeleteBudgetAction;
 use App\Budget\Action\GetBudgetAction;
 use App\Budget\Action\ListBudgetsAction;
+use App\Budget\Action\ListBudgetsOverviewAction;
 use App\Budget\Action\UpdateBudgetAction;
 use App\Budget\Dto\Request\CreateBudgetRequest;
 use App\Budget\Dto\Request\UpdateBudgetRequest;
@@ -34,6 +35,7 @@ final class BudgetController extends AbstractController
     public function __construct(
         private readonly CreateBudgetAction $createBudgetAction,
         private readonly ListBudgetsAction $listBudgetsAction,
+        private readonly ListBudgetsOverviewAction $listBudgetsOverviewAction,
         private readonly GetBudgetAction $getBudgetAction,
         private readonly UpdateBudgetAction $updateBudgetAction,
         private readonly DeleteBudgetAction $deleteBudgetAction,
@@ -59,6 +61,16 @@ final class BudgetController extends AbstractController
     {
         return $this->json(
             $this->listBudgetsAction->execute(
+                $this->getAuthenticatedUser(),
+            ),
+        );
+    }
+
+    #[Route(path: '/overview', name: 'overview', methods: ['GET'])]
+    public function getBudgetsOverview(): JsonResponse
+    {
+        return $this->json(
+            $this->listBudgetsOverviewAction->execute(
                 $this->getAuthenticatedUser(),
             ),
         );

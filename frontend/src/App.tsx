@@ -1,13 +1,13 @@
 import {
   Alert,
   Box,
-  CircularProgress,
 } from '@mui/material';
 import { AppRouter, } from './app/router';
 import {
   AuthPage,
   useAuth,
 } from './features/auth';
+import { SplashScreen } from './shared/ui/SplashScreen';
 
 const App = () => {
   const {
@@ -15,18 +15,7 @@ const App = () => {
   } = useAuth();
 
   if (state.status === 'initializing') {
-    return (
-      <Box
-        component="main"
-        sx={{
-          display: 'grid',
-          minHeight: '100dvh',
-          placeItems: 'center',
-        }}
-      >
-        <CircularProgress />
-      </Box>
-    );
+    return <SplashScreen />;
   }
 
   if (state.status === 'error') {

@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { isApiError } from '../../../shared/api';
 import { generateDemoData } from '../api';
+import { invalidateDemoDataRelatedQueries } from './invalidateDemoDataRelatedQueries';
 
 export interface UseGenerateDemoDataCallbacks {
   readonly onSuccess: () => void;
@@ -17,14 +18,13 @@ export const useGenerateDemoData = (
   return useMutation({
     mutationFn: generateDemoData,
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ['analytics'] });
-      void queryClient.invalidateQueries({ queryKey: ['wallets'] });
-      void queryClient.invalidateQueries({ queryKey: ['transactions'] });
+      invalidateDemoDataRelatedQueries(queryClient);
       callbacks.onSuccess();
     },
     onError: (error: unknown) => {
       if (isApiError(error)) {
         if (error.status === 409) {
+          invalidateDemoDataRelatedQueries(queryClient);
           callbacks.onDataExists();
           return;
         }

@@ -22,6 +22,7 @@ final readonly class GenerateDemoDataResponse
         public int $walletsCreated,
         public int $budgetsCreated,
         public int $transactionsCreated,
+        public bool $demoDataExists = true,
     ) {
     }
 }

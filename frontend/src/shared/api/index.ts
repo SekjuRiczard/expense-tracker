@@ -3,6 +3,11 @@ export {
 } from './httpClient';
 
 export {
+  setUnauthorizedHandler,
+  notifyUnauthorized,
+} from './sessionBridge';
+
+export {
   ApiError,
   isApiError,
   normalizeApiError,
