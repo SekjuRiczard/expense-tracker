@@ -10,6 +10,7 @@ export interface AuthUser {
   readonly email: string;
   readonly username: string;
   readonly hasPin: boolean;
+  readonly roles?: readonly string[];
 }
 
 export interface AuthResponse {

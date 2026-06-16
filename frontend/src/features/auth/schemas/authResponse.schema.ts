@@ -13,6 +13,7 @@ export const authUserPayloadSchema = z.object({
   email: z.string().email(),
   username: z.string(),
   hasPin: z.boolean(),
+  roles: z.array(z.string()).optional(),
 });
 
 export const authResponsePayloadSchema = z.object({

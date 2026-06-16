@@ -14,6 +14,7 @@ const mapAuthUser = (
     readonly email: string;
     readonly username: string;
     readonly hasPin: boolean;
+    readonly roles?: readonly string[];
   },
 ): AuthUser => {
   return {
@@ -21,6 +22,7 @@ const mapAuthUser = (
     email: payload.email,
     username: payload.username,
     hasPin: payload.hasPin,
+    roles: payload.roles,
   };
 };
 
