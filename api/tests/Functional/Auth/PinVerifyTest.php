@@ -64,6 +64,7 @@ final class PinVerifyTest extends FunctionalTestCase
         self::assertSame($email, $data['user']['email']);
         self::assertSame($username, $data['user']['username']);
         self::assertTrue($data['user']['hasPin']);
+        self::assertSame(['ROLE_USER'], $data['user']['roles']);
 
         $this->assertAuthTokensAreNotExposedInBody($data);
 

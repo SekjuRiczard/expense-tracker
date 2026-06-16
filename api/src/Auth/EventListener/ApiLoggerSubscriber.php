@@ -22,6 +22,26 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 final class ApiLoggerSubscriber implements EventSubscriberInterface
 {
+    private const REDACTED_PLACEHOLDER = '***';
+
+    /**
+     * @var list<string>
+     */
+    private const SENSITIVE_KEYS = [
+        'password',
+        'oldpassword',
+        'newpassword',
+        'confirmnewpassword',
+        'pin',
+        'oldpin',
+        'newpin',
+        'code',
+        'token',
+        'access_token',
+        'partial_access_token',
+        'refresh_token',
+    ];
+
     public function __construct(
         #[Autowire(service: 'monolog.logger.api')]
         private readonly LoggerInterface $apiLogger,
@@ -51,8 +71,8 @@ final class ApiLoggerSubscriber implements EventSubscriberInterface
             'method' => $request->getMethod(),
             'endpoint' => $request->getRequestUri(),
             'statusCode' => $response->getStatusCode(),
-            'payload' => $this->decodeContent($request->getContent()),
-            'response' => $this->decodeContent($response->getContent()),
+            'payload' => $this->redact($this->decodeContent($request->getContent())),
+            'response' => $this->redact($this->decodeContent($response->getContent())),
         ]);
     }
 
@@ -70,7 +90,29 @@ final class ApiLoggerSubscriber implements EventSubscriberInterface
                 JSON_THROW_ON_ERROR,
             );
         } catch (JsonException) {
-            return ['raw' => $content];
+            return ['raw' => self::REDACTED_PLACEHOLDER];
         }
+    }
+
+    private function redact(mixed $data): mixed
+    {
+        if (!is_array($data)) {
+            return $data;
+        }
+
+        $redacted = [];
+        foreach ($data as $key => $value) {
+            $redacted[$key] = $this->isSensitiveKey($key)
+                ? self::REDACTED_PLACEHOLDER
+                : $this->redact($value);
+        }
+
+        return $redacted;
+    }
+
+    private function isSensitiveKey(int|string $key): bool
+    {
+        return is_string($key)
+            && in_array(strtolower($key), self::SENSITIVE_KEYS, true);
     }
 }

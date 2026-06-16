@@ -80,6 +80,7 @@ final readonly class AuthTokenService
             'session_id' => $session->getIdAsString(),
             'status' => $status->value,
             'has_pin' => null !== $user->getPin(),
+            'roles' => $user->getRoles(),
             'jti' => $this->generateTokenId(),
         ]);
     }

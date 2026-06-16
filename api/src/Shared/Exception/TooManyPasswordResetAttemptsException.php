@@ -11,14 +11,14 @@
 
 declare(strict_types=1);
 
-namespace App\Auth\Dto\Request;
+namespace App\Shared\Exception;
 
-use Symfony\Component\Validator\Constraints as Assert;
+use RuntimeException;
 
-class SetupPinRequest
+final class TooManyPasswordResetAttemptsException extends RuntimeException
 {
-    #[Assert\NotBlank]
-    #[Assert\Length(min: 6)]
-    #[Assert\Regex(pattern: '/^\d+$/', message: 'The PIN must contain digits only.')]
-    public string $pin;
+    public static function create(): self
+    {
+        return new self('Too many password reset attempts. Try again later.');
+    }
 }

@@ -44,6 +44,6 @@ final readonly class TokenController
             throw new UnauthorizedHttpException('Cookie', 'Invalid or expired refresh token.');
         }
 
-        return new JsonResponse($this->authTokenService->refreshAuthenticatedToken($session));
+        return new JsonResponse($this->authTokenService->refreshAuthenticatedToken($session)->toArray());
     }
 }
