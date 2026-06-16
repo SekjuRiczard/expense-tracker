@@ -98,9 +98,13 @@ export const AppSidebar = () => {
 
               <ListItemText
                 primary={item.label}
-                primaryTypographyProps={{
-                  fontSize: '0.9rem',
-                  fontWeight: 700,
+                slotProps={{
+                  primary: {
+                    sx: {
+                      fontSize: '0.9rem',
+                      fontWeight: 700,
+                    },
+                  },
                 }}
               />
             </ListItemButton>

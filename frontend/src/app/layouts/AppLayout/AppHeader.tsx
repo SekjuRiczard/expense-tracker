@@ -14,17 +14,15 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import {
-  useLocation,
-} from 'react-router-dom';
-import {
-  useAuth,
-} from '../../../features/auth';
-import { flowlyPalette, } from '../../theme';
-import { navigationItems, } from './navigation';
+import { useLocation } from 'react-router-dom';
+import { useAuth } from '../../../features/auth';
+import { flowlyPalette } from '../../theme';
+import { navigationItems } from './navigation';
+import type { PageHeaderOverride } from './pageHeader.types';
 
 export interface AppHeaderProps {
   readonly onMenuClick: () => void;
+  readonly headerOverride?: PageHeaderOverride | null;
 }
 
 const pageMetadata: Record<string, {
@@ -61,23 +59,17 @@ const pageMetadata: Record<string, {
   },
 };
 
-const getInitials = (
-  username: string,
-): string => {
+const getInitials = (username: string): string => {
   const normalizedUsername = username.trim();
 
   if (!normalizedUsername) {
     return 'U';
   }
 
-  const parts = normalizedUsername
-    .split(/\s+/)
-    .filter(Boolean);
+  const parts = normalizedUsername.split(/\s+/).filter(Boolean);
 
   if (parts.length === 1) {
-    return parts[0]
-      .slice(0, 2)
-      .toUpperCase();
+    return parts[0].slice(0, 2).toUpperCase();
   }
 
   return parts
@@ -89,29 +81,27 @@ const getInitials = (
 
 export const AppHeader = ({
   onMenuClick,
+  headerOverride,
 }: AppHeaderProps) => {
-  const {
-    state,
-  } = useAuth();
-
+  const { state } = useAuth();
   const location = useLocation();
 
-  const fallbackTitle = navigationItems.find(
-    (item) => item.path === location.pathname,
-  )?.label ?? 'Flowly';
+  const fallbackTitle =
+    navigationItems.find((item) => item.path === location.pathname)?.label ??
+    'Flowly';
 
-  const metadata = pageMetadata[location.pathname] ?? {
+  const staticMeta = pageMetadata[location.pathname] ?? {
     title: fallbackTitle,
     subtitle: 'Manage your finances in one place.',
   };
 
-  const username = state.status === 'authenticated'
-    ? state.user.username
-    : 'User';
+  const subtitle = headerOverride?.subtitle ?? staticMeta.subtitle;
 
-  const email = state.status === 'authenticated'
-    ? state.user.email
-    : '';
+  const username =
+    state.status === 'authenticated' ? state.user.username : 'User';
+
+  const email =
+    state.status === 'authenticated' ? state.user.email : '';
 
   const initials = getInitials(username);
 
@@ -162,11 +152,7 @@ export const AppHeader = ({
             <MenuRounded />
           </IconButton>
 
-          <Box
-            sx={{
-              minWidth: 0,
-            }}
-          >
+          <Box sx={{ minWidth: 0 }}>
             <Typography
               component="h1"
               sx={{
@@ -183,7 +169,7 @@ export const AppHeader = ({
                 whiteSpace: 'nowrap',
               }}
             >
-              {metadata.title}
+              {staticMeta.title}
             </Typography>
 
             <Typography
@@ -200,7 +186,7 @@ export const AppHeader = ({
                 whiteSpace: 'nowrap',
               }}
             >
-              {metadata.subtitle}
+              {subtitle}
             </Typography>
           </Box>
         </Stack>
@@ -264,9 +250,7 @@ export const AppHeader = ({
           <IconButton
             aria-label="Notifications"
             onClick={() => {
-              window.alert(
-                'Notifications are under construction.',
-              );
+              window.alert('Notifications are under construction.');
             }}
             sx={{
               width: 38,
@@ -282,49 +266,40 @@ export const AppHeader = ({
               },
             }}
           >
-            <NotificationsNoneRounded
-              sx={{
-                fontSize: 19,
-              }}
-            />
+            <NotificationsNoneRounded sx={{ fontSize: 19 }} />
           </IconButton>
 
-          <Button
-            onClick={() => {
-              window.alert(
-                'Transaction creation is under construction.',
-              );
-            }}
-            startIcon={(
-              <AddRounded
-                sx={{
-                  fontSize: 18,
-                }}
-              />
-            )}
-            variant="contained"
-            sx={{
-              display: {
-                xs: 'none',
-                sm: 'inline-flex',
-              },
-              minHeight: 38,
-              px: 1.6,
-              borderRadius: 2,
-              backgroundColor: flowlyPalette.dashboard.indigoDark,
-              boxShadow: 'none',
-              fontSize: '0.8rem',
-              fontWeight: 700,
-              textTransform: 'none',
-              transition: 'background-color 160ms ease, box-shadow 160ms ease',
-              '&:hover': {
-                backgroundColor: flowlyPalette.dashboard.indigo,
+          {headerOverride?.action ?? (
+            <Button
+              onClick={() => {
+                window.alert('Transaction creation is under construction.');
+              }}
+              startIcon={<AddRounded sx={{ fontSize: 18 }} />}
+              variant="contained"
+              sx={{
+                display: {
+                  xs: 'none',
+                  sm: 'inline-flex',
+                },
+                minHeight: 38,
+                px: 1.6,
+                borderRadius: 2,
+                backgroundColor: flowlyPalette.dashboard.indigoDark,
                 boxShadow: 'none',
-              },
-            }}
-          >
-            Add transaction
-          </Button>
+                fontSize: '0.8rem',
+                fontWeight: 700,
+                textTransform: 'none',
+                transition:
+                  'background-color 160ms ease, box-shadow 160ms ease',
+                '&:hover': {
+                  backgroundColor: flowlyPalette.dashboard.indigo,
+                  boxShadow: 'none',
+                },
+              }}
+            >
+              Add transaction
+            </Button>
+          )}
 
           <Stack
             sx={{
