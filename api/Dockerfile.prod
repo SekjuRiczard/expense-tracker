@@ -26,6 +26,8 @@ WORKDIR /app
 
 COPY . .
 
+RUN touch .env
+
 RUN composer install \
     --no-dev \
     --prefer-dist \
