@@ -1,0 +1,45 @@
+FROM dunglas/frankenphp:latest-php8.2
+
+ENV APP_ENV=prod
+ENV APP_DEBUG=0
+ENV COMPOSER_ALLOW_SUPERUSER=1
+
+RUN apt-get update && apt-get install -y \
+    libzip-dev \
+    zip \
+    unzip \
+    curl \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN install-php-extensions \
+    zip \
+    pdo_mysql \
+    intl \
+    bcmath \
+    opcache \
+    apcu
+
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+WORKDIR /app
+
+COPY . .
+
+RUN composer install \
+    --no-dev \
+    --prefer-dist \
+    --no-progress \
+    --no-interaction \
+    --no-scripts \
+    --optimize-autoloader
+
+COPY docker/prod-entrypoint.sh /usr/local/bin/prod-entrypoint
+
+RUN chmod +x /usr/local/bin/prod-entrypoint \
+    && mkdir -p var/cache var/log config/jwt \
+    && chown -R www-data:www-data var config/jwt
+
+ENTRYPOINT ["prod-entrypoint"]
+
+CMD ["frankenphp", "run", "--config", "/etc/caddy/Caddyfile"]

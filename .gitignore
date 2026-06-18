@@ -29,3 +29,14 @@ Thumbs.db
 /frontend/.eslintcache
 /frontend/.vite/
 docker-compose.override.yml
+# Production deployment secrets
+.env.prod
+.env.*.prod
+
+# JWT keys must be generated on the server/container volume
+/api/config/jwt/*.pem
+
+# Database dumps/backups
+*.sql
+*.dump
+*.backup
