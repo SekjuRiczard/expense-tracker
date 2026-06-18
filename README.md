@@ -22,7 +22,11 @@
 ## Live Demo
 
 [Open live application] http://20.215.68.246/
+
+## Figma
+
 [Figma] https://www.figma.com/design/ySgn41ESLTGcLKAJ9HypIV/Flowly---design?node-id=0-1&t=J0feKip9sEDEhVaE-1
+
 ## Test Account
 
 You can use the following demo account to explore the application:
