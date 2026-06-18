@@ -19,5 +19,6 @@ class SetupPinRequest
 {
     #[Assert\NotBlank]
     #[Assert\Length(min: 6)]
+    #[Assert\Regex(pattern: '/^\d+$/', message: 'The PIN must contain digits only.')]
     public string $pin;
 }

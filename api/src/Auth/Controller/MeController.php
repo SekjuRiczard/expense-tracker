@@ -52,6 +52,7 @@ final class MeController extends AbstractController
                 'email' => $user->getEmail(),
                 'username' => $user->getUsername(),
                 'hasPin' => null !== $user->getPin(),
+                'roles' => $user->getRoles(),
             ],
         ], Response::HTTP_OK);
     }

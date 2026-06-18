@@ -19,6 +19,10 @@ services:
         arguments:
             $loginLimiter: '@limiter.login'
 
+    App\Auth\Service\PasswordResetRateLimiter:
+        arguments:
+            $passwordResetLimiter: '@limiter.password_reset'
+
     App\Auth\Factory\CookieFactory:
         arguments:
             - '%env(bool:AUTH_COOKIE_SECURE)%'

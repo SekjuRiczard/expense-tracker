@@ -17,10 +17,7 @@ use App\Entity\Session;
 use App\Entity\User;
 use App\Enum\SessionStatus;
 use App\Session\Repository\SessionRepository;
-use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
-use RuntimeException;
-use Throwable;
 
 class SessionService implements SessionManagerInterface
 {
@@ -40,7 +37,7 @@ class SessionService implements SessionManagerInterface
         $session = new Session(
             user: $user,
             tokenHash: $this->generateTemporaryTokenHash(),
-            expiresAt: (new DateTimeImmutable())->modify('+1 hour'),
+            expiresAt: (new \DateTimeImmutable())->modify('+1 hour'),
             status: $status,
             ipAddress: $ipAddress,
             userAgent: $userAgent,
@@ -80,6 +77,7 @@ class SessionService implements SessionManagerInterface
     {
         $session->markAsAuthenticated();
         $session->setTokenHash($this->hashToken($token));
+        $session->setExpiresAt($this->resolveSessionExpiry());
         $this->entityManager->flush();
     }
 
@@ -102,7 +100,7 @@ class SessionService implements SessionManagerInterface
 
     public function cleanupExpiredSessions(): void
     {
-        $this->sessionRepository->deleteExpiredSessions(new DateTimeImmutable());
+        $this->sessionRepository->deleteExpiredSessions(new \DateTimeImmutable());
     }
 
     private function hashToken(string $token): string
@@ -114,15 +112,16 @@ class SessionService implements SessionManagerInterface
     {
         try {
             return hash('sha256', bin2hex(random_bytes(32)));
-        } catch (Throwable $exception) {
-            throw new RuntimeException('Could not generate temporary session token hash.', 0, $exception);
+        } catch (\Throwable $exception) {
+            throw new \RuntimeException('Could not generate temporary session token hash.', 0, $exception);
         }
     }
 
     public function assignRefreshTokenToSession(Session $session, string $refreshToken): void
     {
         $session->setRefreshTokenHash($this->hashToken($refreshToken));
-        $session->setRefreshTokenExpiresAt((new DateTimeImmutable())->modify('+30 days'));
+        $session->setRefreshTokenExpiresAt($this->resolveRefreshTokenExpiry());
+        $session->setExpiresAt($this->resolveSessionExpiry());
         $this->entityManager->flush();
     }
 
@@ -147,7 +146,21 @@ class SessionService implements SessionManagerInterface
     {
         $session->setTokenHash($this->hashToken($accessToken));
         $session->setRefreshTokenHash($this->hashToken($refreshToken));
-        $session->setRefreshTokenExpiresAt((new DateTimeImmutable())->modify('+30 days'));
+        $session->setRefreshTokenExpiresAt($this->resolveRefreshTokenExpiry());
+        $session->setExpiresAt($this->resolveSessionExpiry());
         $this->entityManager->flush();
+    }
+
+    private function resolveRefreshTokenExpiry(): \DateTimeImmutable
+    {
+        return (new \DateTimeImmutable())->modify('+30 days');
+    }
+
+    private function resolveSessionExpiry(): \DateTimeImmutable
+    {
+        // Keep the session alive as long as the refresh token is valid so an
+        // authenticated session is not invalidated before its refresh token
+        // expires. The session is shortened only on explicit logout/revoke.
+        return (new \DateTimeImmutable())->modify('+30 days');
     }
 }

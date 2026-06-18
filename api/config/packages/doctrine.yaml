@@ -51,6 +51,13 @@ doctrine:
                 prefix: 'App\Budget\Entity'
                 alias: Budget
 
+            DemoData:
+                type: attribute
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/DemoData/Entity'
+                prefix: 'App\DemoData\Entity'
+                alias: DemoData
+
 when@test:
     doctrine:
         dbal:

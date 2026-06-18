@@ -4,3 +4,7 @@ framework:
       policy: fixed_window
       limit: 5
       interval: '15 minutes'
+    password_reset:
+      policy: fixed_window
+      limit: 5
+      interval: '15 minutes'

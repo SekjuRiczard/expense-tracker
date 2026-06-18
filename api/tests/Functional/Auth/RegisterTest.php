@@ -39,6 +39,7 @@ final class RegisterTest extends FunctionalTestCase
         self::assertSame('dawid@example.com', $data['user']['email']);
         self::assertSame('dawid', $data['user']['username']);
         self::assertFalse($data['user']['hasPin']);
+        self::assertSame(['ROLE_USER'], $data['user']['roles']);
 
         $this->assertAuthTokensAreNotExposedInBody($data);
 

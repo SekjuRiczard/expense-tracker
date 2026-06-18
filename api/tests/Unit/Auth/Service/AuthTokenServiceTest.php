@@ -41,14 +41,11 @@ final class AuthTokenServiceTest extends TestCase
     {
         $this->jwtTokenManager = $this->createMock(JWTTokenManagerInterface::class);
         $this->sessionManager = $this->createMock(SessionManagerInterface::class);
-
         $this->request = Request::create('/api/test');
         $this->request->server->set('REMOTE_ADDR', '127.0.0.1');
         $this->request->headers->set('User-Agent', 'PHPUnit');
-
         $this->requestStack = new RequestStack();
         $this->requestStack->push($this->request);
-
         $this->authTokenService = new AuthTokenService(
             jwtTokenManager: $this->jwtTokenManager,
             sessionManager: $this->sessionManager,
@@ -81,6 +78,7 @@ final class AuthTokenServiceTest extends TestCase
                     return '' === $payload['session_id']
                         && $payload['status'] === SessionStatus::PIN_SETUP_REQUIRED->value
                         && false === $payload['has_pin']
+                        && ['ROLE_USER'] === $payload['roles']
                         && is_string($payload['jti'])
                         && '' !== $payload['jti'];
                 }),
@@ -132,6 +130,7 @@ final class AuthTokenServiceTest extends TestCase
                 self::callback(static function (array $payload): bool {
                     return $payload['status'] === SessionStatus::PIN_VERIFICATION_REQUIRED->value
                         && true === $payload['has_pin']
+                        && ['ROLE_USER'] === $payload['roles']
                         && is_string($payload['jti'])
                         && '' !== $payload['jti'];
                 }),
@@ -167,6 +166,7 @@ final class AuthTokenServiceTest extends TestCase
                     return '' === $payload['session_id']
                         && $payload['status'] === SessionStatus::AUTHENTICATED->value
                         && false === $payload['has_pin']
+                        && ['ROLE_USER'] === $payload['roles']
                         && is_string($payload['jti'])
                         && '' !== $payload['jti'];
                 }),
@@ -214,6 +214,7 @@ final class AuthTokenServiceTest extends TestCase
                     return '' === $payload['session_id']
                         && $payload['status'] === SessionStatus::AUTHENTICATED->value
                         && false === $payload['has_pin']
+                        && ['ROLE_USER'] === $payload['roles']
                         && is_string($payload['jti'])
                         && '' !== $payload['jti'];
                 }),
