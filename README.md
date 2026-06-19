@@ -33,7 +33,7 @@ You can use the following demo account to explore the application:
 
 | Role | Email | Password | PIN |
 |---|---|---|---|
-| Recruiter / Demo User | recruiter@example.com | Recruiter2026! | 123456
+| Recruiter / Demo User | recruiter2@example.com | recr2024 | 123456
 
 > These credentials are intended only for the public demo environment. Do not use them in production systems containing real data.
 
