@@ -1,7 +1,5 @@
-import {
-  LockOutlined,
-  MailOutlineRounded,
-} from '@mui/icons-material';
+import LockOutlined from '@mui/icons-material/LockOutlined';
+import MailOutlineRounded from '@mui/icons-material/MailOutlineRounded';
 import {
   Box,
   Link,

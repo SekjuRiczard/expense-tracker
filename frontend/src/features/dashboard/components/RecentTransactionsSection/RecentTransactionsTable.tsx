@@ -1,8 +1,4 @@
 import {
-  MoreHorizRounded,
-} from '@mui/icons-material';
-import {
-  IconButton,
   Stack,
   Table,
   TableBody,
@@ -42,11 +38,10 @@ export const RecentTransactionsTable = ({
             'Wallet',
             'Date',
             'Amount',
-            '',
           ].map((label) => (
             <TableCell
               align={label === 'Amount' ? 'right' : 'left'}
-              key={label || 'actions'}
+              key={label}
               sx={{
                 py: 1.2,
                 borderColor: flowlyPalette.dashboard.borderSoft,
@@ -149,18 +144,6 @@ export const RecentTransactionsTable = ({
                     transaction.currency,
                   )}
                 </Typography>
-              </TableCell>
-
-              <TableCell align="right">
-                <IconButton
-                  aria-label={`Open actions for ${transaction.title}`}
-                  size="small"
-                  sx={{
-                    color: flowlyPalette.dashboard.textMuted,
-                  }}
-                >
-                  <MoreHorizRounded />
-                </IconButton>
               </TableCell>
             </TableRow>
           );

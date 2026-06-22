@@ -5,7 +5,7 @@ export const flowlyPalette = {
 
     textPrimary: '#101828',
     textSecondary: '#667085',
-    textMuted: '#98A2B3',
+    textMuted: '#667085',
 
     border: '#D0D5DD',
     borderMuted: '#E4E7EC',

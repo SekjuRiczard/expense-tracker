@@ -1,11 +1,9 @@
-import {
-  AccountBalanceWalletOutlined,
-  AnalyticsOutlined,
-  CategoryOutlined,
-  DashboardOutlined,
-  PaymentsOutlined,
-  SavingsOutlined,
-} from '@mui/icons-material';
+import AccountBalanceWalletOutlined from '@mui/icons-material/AccountBalanceWalletOutlined';
+import AnalyticsOutlined from '@mui/icons-material/AnalyticsOutlined';
+import CategoryOutlined from '@mui/icons-material/CategoryOutlined';
+import DashboardOutlined from '@mui/icons-material/DashboardOutlined';
+import PaymentsOutlined from '@mui/icons-material/PaymentsOutlined';
+import SavingsOutlined from '@mui/icons-material/SavingsOutlined';
 import type { SvgIconComponent } from '@mui/icons-material';
 
 export interface NavigationItem {

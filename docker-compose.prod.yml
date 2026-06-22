@@ -63,6 +63,7 @@ services:
       RUN_MIGRATIONS: ${RUN_MIGRATIONS:-0}
     volumes:
       - jwt_keys:/app/config/jwt
+      - ./api/docker/opcache.prod.ini:/usr/local/etc/php/conf.d/99-opcache-prod.ini:ro
 
   web:
     build:

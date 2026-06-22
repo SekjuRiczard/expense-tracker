@@ -2,12 +2,23 @@ import {
   Alert,
   Box,
 } from '@mui/material';
-import { AppRouter, } from './app/router';
+import {
+  lazy,
+  Suspense,
+} from 'react';
 import {
   AuthPage,
   useAuth,
 } from './features/auth';
 import { SplashScreen } from './shared/ui/SplashScreen';
+
+const AppRouter = lazy(async () => {
+  const module = await import('./app/router/AppRouter');
+
+  return {
+    default: module.AppRouter,
+  };
+});
 
 const App = () => {
   const {
@@ -40,7 +51,11 @@ const App = () => {
     return <AuthPage />;
   }
 
-  return <AppRouter />;
+  return (
+    <Suspense fallback={<SplashScreen />}>
+      <AppRouter />
+    </Suspense>
+  );
 };
 
 export default App;

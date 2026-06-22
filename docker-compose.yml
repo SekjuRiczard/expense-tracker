@@ -47,6 +47,17 @@ services:
     working_dir: /app
     command: sh -c "npm install && npm run dev -- --host 0.0.0.0 --port 3000"
 
+  frontend_preview:
+    image: node:20-alpine
+    container_name: expense_front_preview
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    ports:
+      - "4173:4173"
+    working_dir: /app
+    command: sh -c "npm install && npm run build && npm run preview -- --host 0.0.0.0 --port 4173"
+
   mailpit:
     image: axllent/mailpit
     container_name: mailpit

@@ -9,7 +9,10 @@ lerna-debug.log*
 .env.local
 node_modules
 dist
+dist/stats.html
 dist-ssr
+lighthouse-report*.html
+lighthouse-report*.json
 *.local
 # Editor directories and files
 .vscode/*

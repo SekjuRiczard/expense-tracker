@@ -1,9 +1,7 @@
-import {
-  AddRounded,
-  MenuRounded,
-  NotificationsNoneRounded,
-  SearchRounded,
-} from '@mui/icons-material';
+import AddRounded from '@mui/icons-material/AddRounded';
+import MenuRounded from '@mui/icons-material/MenuRounded';
+import NotificationsNoneRounded from '@mui/icons-material/NotificationsNoneRounded';
+import SearchRounded from '@mui/icons-material/SearchRounded';
 import {
   Avatar,
   Box,

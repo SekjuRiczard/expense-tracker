@@ -1,15 +1,26 @@
 import {
   Box,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
 import {
+  lazy,
+  Suspense,
   useState,
 } from 'react';
 import { AuthLayout, } from '../../components/AuthLayout';
-import { CurrencyPanel, } from '../../components/CurrencyPanel';
 import { LoginForm, } from '../../components/LoginForm';
 import { PinView, } from '../../components/PinView';
 import { RegisterForm, } from '../../components/RegisterForm';
 import { useAuth, } from '../../hooks/useAuth';
+
+const CurrencyPanel = lazy(async () => {
+  const module = await import('../../components/CurrencyPanel');
+
+  return {
+    default: module.CurrencyPanel,
+  };
+});
 
 type AuthPageMode =
   | 'login'
@@ -20,11 +31,17 @@ export const AuthPage = () => {
     state,
   } = useAuth();
 
+  const theme = useTheme();
+  const isDesktop = useMediaQuery(theme.breakpoints.up('md'));
   const [mode, setMode,] = useState<AuthPageMode>('login');
 
   return (
     <AuthLayout
-      rightPanel={<CurrencyPanel />}
+      rightPanel={isDesktop ? (
+        <Suspense fallback={null}>
+          <CurrencyPanel />
+        </Suspense>
+      ) : undefined}
     >
       <Box
         sx={{

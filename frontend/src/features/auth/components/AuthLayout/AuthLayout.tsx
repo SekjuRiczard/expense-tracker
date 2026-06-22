@@ -22,6 +22,8 @@ export const AuthLayout = ({
       sx={{
         display: 'grid',
         minHeight: '100dvh',
+        maxHeight: '100dvh',
+        overflow: 'hidden',
         gridTemplateColumns: {
           xs: 'minmax(0, 1fr)',
           md: 'minmax(0, 1fr) minmax(0, 1fr)',
@@ -35,6 +37,8 @@ export const AuthLayout = ({
           display: 'flex',
           minWidth: 0,
           minHeight: '100dvh',
+          maxHeight: '100dvh',
+          overflowY: 'auto',
           flexDirection: 'column',
           px: {
             xs: 2.5,
@@ -43,8 +47,9 @@ export const AuthLayout = ({
             lg: 8,
           },
           py: {
-            xs: 2.5,
-            sm: 3.5,
+            xs: 1.5,
+            sm: 2.5,
+            md: 3.5,
           },
         }}
       >
@@ -58,8 +63,9 @@ export const AuthLayout = ({
             alignItems: 'center',
             justifyContent: 'center',
             py: {
-              xs: 5,
-              sm: 6,
+              xs: 2,
+              sm: 3,
+              md: 5,
             },
           }}
         >
