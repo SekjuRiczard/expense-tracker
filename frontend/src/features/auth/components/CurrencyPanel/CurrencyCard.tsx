@@ -1,8 +1,6 @@
-import {
-  TrendingDownRounded,
-  TrendingFlatRounded,
-  TrendingUpRounded,
-} from '@mui/icons-material';
+import TrendingDownRounded from '@mui/icons-material/TrendingDownRounded';
+import TrendingFlatRounded from '@mui/icons-material/TrendingFlatRounded';
+import TrendingUpRounded from '@mui/icons-material/TrendingUpRounded';
 import {
   Box,
   Stack,

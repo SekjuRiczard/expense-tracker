@@ -16,6 +16,7 @@ export const APP_SIDEBAR_WIDTH = 248;
 export const AppSidebar = () => {
   return (
     <Box
+      aria-label="Main navigation"
       component="nav"
       sx={{
         width: APP_SIDEBAR_WIDTH,

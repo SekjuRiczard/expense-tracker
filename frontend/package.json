@@ -7,7 +7,10 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "lighthouse": "lighthouse http://localhost:4173 --output=html --output-path=./lighthouse-report.html --chrome-flags=\"--headless --no-sandbox\"",
+    "lighthouse:json": "lighthouse http://localhost:4173 --output=json --output-path=./lighthouse-report.json --chrome-flags=\"--headless --no-sandbox\"",
+    "lighthouse:desktop": "lighthouse http://localhost:4173 --preset=desktop --output=html --output-path=./lighthouse-report-desktop.html --chrome-flags=\"--headless --no-sandbox\""
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -36,6 +39,8 @@
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.2",
     "globals": "^17.6.0",
+    "lighthouse": "12.8.2",
+    "rollup-plugin-visualizer": "6.0.5",
     "typescript": "~6.0.2",
     "typescript-eslint": "^8.59.2",
     "vite": "^8.0.12"

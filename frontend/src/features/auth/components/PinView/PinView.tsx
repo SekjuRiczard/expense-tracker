@@ -1,6 +1,4 @@
-import {
-  ArrowBackRounded,
-} from '@mui/icons-material';
+import ArrowBackRounded from '@mui/icons-material/ArrowBackRounded';
 import {
   Box,
   Button,

@@ -28,6 +28,9 @@ Thumbs.db
 /frontend/yarn-error.log*
 /frontend/.eslintcache
 /frontend/.vite/
+/frontend/lighthouse-report*.html
+/frontend/lighthouse-report*.json
+/frontend/dist/stats.html
 docker-compose.override.yml
 # Production deployment secrets
 .env.prod

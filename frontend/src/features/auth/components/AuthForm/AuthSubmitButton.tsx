@@ -1,6 +1,4 @@
-import {
-  ArrowForwardRounded,
-} from '@mui/icons-material';
+import ArrowForwardRounded from '@mui/icons-material/ArrowForwardRounded';
 import {
   Button,
   CircularProgress,

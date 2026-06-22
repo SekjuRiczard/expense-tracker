@@ -1,7 +1,5 @@
-import {
-  CheckRounded,
-  ShieldOutlined,
-} from '@mui/icons-material';
+import CheckRounded from '@mui/icons-material/CheckRounded';
+import ShieldOutlined from '@mui/icons-material/ShieldOutlined';
 import {
   Box,
   Stack,
