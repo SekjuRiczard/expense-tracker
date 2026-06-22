@@ -15,17 +15,17 @@
 ![MySQL](https://img.shields.io/badge/MySQL_8-4479A1?style=for-the-badge&logo=mysql&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
 ![Nginx](https://img.shields.io/badge/Nginx-009639?style=for-the-badge&logo=nginx&logoColor=white)
+![Caddy](https://img.shields.io/badge/Caddy-1F88C0?style=for-the-badge&logo=caddy&logoColor=white)
 ![FrankenPHP](https://img.shields.io/badge/FrankenPHP-000000?style=for-the-badge&logo=php&logoColor=white)
 ![Azure](https://img.shields.io/badge/Azure_VM-0078D4?style=for-the-badge&logo=microsoftazure&logoColor=white)
 
-
 ## Live Demo
 
-[Open live application] http://20.215.68.246/
+[Open live application](https://flowly.polandcentral.cloudapp.azure.com/)
 
 ## Figma
 
-[Figma] https://www.figma.com/design/ySgn41ESLTGcLKAJ9HypIV/Flowly---design?node-id=0-1&t=J0feKip9sEDEhVaE-1
+[Figma design preview](https://www.figma.com/design/ySgn41ESLTGcLKAJ9HypIV/Flowly---design?node-id=0-1&t=J0feKip9sEDEhVaE-1)
 
 ## Test Account
 
@@ -33,13 +33,13 @@ You can use the following demo account to explore the application:
 
 | Role | Email | Password | PIN |
 |---|---|---|---|
-| Recruiter / Demo User | recruiter2@example.com | recr2024 | 123456
+| Recruiter / Admin Demo User | recruiter2@example.com | recr2024 | 123456 |
 
 > These credentials are intended only for the public demo environment. Do not use them in production systems containing real data.
 
-## Demo Data generation
+## Demo Data Generation
 
-Once logged in, navigate to [http://20.215.68.246/settings](http://20.215.68.246/settings) and click the purple Generate Data button.
+Once logged in, navigate to [Settings](https://flowly.polandcentral.cloudapp.azure.com/settings) and click the purple **Generate Data** button.
 
 ![Demo data generation](frontend/public/generateDemo.png)
 
@@ -48,7 +48,6 @@ Once logged in, navigate to [http://20.215.68.246/settings](http://20.215.68.246
 - [MVP Scope](#mvp-scope)
 - [Screenshots](#screenshots)
 - [Features](#features)
-- [Test Account](#test-account)
 - [Tech Stack](#tech-stack)
 - [Architecture Overview](#architecture-overview)
 - [Project Structure](#project-structure)
@@ -121,7 +120,6 @@ The MVP delivers a complete personal finance workflow for a single user account:
 
 ![Account settings and sessions](frontend/public/userPanel.png)
 
-
 ## Features
 
 ### Authentication & Security
@@ -161,7 +159,8 @@ The MVP delivers a complete personal finance workflow for a single user account:
 - Live currency rate panel on the auth screen (EUR, USD, GBP via the public NBP API).
 - Responsive Material UI layout with sidebar navigation.
 - Splash screen during auth bootstrap and automatic token refresh on `401`.
-
+- Route-level lazy loading for main application pages to improve initial bundle size.
+- Accessible navigation landmarks and improved icon-button labelling for better Lighthouse accessibility results.
 
 ## Tech Stack
 
@@ -204,9 +203,12 @@ The MVP delivers a complete personal finance workflow for a single user account:
 |---|---|
 | Docker & Docker Compose | Local development and production orchestration |
 | FrankenPHP | API runtime (local and production) |
-| Nginx | Serves production React build and proxies `/api` |
+| Nginx | Serves production React build and proxies `/api` to the API container |
+| Caddy | Production HTTPS reverse proxy with automatic certificate management |
+| MySQL | Database container with persistent Docker volume |
 | Mailpit | Local email capture (`8025` UI, `1025` SMTP) |
 | Azure VM | Production hosting target |
+| Azure DNS label | Public domain: `flowly.polandcentral.cloudapp.azure.com` |
 
 ## Architecture Overview
 
@@ -216,15 +218,19 @@ The application follows a classic fullstack split:
 - The **Symfony API** exposes JSON endpoints, enforces authentication/authorization, and contains business logic.
 - **MySQL** stores users, sessions, wallets, transactions, categories, budgets, and demo-data metadata.
 - Locally, all services run via `docker-compose.yml`.
-- In production, `docker-compose.prod.yml` runs MySQL, the API container, and an Nginx web container.
+- In production, `docker-compose.prod.yml` runs MySQL, the API container, the Nginx web container, and a Caddy reverse proxy.
+- Caddy exposes ports `80` and `443`, obtains HTTPS certificates automatically, and proxies traffic to the internal Nginx web container.
 - The production frontend is built to static files and served by Nginx; API traffic is proxied through `/api`.
-- The database and API are not exposed publicly in the production topology — only the web container port is published.
+- The database, API, and Nginx web container are not exposed directly to the public internet. Only Caddy is exposed publicly.
 
 ```text
 Browser
    |
    v
-Nginx / Web container
+Caddy :80/:443
+   |
+   v
+Nginx / Web container :80
    |---- serves React static files
    |
    |---- /api -> Symfony API container (FrankenPHP)
@@ -245,6 +251,7 @@ Nginx / Web container
 - Feature-sliced structure under `frontend/src/features/`.
 - Shared `httpClient` with Zod response parsing and single-flight token refresh.
 - TanStack Query for server state and cache invalidation.
+- Lazy-loaded routes and selected heavy UI sections to improve Lighthouse performance.
 
 ## Project Structure
 
@@ -252,6 +259,9 @@ Nginx / Web container
 .
 ├── api/                              # Symfony backend
 │   ├── config/                       # Symfony, Doctrine, JWT, CORS, API docs
+│   ├── docker/
+│   │   ├── opcache.prod.ini          # Production OPcache tuning
+│   │   └── prod-entrypoint.sh        # Production API entrypoint
 │   ├── migrations/                   # Doctrine migrations
 │   ├── src/
 │   │   ├── Auth/                     # Registration, login, PIN, tokens
@@ -274,11 +284,13 @@ Nginx / Web container
 │   │   └── shared/                   # httpClient, UI primitives, utilities
 │   ├── Dockerfile.prod               # Production Nginx image
 │   └── nginx.conf                    # SPA routing + /api proxy
+├── Caddyfile                         # Production HTTPS reverse proxy config
 ├── docker-compose.yml                # Local development environment
 ├── docker-compose.prod.yml           # Production deployment setup
 ├── .env.example                      # Local Docker Compose variables
 ├── .env.prod.example                 # Production environment template
 ├── .php-cs-fixer.dist.php            # PHP code style rules
+├── README_DEPLOY.md                  # Detailed production deployment guide
 └── README.md
 ```
 
@@ -448,7 +460,7 @@ Based on `DemoDataGenerator`:
 
 ### How to use it
 
-1. Log in as an admin user.
+1. Log in with the demo admin account listed above.
 2. Open **Settings** (`/settings`) — click the avatar/user card in the top-right header, or navigate directly.
 3. Scroll to the **Demo data** section.
 4. Click **Generate demo data**.
@@ -490,7 +502,7 @@ npm run lint
 npm run build
 ```
 
-Available scripts from `frontend/package.json`: `dev`, `build`, `lint`, `preview`.
+Available scripts from `frontend/package.json`: `dev`, `build`, `lint`, `preview`, `lighthouse`, `lighthouse:desktop`, `lighthouse:json`.
 
 ## API Reference
 
@@ -501,6 +513,7 @@ The backend exposes JSON endpoints consumed by the frontend.
 When the API is running:
 
 - **Swagger UI:** [http://localhost:8080/api/doc](http://localhost:8080/api/doc)
+- **Production Swagger UI:** [https://flowly.polandcentral.cloudapp.azure.com/api/doc](https://flowly.polandcentral.cloudapp.azure.com/api/doc)
 
 ### Main endpoint groups
 
@@ -522,16 +535,32 @@ Authentication uses HttpOnly cookies (`access_token`, `refresh_token`, `partial_
 
 ## Production Deployment
 
-The application is designed to run on a single host (e.g. an **Azure Virtual Machine**) using Docker Compose.
+The application is deployed on an **Azure Virtual Machine** using Docker Compose.
 
 Production setup includes:
 
 - MySQL database container with persistent volume.
-- Symfony API container (FrankenPHP).
+- Symfony API container running on FrankenPHP.
 - Nginx web container serving the React production build.
+- Caddy reverse proxy exposing public HTTP/HTTPS ports.
+- Automatic HTTPS certificates for `flowly.polandcentral.cloudapp.azure.com`.
 - `/api` proxied from Nginx to the API container.
 - Secrets stored in `.env.prod` (not committed).
 - JWT keys generated inside the API container volume on first start.
+
+### Production traffic flow
+
+```text
+Internet
+   |
+   v
+Caddy :80/:443
+   |
+   v
+Web container / Nginx :80
+   |-- React static files
+   |-- /api -> Symfony API container
+```
 
 ### Quick production commands
 
@@ -543,9 +572,17 @@ docker compose --env-file .env.prod -f docker-compose.prod.yml up -d --build
 docker compose --env-file .env.prod -f docker-compose.prod.yml exec api php bin/console doctrine:migrations:migrate --no-interaction
 ```
 
+Required production domain variables:
+
+```env
+APP_DOMAIN=flowly.polandcentral.cloudapp.azure.com
+AUTH_COOKIE_SECURE=true
+VITE_API_URL=/api
+```
+
 Set `RUN_MIGRATIONS=1` in `.env.prod` if you want migrations to run automatically on API container startup.
 
-TODO: add `README_DEPLOY.md` with the full step-by-step Azure VM deployment guide if it should live in this repository.
+For the full step-by-step Azure VM deployment guide, see [README_DEPLOY.md](README_DEPLOY.md).
 
 ## Environment Variables
 
@@ -564,6 +601,7 @@ TODO: add `README_DEPLOY.md` with the full step-by-step Azure VM deployment guid
 
 | Variable | Description |
 |---|---|
+| `APP_DOMAIN` | Public domain used by Caddy for automatic HTTPS |
 | `DB_NAME` | MySQL database name |
 | `DB_USER` | MySQL application user (production) |
 | `DB_PASSWORD` | MySQL application password (production) |
@@ -571,7 +609,7 @@ TODO: add `README_DEPLOY.md` with the full step-by-step Azure VM deployment guid
 | `DB_PORT` | Host port for local MySQL |
 | `API_PORT` | Host port for local API |
 | `FRONT_PORT` | Host port for local frontend dev server |
-| `HTTP_PORT` | Host port for production web container |
+| `HTTP_PORT` | Legacy production HTTP port variable; Caddy exposes `80`/`443` directly in current production setup |
 | `APP_SECRET` | Symfony secret |
 | `JWT_PASSPHRASE` | Passphrase for JWT key pair |
 | `CORS_ALLOW_ORIGIN` | Allowed CORS origin regex |
@@ -582,25 +620,27 @@ TODO: add `README_DEPLOY.md` with the full step-by-step Azure VM deployment guid
 | `VITE_API_TIMEOUT_MS` | Frontend HTTP timeout |
 | `RUN_MIGRATIONS` | `1` to auto-run migrations on API container start |
 
-Never commit real production secrets, `.env.prod`, or JWT `.pem` files.
+Never commit real production secrets, `.env.prod`, Caddy data, certificates, or JWT `.pem` files.
 
 ## Security Notes
 
 - `.env.prod`, `api/.env.local`, and local `.env` files are gitignored.
 - JWT private/public keys (`api/config/jwt/*.pem`) are generated on the server and excluded from Git.
-- The production database is not published to the public internet — only the web container port is exposed.
+- Caddy is the only public entry point in production and exposes ports `80` and `443`.
+- Caddy obtains and renews HTTPS certificates automatically and redirects HTTP traffic to HTTPS.
+- The production database is not published to the public internet.
+- The API and Nginx web container are only reachable through the internal Docker network.
 - API access in production goes through the Nginx reverse proxy at `/api`.
 - Demo credentials are for the public demo environment only.
 - HttpOnly cookies, refresh token rotation, session revocation, and login rate limiting are implemented.
-- Set `AUTH_COOKIE_SECURE=true` when serving the app over HTTPS.
+- `AUTH_COOKIE_SECURE=true` is used when serving the app over HTTPS.
 
 ## Project Status
 
-The project is **MVP-complete** and **portfolio-ready**. Core financial workflows, analytics, authentication, and admin demo tooling are implemented and covered by automated backend tests. The application is designed for deployment on an Azure VM using Docker Compose and can be extended with CI/CD, HTTPS, and additional reporting features.
+The project is **MVP-complete**, **portfolio-ready**, and publicly deployed with HTTPS on an Azure VM. Core financial workflows, analytics, authentication, admin demo tooling, production Docker setup, and deployment documentation are implemented. The project can be extended with CI/CD, end-to-end tests, additional reporting features, and a paid custom domain.
 
 ## Roadmap
 
-- HTTPS and custom domain
 - CI/CD pipeline (GitHub Actions)
 - Frontend password reset flow
 - E2E tests (Playwright / Cypress)
@@ -609,7 +649,7 @@ The project is **MVP-complete** and **portfolio-ready**. Core financial workflow
 - Multi-wallet transfers
 - Improved API documentation coverage in Swagger
 - Additional analytics views and comparisons
-- `README_DEPLOY.md` with full Azure deployment walkthrough
+- Paid custom domain instead of Azure DNS label
 
 ## Contributing
 
