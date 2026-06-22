@@ -91,8 +91,10 @@ export const AuthLayout = ({
             xs: 'none',
             md: 'flex',
           },
+          flexDirection: 'column',
           minWidth: 0,
           minHeight: '100dvh',
+          maxHeight: '100dvh',
           overflow: 'hidden',
           background: `linear-gradient(
             145deg,
@@ -153,14 +155,21 @@ export const AuthLayout = ({
             zIndex: 1,
             display: 'flex',
             width: '100%',
-            minHeight: '100%',
-            alignItems: 'center',
+            height: '100%',
+            minHeight: 0,
+            alignItems: 'stretch',
             justifyContent: 'center',
             px: {
-              md: 5,
-              lg: 8,
+              md: 3,
+              lg: 5,
+              xl: 8,
             },
-            py: 5,
+            py: {
+              md: 2,
+              lg: 3,
+              xl: 5,
+            },
+            overflow: 'hidden',
           }}
         >
           {rightPanel}

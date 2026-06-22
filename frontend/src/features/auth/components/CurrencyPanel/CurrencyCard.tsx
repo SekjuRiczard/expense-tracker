@@ -14,10 +14,12 @@ import type {
 
 export interface CurrencyCardProps {
   readonly currencyRate: CurrencyRate;
+  readonly compact?: boolean;
 }
 
 export const CurrencyCard = ({
   currencyRate,
+  compact = false,
 }: CurrencyCardProps) => {
   const trendColor = currencyRate.trend === 'down'
     ? flowlyPalette.auth.error
@@ -31,19 +33,27 @@ export const CurrencyCard = ({
       ? TrendingUpRounded
       : TrendingFlatRounded;
 
+  const inset = compact
+    ? 12
+    : {
+      md: 14,
+      lg: 18,
+      xl: 21,
+    };
+
   return (
     <Box
       sx={{
         position: 'relative',
         width: '100%',
-        minHeight: {
-          md: 182,
-          lg: 206,
-          xl: 230,
-        },
+        flex: 1,
+        minHeight: 0,
+        height: compact
+          ? 'clamp(108px, 18dvh, 150px)'
+          : 'clamp(120px, 22dvh, 206px)',
         overflow: 'hidden',
         border: '1px solid rgba(255, 255, 255, 0.12)',
-        borderRadius: '20px',
+        borderRadius: compact ? '16px' : '20px',
         background: `
           linear-gradient(
             105deg,
@@ -59,24 +69,21 @@ export const CurrencyCard = ({
       <Box
         sx={{
           position: 'absolute',
-          top: {
-            md: 18,
-            lg: 22,
-          },
-          left: {
-            md: 18,
-            lg: 21,
-          },
+          top: inset,
+          left: inset,
         }}
       >
         <Typography
           aria-hidden="true"
           sx={{
             color: 'rgba(255, 255, 255, 0.94)',
-            fontSize: {
-              md: '1.65rem',
-              lg: '1.9rem',
-            },
+            fontSize: compact
+              ? '1.25rem'
+              : {
+                md: '1.35rem',
+                lg: '1.6rem',
+                xl: '1.9rem',
+              },
             fontWeight: 800,
             lineHeight: 1,
           }}
@@ -86,9 +93,9 @@ export const CurrencyCard = ({
 
         <Typography
           sx={{
-            mt: 1,
+            mt: compact ? 0.5 : 0.75,
             color: 'rgba(255, 255, 255, 0.5)',
-            fontSize: '0.82rem',
+            fontSize: compact ? '0.72rem' : '0.82rem',
             fontWeight: 750,
           }}
         >
@@ -97,15 +104,21 @@ export const CurrencyCard = ({
 
         <Typography
           sx={{
-            mt: {
-              md: 1.5,
-              lg: 2.1,
-            },
+            mt: compact
+              ? 0.75
+              : {
+                md: 1,
+                lg: 1.5,
+                xl: 2.1,
+              },
             color: '#FFFFFF',
-            fontSize: {
-              md: '1.6rem',
-              lg: '1.9rem',
-            },
+            fontSize: compact
+              ? '1.2rem'
+              : {
+                md: '1.35rem',
+                lg: '1.6rem',
+                xl: '1.9rem',
+              },
             fontWeight: 850,
             letterSpacing: '-0.035em',
             lineHeight: 1,
@@ -116,9 +129,9 @@ export const CurrencyCard = ({
 
         <Typography
           sx={{
-            mt: 1,
+            mt: compact ? 0.35 : 0.75,
             color: 'rgba(255, 255, 255, 0.4)',
-            fontSize: '0.72rem',
+            fontSize: compact ? '0.65rem' : '0.72rem',
             fontWeight: 650,
           }}
         >
@@ -132,27 +145,21 @@ export const CurrencyCard = ({
           flexDirection: 'row',
           gap: 0.45,
           position: 'absolute',
-          top: {
-            md: 17,
-            lg: 21,
-          },
-          right: {
-            md: 18,
-            lg: 21,
-          },
+          top: inset,
+          right: inset,
           color: trendColor,
         }}
       >
         <TrendIcon
           sx={{
-            fontSize: 18,
+            fontSize: compact ? 16 : 18,
           }}
         />
 
         <Typography
           sx={{
             color: 'inherit',
-            fontSize: '0.84rem',
+            fontSize: compact ? '0.76rem' : '0.84rem',
             fontWeight: 850,
           }}
         >
@@ -163,16 +170,12 @@ export const CurrencyCard = ({
       <Box
         sx={{
           position: 'absolute',
-          bottom: {
-            md: 14,
-            lg: 17,
-          },
-          left: {
-            md: 18,
-            lg: 21,
-          },
+          bottom: inset,
+          left: inset,
           display: 'flex',
           alignItems: 'flex-end',
+          transform: compact ? 'scale(0.85)' : 'none',
+          transformOrigin: 'bottom left',
         }}
       >
         <Sparkline
@@ -185,16 +188,10 @@ export const CurrencyCard = ({
       <Typography
         sx={{
           position: 'absolute',
-          right: {
-            md: 18,
-            lg: 21,
-          },
-          bottom: {
-            md: 17,
-            lg: 20,
-          },
+          right: inset,
+          bottom: inset,
           color: 'rgba(255, 255, 255, 0.48)',
-          fontSize: '0.72rem',
+          fontSize: compact ? '0.65rem' : '0.72rem',
           fontWeight: 650,
         }}
       >
